@@ -123,9 +123,10 @@ binaries' standard input. A UCI script that starts a search must send
 
 The `Fatal: ...` tests cover what doctest cannot catch because it ends
 the process: a failed `EXPECTS_NOEXCEPT` or `ASSERT`, a null `nonnull`, an
-uncaught exception. Add one as a function and an entry in `Fatal_Cases`
-in `engine/test/fatal_test_main.cpp`; the build asks the program for the
-list.
+uncaught exception. Add one with `FATAL_CASE( name, expected [, listed] )`
+(`engine/test/fatal_test.hpp`) in the `fatal_*_test.cpp` file for its
+area, and list a new file in the `wisdom-chess-fatal-tests` target; the
+build asks the program for the list.
 
 The `QML: ...` tests (`src/wisdom-chess/ui/qml/test`) use Qt Test, styled like doctest:
 `QCOMPARE( a, b )`. Add one with `wisdom_chess_add_qml_test()` or, for a

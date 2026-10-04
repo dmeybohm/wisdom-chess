@@ -76,7 +76,15 @@ if (WISDOM_CHESS_FAST_TESTS)
     # Fatal errors end the process, so each case runs as its own test, through
     # run_fatal_test.cmake. A case passes when the emergency logger reported the
     # expected message and the process then terminated abnormally.
-    add_executable(wisdom-chess-fatal-tests fatal_test_main.cpp)
+    # The cases register themselves, so they are compiled into the program
+    # rather than linked from a library, which could drop them.
+    add_executable(wisdom-chess-fatal-tests
+        fatal_board_test.cpp
+        fatal_contract_test.cpp
+        fatal_move_list_test.cpp
+        fatal_numeric_cast_test.cpp
+        fatal_test_main.cpp
+        fatal_uncaught_test.cpp)
     target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
     wisdom_chess_enable_warnings(wisdom-chess-fatal-tests)
 
@@ -84,11 +92,11 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-fatal-tests PRIVATE WISDOM_CHESS_FILC_COMPAT)
     endif()
 
-    # The cases are listed in fatal_test_main.cpp. Each build of the program
-    # asks it for them and writes the tests for CTest to include. The cases
-    # and the program's path differ between configurations, so a generator
-    # with several keeps a file for each, and CTest includes the one that -C
-    # names.
+    # The cases are written with FATAL_CASE() in fatal_*_test.cpp. Each
+    # build of the program asks it for them and writes the tests for CTest
+    # to include. The cases and the program's path differ between
+    # configurations, so a generator with several keeps a file for each, and
+    # CTest includes the one that -C names.
     set(fatal_tests_base "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_tests")
     set(fatal_include_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_include.cmake")
 

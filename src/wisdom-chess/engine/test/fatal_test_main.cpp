@@ -1,44 +1,24 @@
-// Each case triggers one fatal error, so it has to run in its own process.
-// run_fatal_test.cmake launches it and checks the output and the exit result.
-// To add a case, write its function and list it in Fatal_Cases: the build
-// asks this program for the list (discover_fatal_tests.cmake).
-
+#include <algorithm>
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
 #include <string_view>
+#include <vector>
 
-#include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/board_builder.hpp"
-#include "wisdom-chess/engine/board_code.hpp"
-#include "wisdom-chess/engine/castling.hpp"
-#include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/logger.hpp"
-#include "wisdom-chess/engine/history.hpp"
-#include "wisdom-chess/engine/move_list.hpp"
-#include "wisdom-chess/engine/move_timer.hpp"
-#include "wisdom-chess/engine/search.hpp"
-#include "wisdom-chess/engine/transposition_table.hpp"
+#include "fatal_test.hpp"
 
 using namespace wisdom;
+using wisdom::test::FatalCase;
 
 namespace
 {
-    struct MarkedLogger : Logger
+    // A function-local static, so a case in another file can register
+    // before main() whatever the order of static initialization.
+    auto registeredCases() noexcept -> std::vector<FatalCase>&
     {
-        void debug ([[maybe_unused]] const string& output) noexcept override
-        {
-        }
-
-        void info ([[maybe_unused]] const string& output) noexcept override
-        {
-        }
-
-        void emergency (string_view output) noexcept override
-        {
-            std::cout << "[emergency] " << output << std::endl;
-        }
-    };
+        static std::vector<FatalCase> cases;
+        return cases;
+    }
 
 #ifndef WISDOM_CHESS_FILC_COMPAT
     // Exits with a failure status, which saves writing a core dump per case.
@@ -49,230 +29,19 @@ namespace
         std::_Exit (EXIT_FAILURE);
     }
 #endif
+}
 
-    void appendOverflow()
+namespace wisdom::test
+{
+    auto fatalCases() noexcept -> std::span<const FatalCase>
     {
-        MoveList list;
-        Move move = moveParse ("e2 e4", Color::White);
-
-        for (std::ptrdiff_t i = 0; i <= Max_Move_List_Size; i++)
-            list.append (move);
+        return registeredCases();
     }
 
-    void removeFromEmpty()
+    FatalCaseRegistrar::FatalCaseRegistrar (const FatalCase& fatal_case) noexcept
     {
-        MoveList list;
-        list.removeLast();
+        registeredCases().push_back (fatal_case);
     }
-
-    void frontOfEmpty()
-    {
-        MoveList list;
-        [[maybe_unused]] Move move = list.front();
-    }
-
-    void backOfEmpty()
-    {
-        MoveList list;
-        [[maybe_unused]] Move move = list.back();
-    }
-
-    void badCastlingFlags()
-    {
-        volatile uint8_t flags = 0x4;
-        [[maybe_unused]] CastlingEligibility eligibility { flags };
-    }
-
-    void badEnPassantRow()
-    {
-        Board board { BoardBuilder::fromDefaultPosition() };
-        BoardCode code { board };
-        code.setEnPassantTarget (
-            Color::White,
-            makeCoord (Black_En_Passant_Row, 0),
-            EnPassantTargetState::Illegal
-        );
-    }
-
-    void nullNonnull()
-    {
-        int* volatile null_ptr = nullptr; // lint-allow(raw-pointer): the null under test
-        [[maybe_unused]] nonnull<int> ptr { null_ptr };
-    }
-
-    void narrowNoexceptOverflow()
-    {
-        int volatile too_big = 300;
-        [[maybe_unused]] auto narrowed = narrow_noexcept<int8_t> (too_big);
-    }
-
-    void narrowDebugOverflow()
-    {
-        int volatile too_big = 300;
-        [[maybe_unused]] auto narrowed = narrow_debug<int8_t> (too_big);
-    }
-
-    void toUnsignedDebugNegative()
-    {
-        int volatile negative = -1;
-        [[maybe_unused]] auto converted = to_unsigned_debug<std::size_t> (negative);
-    }
-
-    void toUnsignedNoexceptNegative()
-    {
-        int volatile negative = -1;
-        [[maybe_unused]] auto converted = to_unsigned_noexcept<std::size_t> (negative);
-    }
-
-    void needPawnPromotionBadColor()
-    {
-        Color volatile color = Color::None;
-        [[maybe_unused]] bool promote = needPawnPromotion (0, color);
-    }
-
-    void uncaughtError()
-    {
-        throw Error { "boom", "extra detail" };
-    }
-
-    // The periodic function runs inside the noexcept search, so a throw
-    // from it ends the process. Depth 4 reaches the first periodic call.
-    void periodicFunctionThrows()
-    {
-        Board board { BoardBuilder::fromDefaultPosition() };
-        History history;
-        MoveTimer timer { 30 };
-        timer.setPeriodicFunction ([] (nonnull<MoveTimer>)
-        {
-            throw Error { "boom", "extra detail" };
-        });
-        auto transposition_table = TranspositionTable::fromMegabytes (1);
-        auto search = IterativeSearch::create (
-            board,
-            history,
-            std::make_shared<MarkedLogger>(),
-            timer,
-            4,
-            &transposition_table,
-            Claimable_Draw_Limits
-        );
-        (void)search.iterativelyDeepen (Color::White);
-    }
-
-    void ensuresNoexceptFailure()
-    {
-        volatile bool condition = false;
-        ENSURES_NOEXCEPT( condition );
-    }
-
-    void expectsThroughNoexcept()
-    {
-        volatile bool condition = false;
-        auto checked = [&]() noexcept
-        {
-            EXPECTS( condition );
-        };
-        checked();
-    }
-
-    void assertFailure()
-    {
-        volatile bool condition = false;
-        ASSERT( condition );
-    }
-
-    struct FatalCase
-    {
-        string_view name;
-
-        // A CMake regular expression for what the emergency logger reports.
-        string_view expected;
-
-        nonnull<void()> run;
-
-        // Whether this build reports the error at all.
-        bool listed = true;
-    };
-
-    // Under Emscripten an uncaught exception leaves main() for JavaScript
-    // without calling std::terminate(), and one thrown through noexcept
-    // reaches the terminate handler with no current exception to report.
-#ifdef __EMSCRIPTEN__
-    constexpr bool Reports_Uncaught_Errors = false;
-#else
-    constexpr bool Reports_Uncaught_Errors = true;
-#endif
-
-    const FatalCase Fatal_Cases[] = {
-        {
-            "append-overflow",
-            "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size",
-            &appendOverflow,
-        },
-        { "remove-from-empty", "Precondition failed at .*move_list\\.hpp", &removeFromEmpty },
-        { "front-of-empty", "Precondition failed at .*move_list\\.hpp", &frontOfEmpty },
-        { "back-of-empty", "Precondition failed at .*move_list\\.hpp", &backOfEmpty },
-        { "bad-castling-flags", "Precondition failed at .*castling\\.hpp", &badCastlingFlags },
-        { "bad-en-passant-row", "Precondition failed at .*board_code\\.hpp", &badEnPassantRow },
-        {
-            "null-nonnull",
-            "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr",
-            &nullNonnull,
-        },
-        {
-            "narrow-noexcept-overflow",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: narrow_noexcept: the value fits",
-            &narrowNoexceptOverflow,
-        },
-        {
-            "to-unsigned-noexcept-negative",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: to_unsigned_noexcept: the value is nonnegative",
-            &toUnsignedNoexceptNegative,
-        },
-        {
-            "need-pawn-promotion-bad-color",
-            "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)",
-            &needPawnPromotionBadColor,
-        },
-        { "uncaught-error", "Uncaught error: boom", &uncaughtError, Reports_Uncaught_Errors },
-        {
-            "periodic-function-throws",
-            "Uncaught error: boom.extra detail",
-            &periodicFunctionThrows,
-            Reports_Uncaught_Errors,
-        },
-        {
-            "ensures-noexcept-failure",
-            "Postcondition failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
-            &ensuresNoexceptFailure,
-        },
-        {
-            "expects-through-noexcept",
-            "Uncaught error: Precondition failed at",
-            &expectsThroughNoexcept,
-            Reports_Uncaught_Errors,
-        },
-
-        // ASSERT() and the _debug conversions only check when Debugging is on.
-        {
-            "assert-failure",
-            "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
-            &assertFailure,
-            Debugging,
-        },
-        {
-            "narrow-debug-overflow",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: narrow_debug: the value fits",
-            &narrowDebugOverflow,
-            Debugging,
-        },
-        {
-            "to-unsigned-debug-negative",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative",
-            &toUnsignedDebugNegative,
-            Debugging,
-        },
-    };
 }
 
 auto
@@ -287,14 +56,24 @@ main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
     std::signal (SIGABRT, onAbort);
 #endif
 
-    setEmergencyLogger (std::make_shared<MarkedLogger>());
+    setEmergencyLogger (std::make_shared<test::MarkedLogger>());
     installEmergencyTerminateHandler();
 
     std::string_view requested = argc > 1 ? argv[1] : "";
 
     if (requested == "--list")
     {
-        for (const auto& fatal_case : Fatal_Cases)
+        std::vector<FatalCase> cases { test::fatalCases().begin(), test::fatalCases().end() };
+        std::ranges::sort (cases, {}, &FatalCase::name);
+
+        auto duplicate = std::ranges::adjacent_find (cases, {}, &FatalCase::name);
+        if (duplicate != cases.end())
+        {
+            std::cout << "Duplicate case: " << duplicate->name << "\n";
+            return EXIT_FAILURE;
+        }
+
+        for (const auto& fatal_case : cases)
         {
             if (fatal_case.listed)
                 std::cout << fatal_case.name << "\n";
@@ -302,7 +81,7 @@ main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
         return EXIT_SUCCESS;
     }
 
-    for (const auto& fatal_case : Fatal_Cases)
+    for (const auto& fatal_case : test::fatalCases())
     {
         if (fatal_case.name != requested)
             continue;

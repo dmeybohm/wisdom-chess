@@ -41,6 +41,7 @@ namespace
                 "co_await", "defined", "NOLINT", "Expects", "Ensures", "assert", "static_assert",
                 "EXPECTS", "EXPECTS_NOEXCEPT", "ENSURES", "ENSURES_NOEXCEPT", "ASSERT",
                 "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
+                "FATAL_CASE",
                 "REQUIRE_THROWS", "REQUIRE_THROWS_AS", "REQUIRE_THROWS_WITH",
                 "REQUIRE_THROWS_WITH_AS", "REQUIRE_NOTHROW", "CHECK_THROWS", "CHECK_THROWS_AS",
                 "CHECK_THROWS_WITH", "CHECK_THROWS_WITH_AS", "CHECK_NOTHROW", "WARN", "WARN_FALSE",
