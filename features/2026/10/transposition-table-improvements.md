@@ -2,7 +2,8 @@
 
 Item 5 of [improvement-suggestions.md](../09/improvement-suggestions.md).
 Branched from `small-engine-fixups` (PR #342), which added
-`BoundType::Empty`.
+`BoundType::Empty`, and rebased onto `main` after that and PR #343
+(`to-underlying`) were merged.
 
 ## Motivation
 
@@ -277,3 +278,21 @@ rounds 1 and 2 are usable:
 ### Session #3
 
 - Planned step 2 while step 1's match ran. No code changed.
+
+### Session #4
+
+- Implemented step 2 as planned, with one change: `getBestMove()` makes
+  an entry current too, since all three operations share the scan.
+  Three of the bucket tests fail with `Age_Weight` at 0, so they test
+  the ageing and not only the depth.
+- Rebased onto `main` at `efddf228`. The commits measured above
+  (`bf326419` for step 1, `237d98c9` for its base) are from before the
+  rebase; the code they measured is unchanged.
+- PR #343 left this branch's files as `static_cast` for this branch to
+  convert ([to-underlying.md](to-underlying.md)). `foldHashTo32Bits()`
+  uses `truncate`, `computeHitRate()` uses `to_double`. In the packed
+  word, `getDepth()` uses `narrow_debug`, since it runs on every probe
+  and cannot fail, and `make()` uses `to_unsigned_debug` after its
+  `EXPECTS` on the depth. The two `std::bit_cast`s stay: they
+  reinterpret bits rather than convert a value.
+- Step 2 is not measured yet.

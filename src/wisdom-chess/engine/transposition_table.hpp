@@ -12,7 +12,7 @@ namespace wisdom
     foldHashTo32Bits (BoardHashCode hash) noexcept
         -> uint32_t
     {
-        return static_cast<uint32_t> ((hash >> 32) ^ hash);
+        return truncate<uint32_t> ((hash >> 32) ^ hash);
     }
 
     struct TranspositionTableStats
@@ -28,7 +28,7 @@ namespace wisdom
     {
         auto delta_probes = end.probes - start.probes;
         auto delta_hits = end.hits - start.hits;
-        return delta_probes > 0 ? (100.0 * static_cast<double> (delta_hits) / static_cast<double> (delta_probes)) : 0.0;
+        return delta_probes > 0 ? (100.0 * to_double (delta_hits) / to_double (delta_probes)) : 0.0;
     }
 
     enum class BoundType : uint8_t
@@ -63,7 +63,7 @@ namespace wisdom
             EXPECTS( score >= Min_Score && score <= Max_Score );
 
             return DepthAndScoreBits {
-                (std::bit_cast<uint32_t> (score) << Depth_Bits) | to_unsigned<uint32_t> (depth)
+                (std::bit_cast<uint32_t> (score) << Depth_Bits) | to_unsigned_debug<uint32_t> (depth)
             };
         }
 
@@ -71,7 +71,7 @@ namespace wisdom
         getDepth() const noexcept
             -> int
         {
-            return narrow<int> (my_bits & Max_Depth);
+            return narrow_debug<int> (my_bits & Max_Depth);
         }
 
         [[nodiscard]] constexpr auto
