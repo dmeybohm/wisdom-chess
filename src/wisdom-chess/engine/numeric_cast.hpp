@@ -189,4 +189,15 @@ namespace wisdom
 
         return static_cast<double> (value);
     }
+
+    // Converts a value to bool, including through an explicit operator bool.
+    template <typename Source>
+    [[nodiscard]] constexpr auto
+    to_bool (const Source& value) noexcept
+        -> bool
+    {
+        static_assert (std::is_constructible_v<bool, const Source&>);
+
+        return static_cast<bool> (value);
+    }
 }

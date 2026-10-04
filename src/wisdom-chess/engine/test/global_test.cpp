@@ -108,6 +108,24 @@ TEST_CASE( "to_double converts a number" )
     static_assert (to_double (1.5f) == 1.5);
 }
 
+TEST_CASE( "to_bool converts through an explicit operator bool" )
+{
+    struct Flag
+    {
+        bool set;
+
+        constexpr explicit operator bool() const noexcept
+        {
+            return set;
+        }
+    };
+
+    static_assert (to_bool (Flag { true }));
+    static_assert (!to_bool (Flag { false }));
+    static_assert (to_bool (2));
+    static_assert (!to_bool (0));
+}
+
 TEST_CASE( "to_unsigned converts a nonnegative value" )
 {
     static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);
