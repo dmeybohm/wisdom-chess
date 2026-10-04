@@ -34,6 +34,7 @@ namespace wisdom
     pieceFromInt8 (int8_t integer) noexcept
         -> Piece
     {
+        ASSERT( integer >= to_int (Piece::None) && integer <= to_int (Piece::King) );
         return to_enum_debug<Piece> (integer);
     }
 
@@ -48,6 +49,7 @@ namespace wisdom
     colorFromInt8 (int8_t integer) noexcept
         -> Color
     {
+        ASSERT( integer >= to_int (Color::None) && integer <= to_int (Color::Black) );
         return to_enum_debug<Color> (integer);
     }
 
@@ -67,34 +69,6 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    toInt8 (Piece piece) noexcept
-        -> int8_t
-    {
-        return to_underlying (piece);
-    }
-
-    [[nodiscard]] constexpr auto
-    toInt (Piece piece) noexcept
-        -> int
-    {
-        return widen<int> (to_underlying (piece));
-    }
-
-    [[nodiscard]] constexpr auto
-    toInt (Color color) noexcept
-        -> int
-    {
-        return widen<int> (to_underlying (color));
-    }
-
-    [[nodiscard]] constexpr auto
-    toInt8 (Color color) noexcept
-        -> int8_t
-    {
-        return to_underlying (color);
-    }
-
-    [[nodiscard]] constexpr auto
     isColorValid (Color who) noexcept
         -> bool
     {
@@ -106,7 +80,7 @@ namespace wisdom
         -> ColorIndex
     {
         ASSERT( who == Color::White || who == Color::Black );
-        return narrow_debug<int8_t> (toInt8 (who) - 1);
+        return narrow_debug<int8_t> (to_int (who) - 1);
     }
 
     [[nodiscard]] constexpr auto
@@ -123,7 +97,7 @@ namespace wisdom
         -> int
     {
         auto piece_as_int = to_underlying (piece);
-        ASSERT( piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King) );
+        ASSERT( piece_as_int >= to_int (Piece::None) && piece_as_int <= to_int (Piece::King) );
         return piece_as_int;
     }
 
@@ -138,14 +112,22 @@ namespace wisdom
     {
         int8_t piece_type_and_color;
 
+        // The packed type and color, for to_int(). Explicit so the packed
+        // value does not leak into arithmetic or a bool conversion.
+        [[nodiscard]] constexpr explicit
+        operator int() const noexcept
+        {
+            return piece_type_and_color;
+        }
+
         [[nodiscard]] static constexpr auto
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
             ASSERT( (piece_type == Piece::None && color == Color::None) ||
                 (piece_type != Piece::None && color != Color::None) );
-            auto color_as_int = toInt8 (color);
-            auto piece_as_int = toInt8 (piece_type);
+            auto color_as_int = to_int (color);
+            auto piece_as_int = to_int (piece_type);
             auto result = narrow_debug<int8_t>(
                 (color_as_int << Piece_Color_Shift) |
                     (piece_as_int & Piece_Type_Mask)
@@ -217,13 +199,6 @@ namespace wisdom
         Color::None,
         Piece::None
     );
-
-    [[nodiscard]] constexpr auto
-    toInt8 (ColoredPiece piece) noexcept
-        -> int8_t
-    {
-        return piece.piece_type_and_color;
-    }
 
     [[nodiscard]] constexpr auto
     pieceFromChar (char p)

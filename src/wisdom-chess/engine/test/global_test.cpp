@@ -110,6 +110,48 @@ TEST_CASE( "to_underlying gives the enum's underlying type" )
     static_assert (to_underlying (Default::Value) == 7);
 }
 
+namespace
+{
+    enum class SignedSmall : int8_t
+    {
+        Value = -3
+    };
+    enum class UnsignedSmall : uint8_t
+    {
+        Value = 200
+    };
+    enum class UnsignedWide : uint64_t
+    {
+        Value = 1
+    };
+
+    template <typename Source>
+    concept ConvertsToInt = requires (Source value) { to_int (value); };
+
+    template <typename Target, typename Source>
+    concept ConvertsToUint = requires (const Source& value) { to_uint<Target> (value); };
+}
+
+TEST_CASE( "to_int converts an enum that fits in int" )
+{
+    static_assert (to_int (SignedSmall::Value) == -3);
+    static_assert (to_int (UnsignedSmall::Value) == 200);
+
+    CHECK_FALSE( ConvertsToInt<UnsignedWide> );
+    CHECK_FALSE( ConvertsToInt<int> );
+}
+
+TEST_CASE( "to_uint converts an enum with an unsigned underlying type" )
+{
+    static_assert (to_uint<uint8_t> (UnsignedSmall::Value) == 200);
+    static_assert (to_uint<uint64_t> (UnsignedSmall::Value) == 200);
+
+    CHECK_FALSE( ConvertsToUint<uint8_t, UnsignedWide> );
+    CHECK_FALSE( ConvertsToUint<uint8_t, SignedSmall> );
+    CHECK_FALSE( ConvertsToUint<int, UnsignedSmall> );
+    CHECK_FALSE( ConvertsToUint<uint32_t, uint8_t> );
+}
+
 TEST_CASE( "to_enum converts a value that fits the underlying type" )
 {
     enum class Small : int8_t

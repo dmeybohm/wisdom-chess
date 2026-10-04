@@ -111,8 +111,8 @@ namespace wisdom::worker
                         EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
-                        to_underlying (mapDrawByRepetitionType (proposed_draw_type)),
-                        to_underlying (mapColor (player)),
+                        to_int (mapDrawByRepetitionType (proposed_draw_type)),
+                        to_int (mapColor (player)),
                         widen<int> (accepted)
                     );
                 }

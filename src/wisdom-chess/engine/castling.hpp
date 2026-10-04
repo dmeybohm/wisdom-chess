@@ -114,13 +114,13 @@ namespace wisdom
             return my_flags != 0;
         }
 
-        template <typename IntegerType = uint8_t>
-        [[nodiscard]] constexpr auto
-        toUint() const noexcept
-            -> IntegerType
+        // The flag bits, for to_uint(). Explicit so the bits do not leak into
+        // arithmetic; a bool conversion uses operator bool instead.
+        template <std::unsigned_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
         {
-            static_assert (std::is_unsigned_v<IntegerType>);
-            return widen<IntegerType> (my_flags);
+            return widen<Target> (my_flags);
         }
 
         [[nodiscard]] constexpr auto
@@ -136,15 +136,6 @@ namespace wisdom
         static const CastlingEligibility Neither_Side;
 
     };
-
-    template <typename IntegerType = uint8_t>
-    [[nodiscard]] constexpr auto
-    toUint (CastlingEligibility eligibility) noexcept
-        -> IntegerType
-    {
-        static_assert (std::is_unsigned_v<IntegerType>);
-        return eligibility.toUint<IntegerType>();
-    }
 
     namespace CastlingRights
     {

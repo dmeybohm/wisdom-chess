@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <limits>
 #include <source_location>
 #include <type_traits>
@@ -193,6 +194,38 @@ namespace wisdom
         static_assert (std::is_arithmetic_v<Source>);
 
         return static_cast<double> (value);
+    }
+
+    // Converts an enum whose underlying type int can hold, or a class through
+    // its explicit conversion, to int. A conversion that can throw does not
+    // compile.
+    template <typename Source>
+        requires (std::is_enum_v<Source> && HoldsEveryValueOf<int, std::underlying_type_t<Source>>)
+            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<int, const Source&>)
+    [[nodiscard]] constexpr auto
+    to_int (const Source& value) noexcept
+        -> int
+    {
+        if constexpr (std::is_enum_v<Source>)
+            return widen<int> (to_underlying (value));
+        else
+            return static_cast<int> (value);
+    }
+
+    // Converts an enum whose underlying type Target can hold, or a class
+    // through its explicit conversion, to the unsigned Target. A conversion
+    // that can throw does not compile.
+    template <std::unsigned_integral Target, typename Source>
+        requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
+            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
+    [[nodiscard]] constexpr auto
+    to_uint (const Source& value) noexcept
+        -> Target
+    {
+        if constexpr (std::is_enum_v<Source>)
+            return widen<Target> (to_underlying (value));
+        else
+            return static_cast<Target> (value);
     }
 
     // Converts a value to bool, including through an explicit operator bool.

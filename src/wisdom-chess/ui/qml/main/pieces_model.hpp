@@ -87,7 +87,7 @@ namespace wisdom::ui::qml
         indexOf (wisdom::Coord coord) const
             -> int;
 
-        QHash<int8_t, QString> my_piece_to_image_path;
+        QHash<int, QString> my_piece_to_image_path;
         QVector<PieceInfo> my_pieces;
     };
 }
