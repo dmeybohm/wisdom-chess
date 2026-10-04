@@ -135,6 +135,14 @@ cmake --build build -j8
 ctest --test-dir build -j 4          # -L fast / -L medium / -L slow to pick one
 ```
 
+CI runs the full suite on every platform, so run it locally only for a
+large functional change, such as one to the search, move generation or
+a frontend's game flow, and not for a small or mechanical one, such as a
+rename. Otherwise run the tests that cover the change (`-tc` for a
+doctest case, `ctest -R` for a named test), then update the feature log,
+commit and open the PR. When CI or a review reports a failing test,
+reproduce and fix it with that test alone where possible.
+
 Run new engine tests in a Debug build as well. `Board::withMove()` and
 `generateLegalMoves()` take a color that must be the side to move, and
 Debug builds assert it; `isCheckmated()`, `isStalemated()` and
