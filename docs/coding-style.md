@@ -125,9 +125,11 @@ reason in the same comment, as in
 
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
-(`nonnull`, `nullable`, `owning`), `czstring`, `narrow`, and the
-functions under the contract macros (`expects_debug`). The GSL itself
-is not a dependency.
+(`nonnull`, `nullable`, `owning`), `czstring`, and the conversions of
+`engine/numeric_cast.hpp` (`narrow`, `to_unsigned`, ...). The contract
+macros of `engine/error.hpp`, `EXPECTS()`, `ENSURES()` and `ASSERT()`,
+are upper case like any macro; the functions under them, which only the
+macros call, are `snake_case` too. The GSL itself is not a dependency.
 
 A name that JavaScript or QML also uses is spelled as that side spells
 it. The fields of the settings structs are the case: `searchDepth`,
