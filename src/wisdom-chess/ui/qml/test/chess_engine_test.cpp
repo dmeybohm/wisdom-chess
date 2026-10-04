@@ -1,6 +1,5 @@
 #include <QSignalSpy>
 #include <QTest>
-#include <stdexcept>
 
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
@@ -27,24 +26,6 @@ namespace
             .thinkingTime = 5,
         };
         return ChessGame::fromFen (Fifty_Moves_Reached, config);
-    }
-
-    const ChessGame::Config Quick_Search {
-        .players = { Player::ChessEngine, Player::Human },
-        .searchDepth = 1,
-        .thinkingTime = 5,
-    };
-
-    // The starting position, with the engine to move.
-    auto
-    makeStartingGame()
-        -> std::shared_ptr<ChessGame>
-    {
-        return ChessGame::fromPlayers (Player::ChessEngine, Player::Human, Quick_Search);
-    }
-
-    void ignoreTimer ([[maybe_unused]] wisdom::nonnull<wisdom::MoveTimer> timer)
-    {
     }
 }
 
@@ -91,41 +72,6 @@ private slots:
 
         engine.receiveDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, Color::Black, false);
         QCOMPARE( moves.count(), 1 );
-    }
-
-    void aSlotThatThrowsReportsTheFailure()
-    {
-        ChessEngine engine { makeStartingGame(), 7 };
-        QSignalSpy failures { &engine, &ChessEngine::engineFailed };
-
-        engine.runGuarded ([] { throw std::runtime_error { "out of resources" }; });
-
-        QCOMPARE( failures.count(), 1 );
-
-        auto message = failures.at (0).at (0).toString();
-        QCOMPARE( message, QStringLiteral ("out of resources") );
-        QCOMPARE( failures.at (0).at (1).toInt(), 7 );
-    }
-
-    void afterAFailureTheEngineDoesNothingUntilANewGame()
-    {
-        ChessEngine engine { makeStartingGame(), 1 };
-        QSignalSpy failures { &engine, &ChessEngine::engineFailed };
-        QSignalSpy moves { &engine, &ChessEngine::engineMoved };
-
-        engine.runGuarded ([] { throw std::runtime_error { "out of resources" }; });
-        QCOMPARE( failures.count(), 1 );
-
-        // It is the engine's turn, but it stays stopped.
-        engine.init();
-        engine.updateConfig (Quick_Search, ignoreTimer);
-        QCOMPARE( moves.count(), 0 );
-        QCOMPARE( failures.count(), 1 );
-
-        engine.reloadGame (makeStartingGame(), 2);
-        QCOMPARE( moves.count(), 1 );
-        QCOMPARE( moves.at (0).at (2).toInt(), 2 );
-        QCOMPARE( failures.count(), 1 );
     }
 };
 

@@ -66,10 +66,10 @@ committing C++. The conventions below are about what the code does.
 - Qt is not exception-safe, so no exception may enter it. Every
   function Qt calls in the QML frontend is `noexcept`: slots,
   `Q_INVOKABLE`s, property accessors, model overrides, singleton
-  `create()` functions and lambdas given to `connect`. `ChessEngine`'s
-  slots run their bodies through `guarded()`, which reports a failure
-  with `engineFailed` instead. See
-  `features/2026/09/qt-exception-safety.md`.
+  `create()` functions and lambdas given to `connect`, so an exception
+  that escapes one ends the process through the emergency terminate
+  handler instead. See `features/2026/09/qt-exception-safety.md` and
+  `features/2026/10/remove-guarded.md`.
 - Create a `Game` through its factory functions (`createStandardGame`,
   `createGameFromFen`, ...); its constructors are private. Other classes
   keep plain constructors.

@@ -294,12 +294,6 @@ namespace wisdom::ui::qml
 
         void updateEngineConfig() noexcept;
 
-        // The engine thread hit an error and stopped until the next game.
-        void engineThreadFailed (
-            const QString& message,
-            int game_id
-        ) noexcept;
-
     public:
         [[nodiscard]] auto
         getGame()
@@ -418,10 +412,6 @@ namespace wisdom::ui::qml
 
         // Whether start() has ever been called for the current engine thread.
         bool my_engine_thread_started = false;
-
-        // The engine stopped on an error. Shown in place of the game-over
-        // status, and no move is accepted, until the next game.
-        bool my_engine_failed = false;
 
         // Whether the game is paused (e.g. menu or dialog is open).
         // Read by the engine thread's periodic function to cancel searches.

@@ -109,9 +109,6 @@ namespace wisdom::ui::qml
         connect (chess_engine, &ChessEngine::searchInterrupted,
                  this, []() noexcept { qDebug() << "The engine's search was interrupted."; });
 
-        connect (chess_engine, &ChessEngine::engineFailed,
-                 this, &GameModel::engineThreadFailed);
-
         // Connect the engine's move back to itself in case it's playing itself:
         // (it will return early if it's not)
         connect (this, &GameModel::engineMoved,
@@ -192,12 +189,6 @@ namespace wisdom::ui::qml
         // Update the config to update the notifier to use the new game Id:
         updateEngineConfig();
 
-        if (my_engine_failed)
-        {
-            my_engine_failed = false;
-            emit gameOverStatusChanged();
-        }
-
         setCurrentTurn (my_chess_game->state()->getCurrentTurn());
         resetStateForNewGame();
         updateDisplayedGameState();
@@ -227,10 +218,6 @@ namespace wisdom::ui::qml
             qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
             return;
         }
-
-        // A move the engine sent before it failed may still arrive.
-        if (my_engine_failed)
-            return;
 
         // Hold the move back until the move before it has finished animating,
         // so that two pieces are never moving at once.
@@ -336,9 +323,6 @@ namespace wisdom::ui::qml
         optional<wisdom::Piece> piece_type
     )
     {
-        if (my_engine_failed)
-            return;
-
         auto [optional_move, who]
             = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row, dst_column, piece_type);
         if (!optional_move.has_value())
@@ -374,7 +358,7 @@ namespace wisdom::ui::qml
     GameModel::canMoveFrom (int row, int column) noexcept
         -> bool
     {
-        return !my_engine_failed && GameViewModelBase::canMoveFrom (row, column);
+        return GameViewModelBase::canMoveFrom (row, column);
     }
 
     void GameModel::pause() noexcept
@@ -570,13 +554,6 @@ namespace wisdom::ui::qml
     GameModel::qmlGameOverStatus() const noexcept
         -> QString
     {
-        if (my_engine_failed)
-        {
-            return QString::fromStdString (
-                formatBold ("Engine error") + " - Start a new game to continue."
-            );
-        }
-
         return QString::fromStdString (gameOverStatus());
     }
 
@@ -775,23 +752,5 @@ namespace wisdom::ui::qml
         auto game_state = my_chess_game->state();
         game_state->setProposedDrawStatus (draw_type, who, accepted);
         updateDisplayedGameState();
-    }
-
-    void
-    GameModel::engineThreadFailed (
-        [[maybe_unused]] const QString& message,
-        int game_id
-    ) noexcept
-    {
-        if (game_id != gameId())
-            return;
-
-        my_engine_failed = true;
-
-        // A move held for an animation would otherwise still be shown.
-        my_hold_timer.stop();
-        my_held_move.reset();
-
-        emit gameOverStatusChanged();
     }
 }

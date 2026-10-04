@@ -14,8 +14,6 @@
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 
-class ChessEngineTest;
-
 namespace wisdom::ui::qml
 {
     class QmlEngineGameStatusUpdate;
@@ -91,10 +89,6 @@ namespace wisdom::ui::qml
             bool accepted
         );
 
-        // A slot threw. The engine ignores everything but reloadGame()
-        // from here on.
-        void engineFailed (QString message, int game_id);
-
     private:
         std::shared_ptr<ChessGame> my_game;
 
@@ -103,10 +97,6 @@ namespace wisdom::ui::qml
         wisdom::TranspositionTable my_transposition_table;
 
         bool my_is_game_over = false;
-
-        // A slot threw, so the game here may no longer match the GUI's.
-        // Reset by reloadGame().
-        bool my_has_failed = false;
 
         // A move was sent to the GUI and has not been shown yet. Every path
         // into init() waits for it, so at most one engine move is ever
@@ -121,18 +111,6 @@ namespace wisdom::ui::qml
         std::shared_ptr<wisdom::BufferedLogger> my_logger;
 
         void findMove();
-
-        // Runs the body of a slot. An exception becomes fail(), so that
-        // none reaches Qt.
-        template <typename Body>
-        void guarded (Body&& body) noexcept;
-
-        // No slot can be made to throw since the contract checks abort, so
-        // the tests throw through this instead.
-        friend class ::ChessEngineTest;
-        void runGuarded (const std::function<void()>& body) noexcept;
-
-        void fail (const std::string& message) noexcept;
 
         // Keep the logger in sync with the game's config.
         void syncDebugLogging();
