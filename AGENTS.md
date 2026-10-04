@@ -37,8 +37,10 @@ committing C++. The conventions below are about what the code does.
     type.
   - `to_unsigned` and `to_unsigned_debug` for a nonnegative signed value, such as an array index, into an unsigned
     type at least as wide.
-  - `widen` for a wider type that holds every value of the source, which
-    cannot fail: a signed source needs a signed target.
+  - `widen` for a type that holds every value of the source, which
+    cannot fail: a signed source needs a signed target, and the target
+    may be the same width when the signedness matches, so `int32_t` to
+    `int` works wherever `int` has 32 bits.
   - `truncate` discards an unsigned value's high bits on purpose.
   - `to_underlying` converts an enum to its underlying type, as C++23's
     `std::to_underlying` does.

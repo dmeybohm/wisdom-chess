@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <source_location>
 #include <type_traits>
 
@@ -65,18 +66,22 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Converts to a wider integer type that holds every value of the source,
-    // so it cannot fail. A signed source needs a signed target; to_unsigned()
-    // converts a signed value to an unsigned type.
+    // Whether Target can represent every value of Source: a signed Source
+    // needs a signed Target, and Target has at least as many value bits.
     template <typename Target, typename Source>
+    concept HoldsEveryValueOf = std::is_integral_v<Source> && std::is_integral_v<Target>
+        && (std::is_unsigned_v<Source> || std::is_signed_v<Target>)
+        && std::numeric_limits<Target>::digits >= std::numeric_limits<Source>::digits;
+
+    // Converts to an integer type that holds every value of the source, so it
+    // cannot fail. The target may be the same width when the signedness
+    // matches; to_unsigned() converts a signed value to an unsigned type.
+    template <typename Target, typename Source>
+        requires HoldsEveryValueOf<Target, Source>
     [[nodiscard]] constexpr auto
     widen (Source value) noexcept
         -> Target
     {
-        static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
-        static_assert (sizeof (Target) > sizeof (Source));
-        static_assert (std::is_unsigned_v<Source> || std::is_signed_v<Target>);
-
         return static_cast<Target> (value);
     }
 

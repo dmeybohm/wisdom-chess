@@ -116,11 +116,11 @@ namespace wisdom
 
         template <typename IntegerType = uint8_t>
         [[nodiscard]] constexpr auto
-        toInt() const noexcept
+        toUint() const noexcept
             -> IntegerType
         {
             static_assert (std::is_unsigned_v<IntegerType>);
-            return narrow_debug<IntegerType> (my_flags);
+            return widen<IntegerType> (my_flags);
         }
 
         [[nodiscard]] constexpr auto
@@ -139,11 +139,11 @@ namespace wisdom
 
     template <typename IntegerType = uint8_t>
     [[nodiscard]] constexpr auto
-    toInt (CastlingEligibility eligibility) noexcept
+    toUint (CastlingEligibility eligibility) noexcept
         -> IntegerType
     {
         static_assert (std::is_unsigned_v<IntegerType>);
-        return eligibility.toInt<IntegerType>();
+        return eligibility.toUint<IntegerType>();
     }
 
     namespace CastlingRights

@@ -129,13 +129,13 @@ namespace wisdom
             -> bool
         {
             auto castle_state = getCastlingEligibility (who);
-            auto castle_bits = toInt<uint8_t> (castle_state);
+            auto castle_bits = toUint<uint8_t> (castle_state);
 
             // Asking about no side at all is never satisfied: check for
             // every bit, which no state has.
             auto check_bits = castle_types == CastlingEligibility::Neither_Side
                 ? std::numeric_limits<uint8_t>::max()
-                : toInt<uint8_t> (castle_types);
+                : toUint<uint8_t> (castle_types);
 
             bool has_rights = (castle_bits & check_bits) == check_bits;
 

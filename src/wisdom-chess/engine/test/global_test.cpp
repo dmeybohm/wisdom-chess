@@ -67,6 +67,30 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<int64_t> (int32_t { -1 }) == -1);
     static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
+    static_assert (widen<int> (bool { true }) == 1);
+}
+
+TEST_CASE( "widen accepts the same width when the signedness matches" )
+{
+    static_assert (widen<int32_t> (int32_t { -1 }) == -1);
+    static_assert (widen<uint32_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffU);
+    static_assert (widen<long long> (int64_t { -1 }) == -1);
+    static_assert (widen<int64_t> (static_cast<long long> (-1)) == -1);
+}
+
+namespace
+{
+    template <typename Target, typename Source>
+    concept Widens = requires (Source value) { widen<Target> (value); };
+}
+
+TEST_CASE( "widen rejects a target that cannot hold every value" )
+{
+    CHECK( Widens<int32_t, uint16_t> );
+    CHECK_FALSE( Widens<int32_t, uint32_t> );
+    CHECK_FALSE( Widens<uint64_t, int8_t> );
+    CHECK_FALSE( Widens<int16_t, int32_t> );
+    CHECK_FALSE( Widens<int, double> );
 }
 
 TEST_CASE( "to_underlying gives the enum's underlying type" )
