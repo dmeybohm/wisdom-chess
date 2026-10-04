@@ -29,6 +29,7 @@ using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
 using wisdom::to_double;
+using wisdom::to_unsigned;
 using wisdom::Total_Metadata_Bits;
 using wisdom::Zobrist_Table_Size;
 using wisdom::zobristPieceIndex;
@@ -60,7 +61,7 @@ namespace
                 continue;
 
             auto piece_index = zobristPieceIndex (piece.color(), piece.type());
-            auto table_index = static_cast<std::size_t> (piece_index * Num_Squares + coord.index());
+            auto table_index = to_unsigned<std::size_t> (piece_index * Num_Squares + coord.index());
             hash ^= table[table_index] << Total_Metadata_Bits;
         }
 

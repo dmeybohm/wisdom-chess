@@ -134,7 +134,7 @@ namespace wisdom
             auto coord_bits = coord.column<std::size_t>()
                 | EN_PASSANT_PRESENT
                 | (color == Color::White
-                       ? static_cast<std::size_t> (EN_PASSANT_IS_WHITE)
+                       ? std::size_t { EN_PASSANT_IS_WHITE }
                        : std::size_t { 0 });
             std::size_t target_bit_shift = state == EnPassantTargetState::Legal
                 ? LEGAL_EN_PASSANT_TARGET_BIT

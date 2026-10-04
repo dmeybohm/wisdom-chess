@@ -48,7 +48,10 @@ Kept as `static_cast`:
 - Enum to enum (`QmlDrawByRepetitionStatus` and `DrawByRepetitionStatus`),
   whose values match by construction in `ui_types.hpp`.
 - `str_test.cpp`, which casts bytes 0x80-0xff to negative `char`s on
-  purpose.
+  purpose, and `castling_eligibility_test.cpp`'s `static_cast<uint8_t>(~0)`,
+  which shows what that cast does.
+- `bool` to `int` in the WASM bindings, which pass flags to
+  `emscripten_wasm_worker_post_function_sig`.
 - `engine/transposition_table.{hpp,cpp}`, which the
   `transposition-table-improvements` branch is rewriting.
 
@@ -64,6 +67,10 @@ Kept as `static_cast`:
   became `std::bit_width`.
 - Converted the `static_cast<bool>` checks in
   `castling_eligibility_test.cpp` to `to_bool`.
+- Converted the integer to integer casts that a helper covers: the
+  all-ones castling mask is `numeric_limits<uint8_t>::max()`,
+  `str.hpp`'s case conversions go through `narrow_debug<char>`, and the
+  rest through `narrow` or `to_unsigned`.
 - Renamed `numeric_cast.hpp` to `cast.hpp` and its fatal tests to
   `fatal_cast_test.cpp`.
 - Verified lint, Release with the QML UI, tools, benchmarks and slow

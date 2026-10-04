@@ -340,7 +340,7 @@ TEST_CASE( "toInt template function" )
         using flags_type = uint8_t;
         static_assert (std::is_unsigned_v<flags_type>);
 
-        auto max_flags = static_cast<flags_type>(~flags_type{0});  // What ableToCastle uses
+        auto max_flags = std::numeric_limits<flags_type>::max();  // What ableToCastle uses
         CHECK( max_flags == 255 );
         CHECK( (castle_bits & max_flags) == castle_bits );  // 3 & 255 == 3
         CHECK( (castle_bits & max_flags) != max_flags );    // 3 != 255, so equality fails
