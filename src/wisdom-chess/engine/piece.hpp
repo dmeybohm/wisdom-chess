@@ -250,7 +250,7 @@ namespace wisdom
             case 'P':
                 return Piece::Pawn;
             default:
-                terminateOnCheckFailure ("Precondition", "a piece character", std::source_location::current());
+                PRECONDITION_FAILED( "a piece character" );
         }
     }
 

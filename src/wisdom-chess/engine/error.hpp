@@ -74,6 +74,11 @@ namespace wisdom
 #define EXPECTS(condition) ::wisdom::expects ((condition), #condition)
 #define ENSURES(condition) ::wisdom::ensures ((condition), #condition)
 
+// A precondition broken unconditionally, such as an enum value that no case
+// handles. The description says what was expected: "a piece type".
+#define PRECONDITION_FAILED(description) \
+    ::wisdom::terminateOnCheckFailure ("Precondition", (description), std::source_location::current())
+
 // A replacement for assert(): in a build without Debugging the condition is
 // type-checked but not evaluated, except in a constant expression, where a
 // false condition is a compile error in every build.

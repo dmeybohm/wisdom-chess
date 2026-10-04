@@ -108,7 +108,7 @@ namespace wisdom
                 case Piece::King:
                     return king_positions[row][col];
                 default:
-                    terminateOnCheckFailure ("Precondition", "a piece type", std::source_location::current());
+                    PRECONDITION_FAILED( "a piece type" );
             }
         }
     }

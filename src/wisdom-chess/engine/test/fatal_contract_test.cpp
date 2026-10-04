@@ -43,6 +43,14 @@ namespace
         ENSURES( condition );
     }
 
+    FATAL_CASE(
+        "precondition-failed",
+        "Precondition failed at .*fatal_contract_test\\.cpp:[0-9]+: a test description"
+    )
+    {
+        PRECONDITION_FAILED( "a test description" );
+    }
+
     // ASSERT() only checks when Debugging is on.
     FATAL_CASE(
         "assert-failure",

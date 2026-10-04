@@ -50,7 +50,7 @@ reason in the same comment, as in
 - Test macros put spaces inside the parentheses instead:
   `CHECK( x == y )`, `REQUIRE( ... )`, and Qt Test's `QCOMPARE( a, b )`.
   So do the contract macros of `engine/error.hpp`: `EXPECTS( x > 0 )`,
-  `ENSURES( ... )` and `ASSERT( ... )`
+  `ENSURES( ... )`, `ASSERT( ... )` and `PRECONDITION_FAILED( ... )`
   [`test-macro-spacing`].
 - Brace initializers have spaces inside the braces:
   `Coord coord { row, col }`.

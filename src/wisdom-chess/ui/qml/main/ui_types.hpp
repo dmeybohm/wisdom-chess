@@ -66,7 +66,7 @@ namespace wisdom::ui
             case Black:
                 return ui::Color::Black;
             default:
-                terminateOnCheckFailure ("Precondition", "a White or Black color", std::source_location::current());
+                PRECONDITION_FAILED( "a White or Black color" );
         }
     }
 
@@ -82,7 +82,7 @@ namespace wisdom::ui
             case Black:
                 return wisdom::Color::Black;
             default:
-                terminateOnCheckFailure ("Precondition", "a White or Black color", std::source_location::current());
+                PRECONDITION_FAILED( "a White or Black color" );
         }
     }
 
@@ -98,7 +98,7 @@ namespace wisdom::ui
             case ChessEngine:
                 return ui::Player::Computer;
             default:
-                terminateOnCheckFailure ("Precondition", "a Human or ChessEngine player", std::source_location::current());
+                PRECONDITION_FAILED( "a Human or ChessEngine player" );
         }
     }
 
@@ -114,7 +114,7 @@ namespace wisdom::ui
             case Computer:
                 return wisdom::Player::ChessEngine;
             default:
-                terminateOnCheckFailure ("Precondition", "a Human or Computer player", std::source_location::current());
+                PRECONDITION_FAILED( "a Human or Computer player" );
         }
     }
 
@@ -140,7 +140,7 @@ namespace wisdom::ui
             case King:
                 return wisdom::Piece::King;
             default:
-                terminateOnCheckFailure ("Precondition", "a piece type", std::source_location::current());
+                PRECONDITION_FAILED( "a piece type" );
         }
     }
 
@@ -166,7 +166,7 @@ namespace wisdom::ui
             case King:
                 return PieceType::King;
             default:
-                terminateOnCheckFailure ("Precondition", "a piece type", std::source_location::current());
+                PRECONDITION_FAILED( "a piece type" );
         }
     }
 }

@@ -50,6 +50,8 @@ committing C++. The conventions below are about what the code does.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check a
   function's contract and abort when it is broken, so they suit `noexcept`
   functions too. See `features/2026/10/exception-removal.md`.
+  `PRECONDITION_FAILED( "a piece type" )` is the same report for a case
+  that is never valid, such as an enum's `default:`.
   `ASSERT( cond )` replaces `assert()`: it aborts
   only when `Debugging` is on, and otherwise the condition is not
   evaluated. The macros quote the condition in the failure message, so
