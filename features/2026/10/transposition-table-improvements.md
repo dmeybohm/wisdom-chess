@@ -33,6 +33,12 @@ count *down* to a power of two, so a 16 MB table is 699,050 entries
 rounded to 524,288, and uses 12 MB. A 16-byte entry gives 1,048,576
 entries in exactly 16 MB: twice the entries at the same setting.
 
+The rounding had a defect that the 24-byte entry hid: it doubled up to
+the count and then halved, so a count that was already a power of two
+was halved too. With 16-byte entries, every whole number of megabytes is
+such a count, and a 16 MB table got 8 MB of entries. `std::bit_floor`
+rounds down correctly.
+
 ## What the fields need
 
 - **Score.** A stored score is within ±`Checkmate_Score` = 1,152,000.
@@ -43,7 +49,7 @@ entries in exactly 16 MB: twice the entries at the same setting.
 - **Depth.** 1 to `Max_Search_Depth` = 64, which `IterativeSearch`
   requires. That is 7 bits, or 6 bits if stored as `depth - 1`.
   Quiescence entries, if added, would need depth 0 as well.
-- **Bound.** Four values with `Empty`: 2 bits.
+- **Bound.** Four values with `Empty`: 2 bits, or its own byte.
 - **Move.** 16 bits, already packed.
 - **Hash.** All 64 bits are kept. The index uses the folded hash's low
   bits, so a shorter check value would raise false matches. Not changed
@@ -56,19 +62,21 @@ Two layouts reach 16 bytes:
 1. **Plain fields.** Reorder to `hash_code`, `score`, `best_move`, then
    `depth` as `uint8_t` and `bound_type`: 8 + 4 + 2 + 1 + 1 = 16, with
    no bit operations. No byte is left over.
-2. **A packed word.** A 32-bit `DepthAndScoreBits` holds the score in 22
-   bits, the depth in 7 and the bound in 2, with 1 bit spare. With
-   `hash_code` and `best_move`, that leaves two free bytes in a 16-byte
-   entry.
+2. **A packed word.** A 32-bit `DepthAndScoreBits` holds the depth in
+   7 bits and the score in the other 25. With `hash_code`, `best_move`
+   and `bound_type` in its own byte, that is 15 bytes, and one byte is
+   free in a 16-byte entry. Moving the bound into the word as well
+   would free a second byte, at the cost of 2 score bits and another
+   mask.
 
 The packed word costs a shift and a mask on every probe and store. What
-it buys is the free bytes, and step 2 wants one for a generation number.
+it buys is the free byte, and step 2 wants it for a generation number.
 Without one, the replacement rule cannot tell an entry from the current
 search from a deep entry left by an earlier move, since the table is
 kept across moves.
 
-**Recommendation: the packed word**, so the layout is settled once and
-step 2 needs no second change to the entry. The score constants stay as
+**Chosen: the packed word**, with the bound in its own byte, so the
+layout is settled once and step 2 needs no second change to the entry. The score constants stay as
 they are. `Max_Non_Checkmate_Score` is 64 queens at the larger score
 scale, far above any reachable evaluation. A tighter bound would free
 bits, but nothing needs them yet.
@@ -81,6 +89,8 @@ own before the next.
 1. **16-byte entries.** The packed word, with `EXPECTS` on the score and
    depth ranges when packing. `static_assert` the entry at 16 bytes. The
    first measurement is the doubled entry count at the same megabytes.
+   The generation byte is added here, unused, because a padding byte in
+   its place made `clear()` slow (Session #2).
 2. **Buckets.** Four 16-byte entries in a 64-byte, cache-line-aligned
    bucket. Probe all four. Store over the same position (keeping the
    rule for a greater depth), else an empty entry, else one from an
@@ -115,3 +125,45 @@ that, so node counts from one build are not evidence either way. Use:
 - Checked the fields' ranges against `global.hpp` and `search.cpp`: the
   score fits in 22 bits as the constants stand, so reducing the maximum
   score is not needed for the packing.
+
+### Session #2
+
+Step 1, in three commits:
+
+- `DepthAndScoreBits` packs the depth in 7 bits and the score in 25.
+  The entry is 16 bytes and `static_assert`ed so. `EXPECTS` checks both
+  ranges, and fatal cases cover them. Unit tests round-trip each
+  field's limits and mate scores across plies.
+- The constructor halved a power-of-two entry count (see "The entry
+  today"). The first depth-7 report showed identical node counts in
+  both builds, which led to it. `std::bit_floor` fixes it, and a sizing
+  test pins it.
+- `clear()` was 6 to 10 times slower with the 16-byte entry, 15 to 30
+  ms per clear against 2 to 4 ms. GCC filled the table by copying a
+  zeroed entry through the stack, and the copy's 8-byte reload
+  overlapped the 16-byte store, which stalled store forwarding on every
+  entry. A stand-in program with the same layout did not reproduce it.
+  Filling the last byte with the step-2 `generation` field did: the
+  clear went back to direct stores and the base build's speed.
+
+Measured from copies of the source in the scratchpad: base is
+`small-engine-fixups` (`237d98c9`), new is `bf326419`. Release, GCC,
+`--search-report 7`, pinned to one core, alternating rounds. Another
+session's test runs loaded the machine during rounds 3 to 5, so only
+rounds 1 and 2 are usable:
+
+| Position | Move, score | Nodes, base | Nodes, new | Time, round 1 | Time, round 2 |
+|---|---|---|---|---|---|
+| starting | e2 e4, 63 | 354,803 | 352,753 | +3% | −9% |
+| kiwipete | e2xa6, 66 | 1,705,188 | 1,691,380 | −8% | +3% |
+| italian | b1 c3, −32 | 1,670,231 | 1,580,483 | −4% | −3% |
+| position3 | b4xf4, 81 | 79,449 | 72,647 | +1% | −4% |
+| position4 | c4 c5, −928 | 851,246 | 849,235 | +4% | 0% |
+| middlegame | f3 g5, 57 | 6,359,105 | 5,107,840 | −24% | −21% |
+| all six | | | | −15% | −12% |
+
+- Every position keeps its move and score.
+- The middlegame, the largest search, visits 20% fewer nodes and is
+  21 to 24% faster in both rounds. The others are within the noise of
+  two rounds.
+- Not yet run: the engine match, which decides the step.
