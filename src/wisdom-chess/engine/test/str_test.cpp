@@ -93,33 +93,33 @@ TEST_CASE( "join" )
     }
 }
 
-TEST_CASE( "toInt" )
+TEST_CASE( "parseInt" )
 {
     SUBCASE( "When successful" )
     {
-        auto result = wisdom::toInt ("10");
+        auto result = wisdom::parseInt ("10");
         REQUIRE( result.has_value() );
         REQUIRE( *result == 10 );
     }
 
     SUBCASE( "Invalid" )
     {
-        auto result = wisdom::toInt ("invalid");
+        auto result = wisdom::parseInt ("invalid");
         REQUIRE( !result.has_value() );
     }
 
     SUBCASE( "Empty" )
     {
-        auto result = wisdom::toInt ("");
+        auto result = wisdom::parseInt ("");
         REQUIRE( !result.has_value() );
     }
 
     SUBCASE( "Too large or too small to fit in an int" )
     {
-        CHECK( !wisdom::toInt ("99999999999999999999").has_value() );
-        CHECK( !wisdom::toInt ("-99999999999999999999").has_value() );
-        CHECK( !wisdom::toInt ("2147483648").has_value() );
-        CHECK( wisdom::toInt ("2147483647") == std::numeric_limits<int>::max() );
+        CHECK( !wisdom::parseInt ("99999999999999999999").has_value() );
+        CHECK( !wisdom::parseInt ("-99999999999999999999").has_value() );
+        CHECK( !wisdom::parseInt ("2147483648").has_value() );
+        CHECK( wisdom::parseInt ("2147483647") == std::numeric_limits<int>::max() );
     }
 }
 

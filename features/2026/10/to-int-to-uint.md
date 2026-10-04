@@ -29,9 +29,10 @@ constrained to `std::signed_integral`, which `bool` does not satisfy.
 The QML piece model keyed its image table on `int8_t`; it now keys on
 `int`, so no implicit narrowing appears.
 
-The string `toInt` in `str.hpp` is a parser, not a conversion, and
-`Move::toInt()`/`fromInt()` are an encoding pair, so they are renamed
-`toPacked()`/`fromPacked()` instead of going through `to_int`.
+The string `toInt` in `str.hpp` is a parser, not a conversion, so it is
+renamed `parseInt`. `Move::toInt()`/`fromInt()` are an encoding pair, so
+they are renamed `toPacked()`/`fromPacked()` instead of going through
+`to_int`.
 `pieceIndex` and `colorIndex` are named indices with range checks and stay
 too.
 
@@ -56,3 +57,4 @@ too.
 - Renamed `Move::toInt()`/`fromInt()` to `toPacked()`/`fromPacked()`.
 - Renamed the private `CastlingEligibility::fromInt()` to `fromPacked()`
   to match.
+- Renamed the string parser `toInt()` in `str.hpp` to `parseInt()`.
