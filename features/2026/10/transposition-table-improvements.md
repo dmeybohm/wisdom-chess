@@ -333,3 +333,18 @@ medians:
 - With the table kept, step 2's slowest run (8.604 s) beat step 1's
   fastest (8.738 s). A 30-ply game at depth 6 does not fill 16 MB, so
   this shows the generation causes no harm more than it shows a gain.
+
+Engine match, step 2 against step 1, 8+0.08 with 1 MB of hash, so
+both have 65,536 entries and only the buckets and ageing differ:
+
+| Games | W / D / L for step 2 | Score | Elo | 95% range |
+|---|---|---|---|---|
+| 500 | 137 / 255 / 108 | 52.9% | +20 | −1 to +42 |
+
+- Step 2 led from game 100 on, by +27 to +30 through game 400, and
+  the last hundred games narrowed it to +20. The chance that step 2 is
+  stronger is 98%.
+- This is the first table change to show up in a match. The step 1
+  matches showed none, with 16 MB or 1 MB.
+- Not measured: a match at the default 16 MB, which at this time
+  control would not fill the table either.
