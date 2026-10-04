@@ -181,6 +181,15 @@ namespace wisdom
             return current_color == searching_color ? Search_Draw_Contempt : 0;
         }
 
+        [[nodiscard]] auto
+        boundTypeOf (int score, int alpha, int beta) noexcept
+            -> BoundType
+        {
+            return (score <= alpha) ? BoundType::UpperBound
+                 : (score >= beta) ? BoundType::LowerBound
+                 : BoundType::Exact;
+        }
+
         auto
         isLegalMove (const Board& board, Color who, Move move) noexcept
             -> bool
@@ -211,7 +220,28 @@ namespace wisdom
 
         if (depth <= 0)
         {
-            return quiesce (parent_board, side, alpha, beta, ply, 0);
+            // Stored at depth 0, which no probe of the main search accepts.
+            // Every horizon node starts quiescence with the same budget of
+            // evasions, so the entries agree with each other.
+            auto horizon_hash = parent_board.getBoardCode().getHashCode();
+            if (auto tt_score = my_transposition_table->probe (horizon_hash, 0, alpha, beta, ply))
+                return *tt_score;
+
+            auto horizon_draw_nodes_before = my_draw_nodes;
+            int score = quiesce (parent_board, side, alpha, beta, ply, 0);
+
+            if (!my_current_result.timed_out && my_draw_nodes == horizon_draw_nodes_before)
+            {
+                my_transposition_table->store (
+                    horizon_hash,
+                    score,
+                    0,
+                    boundTypeOf (score, alpha, beta),
+                    Move {},
+                    ply
+                );
+            }
+            return score;
         }
 
         int original_alpha = alpha;
@@ -305,14 +335,11 @@ namespace wisdom
 
         if (!my_current_result.timed_out && !score_depends_on_path)
         {
-            BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
-                                 : (best_score >= beta) ? BoundType::LowerBound
-                                 : BoundType::Exact;
             my_transposition_table->store (
                 hash,
                 best_score,
                 depth,
-                bound_type,
+                boundTypeOf (best_score, original_alpha, beta),
                 best_move.value_or (Move {}),
                 ply
             );

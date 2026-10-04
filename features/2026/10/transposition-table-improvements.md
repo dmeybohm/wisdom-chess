@@ -94,11 +94,8 @@ own before the next.
    its place made `clear()` slow (Session #2).
 2. **Buckets.** Four entries in a cache line, replaced by depth and
    age. See [Step 2: buckets](#step-2-buckets).
-3. **Quiescence probe and store.** Probing in quiescence was left as a
-   later experiment in [quiescence-search.md](../09/quiescence-search.md).
-   It stores at depth 0, so a main-search probe at depth ≥ 1 never takes
-   one. A quiescence node needs the same path-dependent-score rule as the
-   main search, if any draw check can reach it.
+3. **Quiescence probe and store.** At the horizon only. See
+   [Step 3: the horizon](#step-3-the-horizon).
 
 ## Step 2: buckets
 
@@ -187,6 +184,38 @@ Base is step 1 (`bf326419`).
   plies at depth 6 with the table kept, which is where the generation
   matters.
 - The engine match, which decides.
+
+## Step 3: the horizon
+
+Quiescence neither probed nor stored, which
+[quiescence-search.md](../09/quiescence-search.md) left as a later
+experiment. A quiescence score depends on more than the position: in
+check at `Max_Quiescence_Evasion_Ply` (4), `quiesce()` returns the static
+evaluation instead of searching the evasions. The same position searched
+at quiescence ply 0 and at ply 3 can score differently, so an entry made
+deep in quiescence, with its evasion budget spent, would be wrong at a
+node that has the whole budget.
+
+Every node at the main search's horizon, where `search()` reaches depth
+0, starts quiescence at ply 0 with the whole budget. So `search()`
+probes and stores there, around its call to `quiesce()`, and
+`quiesce()` itself is unchanged:
+
+- The entry is stored at depth 0. A main-search probe asks for depth 1
+  or more, so it never takes one. The horizon probe asks for depth 0,
+  so a deeper entry for the same position answers it, with a better
+  score.
+- A store does not replace a deeper entry for the same position, and a
+  depth-0 entry is the first one a full bucket gives up.
+- Quiescence has its own draw check, so the rule for path-dependent
+  scores applies: a horizon node whose subtree hit a draw is not
+  stored. Nor is a node cut short by the clock.
+- The probe comes before the stalemate test in `quiesce()`, so a hit
+  saves that too.
+- The entry has no move: quiescence does not order by the table.
+
+Storing at every quiescence node, keyed by the evasion budget left,
+is a separate change, to be measured on its own.
 
 ## Measuring
 
@@ -348,3 +377,15 @@ both have 65,536 entries and only the buckets and ageing differ:
   matches showed none, with 16 MB or 1 MB.
 - Not measured: a match at the default 16 MB, which at this time
   control would not fill the table either.
+
+### Session #6
+
+- Step 3: `search()` probes and stores at the horizon, around its call
+  to `quiesce()`. The bound type for both stores comes from one helper,
+  `boundTypeOf()`.
+- New test: a depth-1 search from the start position stores 21 entries,
+  the root and the 20 positions after White's first moves, and the
+  same search again takes 20 hits. Before step 3 it stored only the
+  root.
+- Release: all 331 tests pass. Debug: the 318 fast and medium tests
+  pass. Lint is clean.
