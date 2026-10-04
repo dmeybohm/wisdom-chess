@@ -45,13 +45,9 @@ renamed to `cast.hpp`.
 
 Kept as `static_cast`:
 
-- Enum to enum (`QmlDrawByRepetitionStatus` and `DrawByRepetitionStatus`),
-  whose values match by construction in `ui_types.hpp`.
 - `str_test.cpp`, which casts bytes 0x80-0xff to negative `char`s on
   purpose, and `castling_eligibility_test.cpp`'s `static_cast<uint8_t>(~0)`,
   which shows what that cast does.
-- `bool` to `int` in the WASM bindings, which pass flags to
-  `emscripten_wasm_worker_post_function_sig`.
 - `engine/transposition_table.{hpp,cpp}`, which the
   `transposition-table-improvements` branch is rewriting.
 
@@ -71,6 +67,13 @@ Kept as `static_cast`:
   all-ones castling mask is `numeric_limits<uint8_t>::max()`,
   `str.hpp`'s case conversions go through `narrow_debug<char>`, and the
   rest through `narrow` or `to_unsigned`.
+- The WASM bindings pass their `bool` flags to the worker as `int`
+  through `widen`, which accepts `bool`.
+- `QmlDrawByRepetitionStatus` converts to and from
+  `DrawByRepetitionStatus` through a pair of `mapDrawByRepetitionStatus`
+  functions in `ui_types.hpp`, like the other mirrored enums there,
+  instead of a cast. A status added to one enum and not the other fails
+  there instead of reaching QML unnamed.
 - Renamed `numeric_cast.hpp` to `cast.hpp` and its fatal tests to
   `fatal_cast_test.cpp`.
 - Verified lint, Release with the QML UI, tools, benchmarks and slow

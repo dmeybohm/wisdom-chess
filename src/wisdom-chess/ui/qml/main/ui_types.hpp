@@ -169,6 +169,45 @@ namespace wisdom::ui
                 PRECONDITION_FAILED( "a piece type" );
         }
     }
+    [[nodiscard]] constexpr auto
+    mapDrawByRepetitionStatus (DrawByRepetitionStatus status)
+        -> QmlDrawByRepetitionStatus
+    {
+        using enum DrawByRepetitionStatus;
+        switch (status)
+        {
+            case NotReached:
+                return QmlDrawByRepetitionStatus::NotReached;
+            case Proposed:
+                return QmlDrawByRepetitionStatus::Proposed;
+            case Accepted:
+                return QmlDrawByRepetitionStatus::Accepted;
+            case Declined:
+                return QmlDrawByRepetitionStatus::Declined;
+            default:
+                PRECONDITION_FAILED( "a draw by repetition status" );
+        }
+    }
+
+    [[nodiscard]] constexpr auto
+    mapDrawByRepetitionStatus (QmlDrawByRepetitionStatus status)
+        -> DrawByRepetitionStatus
+    {
+        using enum QmlDrawByRepetitionStatus;
+        switch (status)
+        {
+            case NotReached:
+                return DrawByRepetitionStatus::NotReached;
+            case Proposed:
+                return DrawByRepetitionStatus::Proposed;
+            case Accepted:
+                return DrawByRepetitionStatus::Accepted;
+            case Declined:
+                return DrawByRepetitionStatus::Declined;
+            default:
+                PRECONDITION_FAILED( "a draw by repetition status" );
+        }
+    }
 }
 
 // QML sees the enums above under these names. Each is a namespace that
