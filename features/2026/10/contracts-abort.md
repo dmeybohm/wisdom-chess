@@ -18,6 +18,8 @@ throwing.
   `pieceFromChar()` and the `FenParser` constructor call
   `terminateOnCheckFailure()` instead.
 - `nullable::value()` aborts on null.
+- `debug_expects()`, under `ASSERT`, is renamed `expects_debug()`, to
+  match `narrow_debug` and `to_unsigned_debug`.
 - The linter no longer knows the `_NOEXCEPT` macros.
 - Tests: the doctest checks of a thrown precondition error became fatal
   cases, one per distinct check. Where several values broke the same

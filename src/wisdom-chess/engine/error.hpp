@@ -113,7 +113,7 @@ namespace wisdom
     // Reports the failure and aborts when the condition is false. ASSERT()
     // calls it only when Debugging is on or in a constant expression.
     constexpr void
-    debug_expects (
+    expects_debug (
         bool condition,
         string_view expression,
         std::source_location location = std::source_location::current()
@@ -134,5 +134,5 @@ namespace wisdom
 // false condition is a compile error in every build.
 #define ASSERT(condition) \
     (::wisdom::Debugging || std::is_constant_evaluated() \
-         ? ::wisdom::debug_expects ((condition), #condition) \
+         ? ::wisdom::expects_debug ((condition), #condition) \
          : void())

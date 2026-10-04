@@ -127,7 +127,7 @@ reason in the same comment, as in
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
 (`nonnull`, `nullable`, `owning`), `czstring`, `narrow`, and the
-functions under the contract macros (`debug_expects`). The GSL itself
+functions under the contract macros (`expects_debug`). The GSL itself
 is not a dependency.
 
 A name that JavaScript or QML also uses is spelled as that side spells
