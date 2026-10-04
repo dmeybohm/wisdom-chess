@@ -1,4 +1,4 @@
-#include "wisdom-chess/engine/numeric_cast.hpp"
+#include "wisdom-chess/engine/cast.hpp"
 
 #include "fatal_test.hpp"
 
@@ -8,7 +8,7 @@ namespace
 {
     FATAL_CASE(
         "narrow-overflow",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
     )
     {
         int volatile too_big = 300;
@@ -17,7 +17,7 @@ namespace
 
     FATAL_CASE(
         "narrow-negative-to-unsigned",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
     )
     {
         int volatile negative = -1;
@@ -26,7 +26,7 @@ namespace
 
     FATAL_CASE(
         "to-unsigned-negative",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_unsigned: the value is nonnegative"
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_unsigned: the value is nonnegative"
     )
     {
         int volatile negative = -1;
@@ -35,7 +35,7 @@ namespace
 
     FATAL_CASE(
         "to-enum-overflow",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_enum: the value fits"
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_enum: the value fits"
     )
     {
         enum class Small : int8_t
@@ -49,7 +49,7 @@ namespace
     // The _debug conversions only check when Debugging is on.
     FATAL_CASE(
         "narrow-debug-overflow",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow_debug: the value fits",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow_debug: the value fits",
         Debugging
     )
     {
@@ -59,7 +59,7 @@ namespace
 
     FATAL_CASE(
         "to-unsigned-debug-negative",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative",
         Debugging
     )
     {
@@ -69,7 +69,7 @@ namespace
 
     FATAL_CASE(
         "to-enum-debug-overflow",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_enum_debug: the value fits",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_enum_debug: the value fits",
         Debugging
     )
     {

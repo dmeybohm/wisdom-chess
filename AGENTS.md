@@ -29,7 +29,7 @@ committing C++. The conventions below are about what the code does.
 
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
-- Integer conversions go through `engine/numeric_cast.hpp`. A conversion
+- Conversions go through `engine/cast.hpp`. A conversion
   that can lose a value has two forms: a checked form that terminates,
   and a `_debug` form that terminates but checks only when `Debugging` is
   on, like `ASSERT`, so not in Release or RelWithDebInfo:

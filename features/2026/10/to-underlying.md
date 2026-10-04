@@ -1,44 +1,54 @@
-# Enum conversions through to_underlying
+# Named conversions for enums, doubles and bools
 
 ## Motivation
 
-A review of the remaining `static_cast`s found two groups that bypass
-`engine/numeric_cast.hpp`:
+A review of the remaining `static_cast`s found groups that bypass the
+named conversions of `engine/numeric_cast.hpp`, now `engine/cast.hpp`:
 
 - Enum to integer. `static_cast<int> (piece)` names a target type that
   happens to match, or widen, the enum's underlying type. If the enum's
   underlying type changes, the cast still compiles, and it converts silently.
   `std::to_underlying` states the intent and gives the exact type.
-- Integer to integer conversions that one of the existing helpers
-  (`to_unsigned`, `narrow`, `numeric_limits`) already covers.
+- Integer to enum. `pieceFromInt (int)` and `getMoveCategory()` convert
+  an `int` to an `int8_t` enum, which wraps a value out of range.
+- Integer to `double` in statistics code, and `bool` through an explicit
+  `operator bool` in tests.
+- Integer to integer conversions that an existing helper (`to_unsigned`,
+  `narrow`, `numeric_limits`) already covers.
 
 `std::to_underlying` is C++23, and the project builds as C++20. Raising the
 standard touches every toolchain at once (GCC/Clang, Emscripten, the Android
-NDK, MSVC, Qt's moc), which is its own decision. So `numeric_cast.hpp` gets
+NDK, MSVC, Qt's moc), which is its own decision. So the header gets
 `wisdom::to_underlying` with the same signature. Once the project moves to
 C++23, it becomes `using std::to_underlying;`.
 
+The new conversions:
+
+- `to_enum` and `to_enum_debug` check that the integer fits the enum's
+  underlying type, with the usual checked and `_debug` forms. Whether
+  the value names an enumerator is the caller's to check; the WASM
+  bindings do so in their mapping `switch`. The engine's hot paths use
+  `to_enum_debug`; the WASM bindings, whose integers come from
+  JavaScript, use `to_enum`.
+- `to_double` is unchecked: the counters it converts can pass 2^53, and
+  rounding them is fine for statistics. It exists so that the cast reads
+  as intended and a search for `static_cast` finds only the unusual ones.
+- `to_bool` converts through an explicit `operator bool`. Passing the
+  value straight to doctest's `CHECK` does the same cast, but a compound
+  expression such as `a | b` does not compile there, and MSVC may warn
+  on the implicit conversions.
+
+With conversions other than integer ones in it, `numeric_cast.hpp` is
+renamed to `cast.hpp`.
+
 ## Scope
-
-Converted:
-
-- Enum to integer casts in the engine, the QML and WASM frontends and
-  their tests. Where the target was wider than the underlying type, the
-  result goes through `widen`; where narrower, through `narrow`.
-- Integer to integer casts that a `numeric_cast.hpp` helper or
-  `numeric_limits` expresses directly.
 
 Kept as `static_cast`:
 
-- Integer to enum. There is no standard counterpart, and a wrapper would
-  be just as unchecked. The WASM entry points that take an `int` from
-  JavaScript already reject bad values in their mapping `switch`.
 - Enum to enum (`QmlDrawByRepetitionStatus` and `DrawByRepetitionStatus`),
   whose values match by construction in `ui_types.hpp`.
-- Integer to floating point in statistics code; `numeric_cast.hpp` covers
-  integers only.
-- `static_cast<bool>` in `castling_eligibility_test.cpp`, which tests the
-  explicit `operator bool`.
+- `str_test.cpp`, which casts bytes 0x80-0xff to negative `char`s on
+  purpose.
 - `engine/transposition_table.{hpp,cpp}`, which the
   `transposition-table-improvements` branch is rewriting.
 
@@ -46,4 +56,15 @@ Kept as `static_cast`:
 
 ### Session #1
 
-- Planned the change.
+- Added `to_underlying`, `to_enum`, `to_enum_debug`, `to_double` and
+  `to_bool`, with compile-time tests in `global_test.cpp` and fatal cases
+  for an integer that does not fit an enum.
+- Converted the enum to integer, integer to enum and integer to `double`
+  casts. The two `log2` round trips that found a table's size exponent
+  became `std::bit_width`.
+- Converted the `static_cast<bool>` checks in
+  `castling_eligibility_test.cpp` to `to_bool`.
+- Renamed `numeric_cast.hpp` to `cast.hpp` and its fatal tests to
+  `fatal_cast_test.cpp`.
+- Verified lint, Release with the QML UI, tools, benchmarks and slow
+  tests, a Debug engine build, and the Emscripten build and tests.
