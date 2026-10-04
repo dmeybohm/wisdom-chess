@@ -53,8 +53,8 @@ endif()
 add_library(wisdom-chess-core STATIC
         board_builder.hpp
         board_code.hpp
-        cast.hpp
         board.hpp
+        cast.hpp
         castling.hpp
         coord.hpp
         error.hpp
