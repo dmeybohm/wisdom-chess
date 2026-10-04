@@ -36,7 +36,7 @@ if (EMSCRIPTEN AND TARGET doctest)
     target_compile_definitions(doctest INTERFACE DOCTEST_CONFIG_COLORS_NONE)
 
     # The engine is compiled with -pthread, and a test executable linked
-    # without it has no thread-local storage or typed catches.
+    # without it has no thread-local storage.
     target_link_options(doctest INTERFACE -pthread)
 endif()
 

@@ -52,11 +52,6 @@ target_compile_options(wisdom-chess-web PRIVATE
 )
 target_link_options(wisdom-chess-web PRIVATE
         "SHELL:-s WASM_WORKERS"
-        # The engine is compiled with -pthread; linking without it breaks
-        # typed catches on Emscripten 3.1.70. The memory growth check it
-        # warns about is already there for the workers' shared memory.
-        -pthread
-        -Wno-pthreads-mem-growth
         "SHELL:-s MODULARIZE=1"
         "SHELL:-s INITIAL_MEMORY=33554432"
         "SHELL:-s MAXIMUM_MEMORY=1073741824"

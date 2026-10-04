@@ -525,20 +525,23 @@ TEST_CASE( "Emergency logger" )
         CHECK( cerr.captured.str() == "fatal\nnested\n" );
     }
 
-    SUBCASE( "a failing std::cerr does not stop the registered logger" )
+    if constexpr (test::Can_Catch_Exceptions)
     {
-        auto logger = std::make_shared<RecordingLogger>();
-        setEmergencyLogger (logger);
-
+        SUBCASE( "a failing std::cerr does not stop the registered logger" )
         {
-            FailingCerr failing_cerr;
-            CHECK_THROWS( std::cerr << "proof that writes throw" << '\n' );
+            auto logger = std::make_shared<RecordingLogger>();
+            setEmergencyLogger (logger);
 
-            CHECK_NOTHROW( logEmergency ("fatal") );
+            {
+                FailingCerr failing_cerr;
+                CHECK_THROWS( std::cerr << "proof that writes throw" << '\n' );
+
+                CHECK_NOTHROW( logEmergency ("fatal") );
+            }
+
+            REQUIRE( logger->emergencies.size() == 1 );
+            CHECK( logger->emergencies[0] == "fatal" );
         }
-
-        REQUIRE( logger->emergencies.size() == 1 );
-        CHECK( logger->emergencies[0] == "fatal" );
     }
 
     SUBCASE( "replacing the logger stops messages to the old one" )

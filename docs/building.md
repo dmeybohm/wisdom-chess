@@ -145,9 +145,10 @@ cmake --build build-qml-wasm --target WisdomChessQml
 
 `scripts/build-qml-wasm.sh` is what CI runs for this build.
 
-`WISDOM_CHESS_QML_UI=ON` is required here: other Emscripten builds use
-native WebAssembly exceptions (`-fwasm-exceptions`), while this one keeps
-the exception model Qt's WebAssembly libraries were built with.
+Both WebAssembly builds use Emscripten's default exception model, in
+which nothing catches and a throw aborts. It is the model Qt's
+WebAssembly libraries are built with, and every object in a program has
+to share one.
 
 ## Android version
 
