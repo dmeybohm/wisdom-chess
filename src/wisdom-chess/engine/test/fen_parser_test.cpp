@@ -6,6 +6,16 @@
 
 using namespace wisdom;
 
+namespace
+{
+    // The message for a FEN string that does not parse, or empty if it does.
+    auto fenError (const string& fen) -> string
+    {
+        auto game = Game::tryCreateGameFromFen (fen);
+        return game.has_value() ? string {} : game.error().message;
+    }
+}
+
 TEST_CASE( "FEN notation for the starting position" )
 {
     Game game = Game::createGameFromFen ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -89,52 +99,28 @@ TEST_CASE( "FEN parser rejects castling rights without the rook present" )
 
     SUBCASE( "Queenside right claimed with no rook on the queenside square" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K2R w Q - 0 1"),
-            missing_rook,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/8/8/8/8/4K2R w Q - 0 1") == missing_rook );
     }
 
     SUBCASE( "Kingside right claimed with no rook on the kingside square" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("r3k3/8/8/8/8/8/8/R3K3 w Kk - 0 1"),
-            missing_rook,
-            FenParserError
-        );
+        CHECK( fenError ("r3k3/8/8/8/8/8/8/R3K3 w Kk - 0 1") == missing_rook );
     }
 
     SUBCASE( "Black's rights are checked when White claims none" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("r3k3/8/8/8/8/8/8/R3K2R w k - 0 1"),
-            missing_rook,
-            FenParserError
-        );
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k2r/8/8/8/8/8/8/R3K2R w q - 0 1"),
-            missing_rook,
-            FenParserError
-        );
+        CHECK( fenError ("r3k3/8/8/8/8/8/8/R3K2R w k - 0 1") == missing_rook );
+        CHECK( fenError ("4k2r/8/8/8/8/8/8/R3K2R w q - 0 1") == missing_rook );
     }
 
     SUBCASE( "A rook of the other color does not count" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/r3K2R w Q - 0 1"),
-            missing_rook,
-            FenParserError
-        );
+        CHECK( fenError ("r3k2r/8/8/8/8/8/8/r3K2R w Q - 0 1") == missing_rook );
     }
 
     SUBCASE( "Another piece on the rook's square does not count" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2N w K - 0 1"),
-            missing_rook,
-            FenParserError
-        );
+        CHECK( fenError ("r3k2r/8/8/8/8/8/8/R3K2N w K - 0 1") == missing_rook );
     }
 }
 
@@ -144,29 +130,17 @@ TEST_CASE( "FEN parser rejects castling rights without the king on its home squa
 
     SUBCASE( "King on its home column but another row" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3pP3/8/4K3/8/7R w K d6 0 1"),
-            missing_king,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/3pP3/8/4K3/8/7R w K d6 0 1") == missing_king );
     }
 
     SUBCASE( "King on its home row but another column" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("r2k3r/8/8/8/8/8/8/R3K2R w q - 0 1"),
-            missing_king,
-            FenParserError
-        );
+        CHECK( fenError ("r2k3r/8/8/8/8/8/8/R3K2R w q - 0 1") == missing_king );
     }
 
     SUBCASE( "The other color's king on the home square does not count" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4K2r/8/8/8/8/8/8/4k3 w k - 0 1"),
-            missing_king,
-            FenParserError
-        );
+        CHECK( fenError ("4K2r/8/8/8/8/8/8/4k3 w k - 0 1") == missing_king );
     }
 }
 
@@ -199,22 +173,16 @@ TEST_CASE( "FEN records a double pawn push without an adjacent enemy pawn" )
 
 TEST_CASE( "FEN notation with an invalid en passant square" )
 {
+    czstring invalid_coordinate = "Error parsing en passant coordinate: Invalid coordinate!";
+
     SUBCASE( "Square outside the board" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - z9 0 1"),
-            "Error parsing en passant coordinate: Invalid coordinate!",
-            FenParserError
-        );
+        CHECK( fenError ("4r3/8/8/8/8/8/k7/4K2R w - z9 0 1") == invalid_coordinate );
     }
 
     SUBCASE( "Square with a missing rank" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - e 0 1"),
-            "Error parsing en passant coordinate: Invalid coordinate!",
-            FenParserError
-        );
+        CHECK( fenError ("4r3/8/8/8/8/8/k7/4K2R w - e 0 1") == invalid_coordinate );
     }
 }
 
@@ -226,70 +194,38 @@ TEST_CASE( "FEN parser rejects an en passant target no double pawn push could ha
 
     SUBCASE( "No pawn in front of the target" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3P4/8/8/8/4K3 w - e6 0 1"),
-            missing_pawn,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/3P4/8/8/8/4K3 w - e6 0 1") == missing_pawn );
     }
 
     SUBCASE( "A pawn of the side to move in front of the target" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3PP3/8/8/8/4K3 w - e6 0 1"),
-            missing_pawn,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/3PP3/8/8/8/4K3 w - e6 0 1") == missing_pawn );
     }
 
     SUBCASE( "Another piece in front of the target" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3Pn3/8/8/8/4K3 w - e6 0 1"),
-            missing_pawn,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/3Pn3/8/8/8/4K3 w - e6 0 1") == missing_pawn );
     }
 
     SUBCASE( "Target square occupied" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/4n3/3Pp3/8/8/8/4K3 w - e6 0 1"),
-            occupied,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/4n3/3Pp3/8/8/8/4K3 w - e6 0 1") == occupied );
     }
 
     SUBCASE( "Pawn's starting square occupied" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/4p3/8/3Pp3/8/8/8/4K3 w - e6 0 1"),
-            occupied,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/4p3/8/3Pp3/8/8/8/4K3 w - e6 0 1") == occupied );
     }
 
     SUBCASE( "Target on the rank of the side to move" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/8/3pP3/8/8/4K3 w - e3 0 1"),
-            wrong_rank,
-            FenParserError
-        );
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3pP3/8/8/8/4K3 b - d6 0 1"),
-            wrong_rank,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/8/3pP3/8/8/4K3 w - e3 0 1") == wrong_rank );
+        CHECK( fenError ("4k3/8/8/3pP3/8/8/8/4K3 b - d6 0 1") == wrong_rank );
     }
 
     SUBCASE( "Target on a rank no double push crosses" )
     {
-        CHECK_THROWS_WITH_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/3pP3/8/8/8/4K3 w - d5 0 1"),
-            wrong_rank,
-            FenParserError
-        );
+        CHECK( fenError ("4k3/8/8/3pP3/8/8/8/4K3 w - d5 0 1") == wrong_rank );
     }
 
     SUBCASE( "A target left by a double push is accepted for either side" )
@@ -366,38 +302,25 @@ TEST_CASE( "FEN parser rejects move clocks that are out of range" )
 {
     SUBCASE( "Negative half move clock" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - -2 5"),
-            FenParserError
-        );
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - -2 5").has_value() );
     }
 
     SUBCASE( "Negative full move number" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 -5"),
-            FenParserError
-        );
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 -5").has_value() );
     }
 
     SUBCASE( "Half move clock above the limit" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10001 5"),
-            FenParserError
-        );
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 2147483647 5"),
-            FenParserError
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10001 5").has_value() );
+        CHECK_FALSE(
+            Game::tryCreateGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 2147483647 5").has_value()
         );
     }
 
     SUBCASE( "Full move number above the limit" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 10001"),
-            FenParserError
-        );
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 10001").has_value() );
     }
 
     SUBCASE( "The limits themselves are accepted" )
@@ -413,18 +336,12 @@ TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
 {
     SUBCASE( "More than eight ranks" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K3/8 w - - 0 1"),
-            FenParserError
-        );
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4k3/8/8/8/8/8/8/4K3/8 w - - 0 1").has_value() );
     }
 
     SUBCASE( "Unknown castling letter" )
     {
-        CHECK_THROWS_AS(
-            (void)Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K2R w Kx - 0 1"),
-            FenParserError
-        );
+        CHECK_FALSE( Game::tryCreateGameFromFen ("4k3/8/8/8/8/8/8/4K2R w Kx - 0 1").has_value() );
     }
 
     SUBCASE( "Non-letter characters in the castling field" )
@@ -433,13 +350,42 @@ TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
         {
             CAPTURE( castling );
             auto fen = std::string { "4k3/8/8/8/8/8/8/4K2R w " } + castling + " - 0 1";
-            CHECK_THROWS_AS( (void)Game::createGameFromFen (fen), FenParserError );
+            CHECK_FALSE( Game::tryCreateGameFromFen (fen).has_value() );
         }
+    }
+
+    SUBCASE( "A piece past the end of a rank" )
+    {
+        CHECK( fenError ("4k3/8/8/8/8/8/8/RNBQKBNRR w - - 0 1") == "Invalid columns!" );
+    }
+
+    SUBCASE( "A side without a king" )
+    {
+        CHECK( fenError ("8/8/8/8/8/8/8/4K3 w - - 0 1") == "Each side needs a king!" );
+        CHECK( fenError ("4k3/8/8/8/8/8/8/8 w - - 0 1") == "Each side needs a king!" );
     }
 
     SUBCASE( "Valid castling letters still parse" )
     {
         CHECK_NOTHROW( (void)Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1") );
         CHECK_NOTHROW( (void)Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K3 w - - 0 1") );
+    }
+}
+
+TEST_CASE( "A FEN string that does not parse" )
+{
+    SUBCASE( "is returned as an error by the parsing functions" )
+    {
+        auto parser = FenParser::parse ("not a fen");
+        REQUIRE_FALSE( parser.has_value() );
+        CHECK( parser.error().message == "Invalid piece type!" );
+
+        CHECK( fenError ("not a fen") == "Invalid piece type!" );
+    }
+
+    SUBCASE( "is a precondition failure for the other functions" )
+    {
+        CHECK_THROWS_AS( FenParser { "not a fen" }, PreconditionError );
+        CHECK_THROWS_AS( (void)Game::createGameFromFen ("not a fen"), PreconditionError );
     }
 }

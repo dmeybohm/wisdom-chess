@@ -122,7 +122,7 @@ reason in the same comment, as in
 | Private data members | `my_` and `snake_case` | `my_pimpl` |
 | Public data members | `snake_case`, no prefix | `data` |
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
-| Exception classes | ending in `Error` | `ParseMoveError` |
+| Exception classes | ending in `Error` | `PreconditionError` |
 
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`

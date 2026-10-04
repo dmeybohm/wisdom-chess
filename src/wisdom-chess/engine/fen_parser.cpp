@@ -10,6 +10,40 @@ namespace wisdom
 {
     using string_size_t = string::size_type;
 
+    namespace
+    {
+        [[nodiscard]] auto
+        parseError (string message)
+            -> unexpected<ParseError>
+        {
+            return unexpected<ParseError> { ParseError { std::move (message) } };
+        }
+    }
+
+    FenParser::FenParser (const string& input)
+    {
+        auto result = parseFields (input);
+        if (!result.has_value())
+        {
+            throwPreconditionError (
+                "a valid FEN string: " + result.error().message,
+                std::source_location::current()
+            );
+        }
+    }
+
+    auto
+    FenParser::parse (const string& input)
+        -> expected<FenParser, ParseError>
+    {
+        FenParser parser;
+        auto result = parser.parseFields (input);
+        if (!result.has_value())
+            return unexpected<ParseError> { result.error() };
+
+        return parser;
+    }
+
     Game FenParser::build()
     {
         my_builder.setCurrentTurn (my_active_player);
@@ -18,7 +52,7 @@ namespace wisdom
 
     auto
     FenParser::parsePiece (char ch)
-        -> ColoredPiece
+        -> expected<ColoredPiece, ParseError>
     {
         char lower = toLower (ch);
         Color who = isLower (ch) ? Color::Black : Color::White;
@@ -38,13 +72,13 @@ namespace wisdom
             case 'p':
                 return ColoredPiece::make (who, Piece::Pawn);
             default:
-                throw FenParserError ("Invalid piece type!");
+                return parseError ("Invalid piece type!");
         }
     }
 
     auto
     FenParser::parseActivePlayer (char ch)
-        -> Color
+        -> expected<Color, ParseError>
     {
         switch (ch)
         {
@@ -53,11 +87,13 @@ namespace wisdom
             case 'b':
                 return Color::Black;
             default:
-                throw FenParserError ("Invalid active color!");
+                return parseError ("Invalid active color!");
         }
     }
 
-    void FenParser::parsePieces (string pieces_str)
+    auto
+    FenParser::parsePieces (string pieces_str)
+        -> Result
     {
         // read pieces
         for (int row = 0, col = 0; !pieces_str.empty(); pieces_str = pieces_str.substr (1))
@@ -68,7 +104,7 @@ namespace wisdom
             {
                 row++;
                 if (row >= Num_Rows)
-                    throw FenParserError ("Invalid row!");
+                    return parseError ("Invalid row!");
                 col = 0;
             }
             else if (ch == ' ')
@@ -77,70 +113,85 @@ namespace wisdom
             }
             else if (isAlpha (ch))
             {
-                ColoredPiece piece = parsePiece (ch);
-                my_builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
+                if (col >= Num_Columns)
+                    return parseError ("Invalid columns!");
+                auto piece = parsePiece (ch);
+                if (!piece.has_value())
+                    return unexpected<ParseError> { piece.error() };
+                my_builder.addPiece (row, col, pieceColor (*piece), pieceType (*piece));
                 col++;
-                if (col > Num_Columns)
-                    throw FenParserError ("Invalid columns!");
             }
             else if (isDigit (ch))
             {
                 col += ch - '0';
                 if (col > Num_Columns)
-                    throw FenParserError ("Invalid columns!");
+                    return parseError ("Invalid columns!");
             }
             else
             {
-                throw FenParserError ("Invalid character!");
+                return parseError ("Invalid character!");
             }
         }
+
+        if (!my_builder.hasKingPositions())
+            return parseError ("Each side needs a king!");
+
+        return {};
     }
 
     // en passant target square:
-    void FenParser::parseEnPassant (string en_passant_str)
+    auto
+    FenParser::parseEnPassant (string en_passant_str)
+        -> Result
     {
         if (en_passant_str.empty())
-            return;
+            return {};
 
         if (en_passant_str[0] == '-')
-            return;
+            return {};
 
-        try
-        {
-            string cstr { en_passant_str.substr (0, 2) };
-            Color vulnerable_color = colorInvert (my_active_player);
-            validateEnPassantTarget (vulnerable_color, coordParse (cstr));
-            my_builder.setEnPassantTarget (vulnerable_color, cstr);
-        }
-        catch (const CoordParseError& e)
-        {
-            throw FenParserError ("Error parsing en passant coordinate: " + e.message());
-        }
+        string cstr { en_passant_str.substr (0, 2) };
+        auto target = coordParseOptional (cstr);
+        if (!target.has_value())
+            return parseError ("Error parsing en passant coordinate: Invalid coordinate!");
+
+        Color vulnerable_color = colorInvert (my_active_player);
+        if (auto valid = validateEnPassantTarget (vulnerable_color, *target); !valid.has_value())
+            return valid;
+
+        my_builder.setEnPassantTarget (vulnerable_color, cstr);
+        return {};
     }
 
     // Move generation trusts that an en passant target was left by a pawn
     // that just moved two squares, and never re-checks the squares itself.
-    void FenParser::validateEnPassantTarget (Color vulnerable_color, Coord target)
+    auto
+    FenParser::validateEnPassantTarget (Color vulnerable_color, Coord target)
+        -> Result
     {
         int target_row = vulnerable_color == Color::White
             ? White_En_Passant_Row
             : Black_En_Passant_Row;
         if (target.row<int>() != target_row)
-            throw FenParserError ("En passant target is on the wrong rank for the side to move!");
+            return parseError ("En passant target is on the wrong rank for the side to move!");
 
         int direction = pawnDirection<int> (vulnerable_color);
         int column = target.column<int>();
         auto pawn = my_builder.pieceAt (makeCoord (nextRow (target_row, direction), column));
         if (pawn != ColoredPiece::make (vulnerable_color, Piece::Pawn))
-            throw FenParserError ("En passant target requires a pawn that just moved two squares!");
+            return parseError ("En passant target requires a pawn that just moved two squares!");
 
         auto crossed = my_builder.pieceAt (target);
         auto origin = my_builder.pieceAt (makeCoord (nextRow (target_row, -direction), column));
         if (crossed != Piece_And_Color_None || origin != Piece_And_Color_None)
-            throw FenParserError ("En passant target requires empty squares behind the pawn!");
+            return parseError ("En passant target requires empty squares behind the pawn!");
+
+        return {};
     }
 
-    void FenParser::parseCastling (string castling_str)
+    auto
+    FenParser::parseCastling (string castling_str)
+        -> Result
     {
         CastlingEligibility white_castle = CastlingEligibility::Neither_Side;
         CastlingEligibility black_castle = CastlingEligibility::Neither_Side;
@@ -164,23 +215,28 @@ namespace wisdom
                         black_castle |= CastlingRights::Queenside;
                         break;
                     default:
-                        throw FenParserError ("Invalid castling character!");
+                        return parseError ("Invalid castling character!");
                 }
             }
         }
 
-        validateCastlingPieces (Color::White, white_castle);
-        validateCastlingPieces (Color::Black, black_castle);
+        if (auto valid = validateCastlingPieces (Color::White, white_castle); !valid.has_value())
+            return valid;
+        if (auto valid = validateCastlingPieces (Color::Black, black_castle); !valid.has_value())
+            return valid;
 
         my_builder.setCastling (Color::White, white_castle);
         my_builder.setCastling (Color::Black, black_castle);
+        return {};
     }
 
     // Move generation trusts that a castling-eligibility bit is only set
     // when the king and the corresponding rook still sit on their home
     // squares; it never re-checks the squares itself before applying a
     // castling move.
-    void FenParser::validateCastlingPieces (Color who, CastlingEligibility eligibility)
+    auto
+    FenParser::validateCastlingPieces (Color who, CastlingEligibility eligibility)
+        -> Result
     {
         auto row = castlingRowForColor<int> (who);
 
@@ -194,36 +250,46 @@ namespace wisdom
         if (eligibility != CastlingEligibility::Neither_Side
             && king != ColoredPiece::make (who, Piece::King))
         {
-            throw FenParserError ("Castling rights require the king on its home square!");
+            return parseError ("Castling rights require the king on its home square!");
         }
 
         if (eligibility.canCastleKingside() && !has_rook_at (King_Rook_Column))
-            throw FenParserError ("Castling rights require a rook on its home square!");
+            return parseError ("Castling rights require a rook on its home square!");
 
         if (eligibility.canCastleQueenside() && !has_rook_at (Queen_Rook_Column))
-            throw FenParserError ("Castling rights require a rook on its home square!");
+            return parseError ("Castling rights require a rook on its home square!");
+
+        return {};
     }
 
     // halfmove clock:
-    void FenParser::parseHalfMove (int half_moves)
+    auto
+    FenParser::parseHalfMove (int half_moves)
+        -> Result
     {
         if (half_moves < 0 || half_moves > Max_Half_Move_Clock)
-            throw FenParserError { "Half move clock out of range parsing FEN string" };
+            return parseError ("Half move clock out of range parsing FEN string");
 
         my_builder.setHalfMovesClock (half_moves);
+        return {};
     }
 
     // fullmove number:
-    void FenParser::parseFullMove (int full_moves)
+    auto
+    FenParser::parseFullMove (int full_moves)
+        -> Result
     {
         if (full_moves < 0 || full_moves > Max_Full_Move_Number)
-            throw FenParserError { "Full move number out of range parsing FEN string" };
+            return parseError ("Full move number out of range parsing FEN string");
 
         // The number starts at 1, but some programs write 0.
         my_builder.setFullMoves (full_moves == 0 ? 1 : full_moves);
+        return {};
     }
 
-    void FenParser::parse (const string& source)
+    auto
+    FenParser::parseFields (const string& source)
+        -> Result
     {
         std::stringstream input { source };
 
@@ -231,43 +297,50 @@ namespace wisdom
         string pieces_str;
         input >> pieces_str;
         if (input.fail())
-            throw FenParserError { "Missing pieces declaration parsing FEN string" };
-        parsePieces (pieces_str);
+            return parseError ("Missing pieces declaration parsing FEN string");
+        if (auto result = parsePieces (pieces_str); !result.has_value())
+            return result;
 
         // read active computer_player:
         string active_player_str;
         input >> active_player_str;
         if (input.fail())
-            throw FenParserError { "Missing active player parsing FEN string" };
-        my_active_player = parseActivePlayer (active_player_str[0]);
+            return parseError ("Missing active player parsing FEN string");
+        auto active_player = parseActivePlayer (active_player_str[0]);
+        if (!active_player.has_value())
+            return unexpected<ParseError> { active_player.error() };
+        my_active_player = *active_player;
 
         // castling:
         string castling_str;
         input >> castling_str;
         if (input.fail())
-            throw FenParserError { "Missing castling string FEN string" };
-        parseCastling (castling_str);
+            return parseError ("Missing castling string FEN string");
+        if (auto result = parseCastling (castling_str); !result.has_value())
+            return result;
 
         // en passant target square:
         string en_passant_str;
         input >> en_passant_str;
         if (input.fail())
-            throw FenParserError { "Missing en passant square parsing FEN string" };
-        parseEnPassant (en_passant_str);
+            return parseError ("Missing en passant square parsing FEN string");
+        if (auto result = parseEnPassant (en_passant_str); !result.has_value())
+            return result;
 
         // halfmove clock:
         int half_moves;
         input >> half_moves;
         if (input.fail())
-            throw FenParserError { "Missing half move number parsing FEN string" };
-        parseHalfMove (half_moves);
+            return parseError ("Missing half move number parsing FEN string");
+        if (auto result = parseHalfMove (half_moves); !result.has_value())
+            return result;
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
         if (input.fail())
-            throw FenParserError { "Missing full move number parsing FEN string" };
-        parseFullMove (full_moves);
+            return parseError ("Missing full move number parsing FEN string");
+        return parseFullMove (full_moves);
     }
 
     auto

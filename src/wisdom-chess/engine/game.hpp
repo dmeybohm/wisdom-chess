@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/expected.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/game_status.hpp"
@@ -57,8 +58,13 @@ namespace wisdom
         createGame (Player white_player, Player black_player)
             -> Game;
 
+        // A FEN string that does not parse is a precondition failure. Text
+        // from outside the program goes through tryCreateGameFromFen().
         [[nodiscard]] static auto createGameFromFen (const string& fen)
             -> Game;
+
+        [[nodiscard]] static auto tryCreateGameFromFen (const string& fen)
+            -> expected<Game, ParseError>;
 
         [[nodiscard]] static auto
         createGameFromFen (const string& fen, const Players& players)

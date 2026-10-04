@@ -56,6 +56,10 @@ if (WISDOM_CHESS_FAST_TESTS)
         INPUT "human_black" "fen" "not a fen" "quit"
         EXPECTED "Failed loading FEN string")
 
+    wisdom_chess_add_cli_test("Console: a FEN string without a king" wisdom-chess-console
+        INPUT "human_black" "fen" "8/8/8/8/8/8/8/4K3 w - - 0 1" "moves" "quit"
+        EXPECTED "Failed loading FEN string" "Available moves:")
+
     wisdom_chess_add_cli_test("Console: number prompts reject what is not a number in range" wisdom-chess-console
         INPUT "human_black" "maxdepth" "99999999999999999999" "timeout" "abc" "maxdepth" "4" "timeout" "3" "quit"
         EXPECTED

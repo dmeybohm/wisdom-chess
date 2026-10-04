@@ -44,8 +44,9 @@ Four branches, each standing alone and each linking back here.
   needs no message, so `optional` is enough.
 - The FEN parser returns `expected<Game, ParseError>`, or a non-throwing
   `Game::tryCreateGameFromFen()` does, where `ParseError` is a value type
-  holding the message. UCI, the console and `ChessGame::fromFen()` use
-  it. The parser's internals return the error too, rather than throwing
+  holding the message. UCI and the console use it. `ChessGame::fromFen()`
+  only rebuilds a game from a FEN the engine wrote, so it keeps the strict
+  form. The parser's internals return the error too, rather than throwing
   and converting at the entry point. That shortcut would leave a throw in
   the WASM build and block step 4.
 - The FEN parser builds through `BoardBuilder`, whose range and
@@ -58,8 +59,8 @@ Four branches, each standing alone and each linking back here.
   tests), so a bad string is a bug there. They become contract checks
   over the optional forms. `CoordParseError`, `ParseMoveError`,
   `FenParserError`, `BoardBuilderError` and `PieceError` go away.
-- `game_file.cpp`'s two I/O throws return an error to the console, which
-  then has one error style.
+- `game_file.cpp`'s two I/O throws stay. Only the console saves games,
+  and native builds keep exceptions.
 - `expected`: `std::expected` needs C++23, which every toolchain (GCC,
   Clang, MSVC, Apple Clang, Emscripten, the Android NDK) would have to
   support first. `tl::expected` through CPM has nearly the same API, so
@@ -103,7 +104,13 @@ doubles the count.
   `expects-through-noexcept` fatal case, which tests their throwing
   through `noexcept`.
 - The `web_types.hpp` enum conversions abort: an invalid value from the
-  bindings is a bug.
+  bindings is a bug. So do the ones in the QML frontend's `ui_types.hpp`,
+  which already call `throwPreconditionError()`.
+- `chess_game_test.cpp` checks that out-of-range settings and a bad FEN
+  throw. A QML test cannot be a fatal case, so those checks move to the
+  engine-level code they exercise, or go. The settings come from sliders
+  bounded by the engine's own limits, in QML and React alike, so the
+  check in `GameSettings::applyTo()` stays a contract.
 - About 15 contract `CHECK_THROWS` (in `game_test`, `history_test`,
   `transposition_table_test` and `global_test`) become fatal cases.
 - Functions whose only throw was a contract check can become `noexcept`.

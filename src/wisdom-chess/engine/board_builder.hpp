@@ -19,15 +19,6 @@ namespace wisdom
         return result;
     }
 
-    class BoardBuilderError : public Error
-    {
-    public:
-        explicit BoardBuilderError (const string& message)
-            : Error (message)
-        {
-        }
-    };
-
     class BoardBuilder
     {
     public:
@@ -68,9 +59,6 @@ namespace wisdom
         constexpr void
         addPiece (string_view coord_str, Color who, Piece piece_type)
         {
-            if (coord_str.size() != 2)
-                throw BoardBuilderError ("Invalid coordinate string!");
-
             Coord algebraic = coordParse (coord_str);
 
             addPiece (algebraic.row(), algebraic.column(), who, piece_type);
@@ -79,11 +67,8 @@ namespace wisdom
         constexpr void
         addPiece (int row, int col, Color who, Piece piece_type)
         {
-            if (row < 0 || row >= Num_Rows)
-                throw BoardBuilderError ("Invalid row!");
-
-            if (col < 0 || col >= Num_Columns)
-                throw BoardBuilderError ("Invalid column!");
+            EXPECTS( isValidRow (row) );
+            EXPECTS( isValidColumn (col) );
 
             if (piece_type == Piece::None)
                 return;
@@ -92,8 +77,7 @@ namespace wisdom
 
             // Replacing a king would leave its recorded position pointing
             // at another piece.
-            if (pieceType (my_squares[coord.index()]) == Piece::King)
-                throw BoardBuilderError ("A king is already on that square!");
+            EXPECTS( pieceType (my_squares[coord.index()]) != Piece::King );
 
             my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
@@ -176,8 +160,7 @@ namespace wisdom
         constexpr void
         setHalfMovesClock (int new_half_moves_clock)
         {
-            if (new_half_moves_clock < 0 || new_half_moves_clock > Max_Half_Move_Clock)
-                throw BoardBuilderError ("Half moves clock out of range!");
+            EXPECTS( new_half_moves_clock >= 0 && new_half_moves_clock <= Max_Half_Move_Clock );
 
             my_half_moves_clock = new_half_moves_clock;
         }
@@ -185,8 +168,7 @@ namespace wisdom
         constexpr void
         setFullMoves (int new_full_moves)
         {
-            if (new_full_moves < 1 || new_full_moves > Max_Full_Move_Number)
-                throw BoardBuilderError ("Full moves out of range!");
+            EXPECTS( new_full_moves >= 1 && new_full_moves <= Max_Full_Move_Number );
 
             my_full_moves = new_full_moves;
         }
@@ -236,28 +218,23 @@ namespace wisdom
             -> Coord
         {
             auto index = colorIndex (who);
-
-            if (!my_king_positions[index].has_value())
-            {
-                throw BoardBuilderError {
-                    "Missing king position in constructing board."
-                };
-            }
-
+            EXPECTS( my_king_positions[index].has_value() );
             return *my_king_positions[index];
+        }
+
+        [[nodiscard]] constexpr auto
+        hasKingPositions() const noexcept
+            -> bool
+        {
+            return my_king_positions[Color_Index_White].has_value()
+                && my_king_positions[Color_Index_Black].has_value();
         }
 
         [[nodiscard]] constexpr auto
         getKingPositions() const
             -> array<Coord, Num_Players>
         {
-            if (!my_king_positions[Color_Index_White].has_value() ||
-                !my_king_positions[Color_Index_Black].has_value())
-            {
-                throw BoardBuilderError {
-                    "Missing king position in constructing board."
-                };
-            }
+            EXPECTS( hasKingPositions() );
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 

@@ -43,6 +43,13 @@ committing C++. The conventions below are about what the code does.
   - `widen` for a wider type that holds every value of the source, which
     cannot fail: a signed source needs a signed target.
   - `truncate` discards an unsigned value's high bits on purpose.
+- Text from outside the program (a FEN string, a move, a coordinate) goes
+  through a parser that returns `optional` or `expected<T, ParseError>`
+  (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,
+  `FenParser::parse()`, `moveParseOptional()`, `coordParseOptional()`.
+  The forms without one (`createGameFromFen()`, `moveParse()`,
+  `coordParse()`) are for strings the program wrote, such as literals,
+  and treat a bad one as a precondition failure.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
   input and throw. `EXPECTS_NOEXCEPT( cond )` and `ENSURES_NOEXCEPT( cond )`
   abort and belong only in `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts

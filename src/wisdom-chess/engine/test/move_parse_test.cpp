@@ -23,25 +23,24 @@ TEST_CASE( "moveParse" )
         CHECK( ( castle == moveParse ("o-o", Color::Black) ) );
     }
 
-    SUBCASE( "moveParse throws an exception for castling moves" )
+    SUBCASE( "Castling needs a color" )
     {
-        CHECK_THROWS_AS( (void)moveParse ("o-o"), ParseMoveError );
-        CHECK_THROWS_WITH( (void)moveParse ("o-o"), "Move requires color, but no color provided" );
-        CHECK_THROWS_WITH( (void)moveParse ("o-o-o"), "Move requires color, but no color provided" );
+        CHECK( !moveParseOptional ("o-o", Color::None).has_value() );
+        CHECK( !moveParseOptional ("o-o-o", Color::None).has_value() );
+        CHECK_THROWS_AS( (void)moveParse ("o-o"), PreconditionError );
     }
 
-    SUBCASE( "Invalid moves throw an exception" )
+    SUBCASE( "Invalid moves are rejected" )
     {
-        CHECK_THROWS_AS( (void)moveParse ("invalid"), ParseMoveError );
-        CHECK_THROWS_WITH( (void)moveParse ("invalid"), "Error parsing move: invalid" );
+        CHECK( !moveParseOptional ("invalid", Color::White).has_value() );
+        CHECK_THROWS_AS( (void)moveParse ("invalid"), PreconditionError );
     }
 
     SUBCASE( "Empty and whitespace-only input" )
     {
-        CHECK_THROWS_AS( (void)moveParse (""), ParseMoveError );
-        CHECK_THROWS_WITH( (void)moveParse (""), "Error parsing move: empty string" );
-        CHECK_THROWS_AS( (void)moveParse ("", Color::White), ParseMoveError );
-        CHECK_THROWS_AS( (void)moveParse ("   "), ParseMoveError );
+        CHECK_THROWS_AS( (void)moveParse (""), PreconditionError );
+        CHECK_THROWS_AS( (void)moveParse ("", Color::White), PreconditionError );
+        CHECK_THROWS_AS( (void)moveParse ("   "), PreconditionError );
 
         CHECK( !moveParseOptional ("", Color::White).has_value() );
         CHECK( !moveParseOptional ("  \t ", Color::White).has_value() );
@@ -53,6 +52,6 @@ TEST_CASE( "moveParse" )
         CHECK( !moveParseOptional ("\xc3\xa9", Color::White).has_value() );
         CHECK( !moveParseOptional ("\xa0" "e2e4", Color::White).has_value() );
         CHECK( !moveParseOptional ("\xd0-\xd0", Color::White).has_value() );
-        CHECK_THROWS_AS( (void)moveParse ("\xff", Color::White), ParseMoveError );
+        CHECK( !moveParseOptional ("\xff", Color::White).has_value() );
     }
 }

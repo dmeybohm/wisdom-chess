@@ -350,14 +350,11 @@ namespace wisdom::ui::console
             if (input.empty())
                 return nullopt;
 
-            try
-            {
-                return Game::createGameFromFen (input);
-            }
-            catch ([[maybe_unused]] FenParserError& error)
-            {
+            auto game = Game::tryCreateGameFromFen (input);
+            if (!game.has_value())
                 return nullopt;
-            }
+
+            return std::move (*game);
         }
 
         static auto

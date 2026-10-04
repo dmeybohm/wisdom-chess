@@ -339,15 +339,13 @@ namespace wisdom
                 fields.emplace_back ("1");
 
             string fen_string = join (fields, " ");
-            try
+            auto fen_game = Game::tryCreateGameFromFen (fen_string);
+            if (!fen_game.has_value())
             {
-                new_game = Game::createGameFromFen (fen_string);
-            }
-            catch (const Error& e)
-            {
-                sendLine ("info string Invalid FEN: " + fen_string + " (" + e.message() + ")");
+                sendLine ("info string Invalid FEN: " + fen_string + " (" + fen_game.error().message + ")");
                 return;
             }
+            new_game = std::move (*fen_game);
         }
         else
         {
@@ -582,37 +580,32 @@ namespace wisdom
         if (uci_move.length() < 4)
             return nullopt;
 
-        try
-        {
-            auto src_coord = coordParse (uci_move.substr (0, 2));
-            auto dst_coord = coordParse (uci_move.substr (2, 2));
-
-            optional<Piece> promoted_piece = nullopt;
-            if (uci_move.length() == 5)
-            {
-                char promotion_char = uci_move[4];
-                switch (wisdom::toLower (promotion_char))
-                {
-                    case 'q': promoted_piece = Piece::Queen; break;
-                    case 'r': promoted_piece = Piece::Rook; break;
-                    case 'b': promoted_piece = Piece::Bishop; break;
-                    case 'n': promoted_piece = Piece::Knight; break;
-                    default: return nullopt;
-                }
-            }
-
-            return mapCoordinatesToMove (
-                game.getBoard(),
-                game.getCurrentTurn(),
-                src_coord,
-                dst_coord,
-                promoted_piece
-            );
-        }
-        catch (...)
-        {
+        auto src_coord = coordParseOptional (uci_move.substr (0, 2));
+        auto dst_coord = coordParseOptional (uci_move.substr (2, 2));
+        if (!src_coord.has_value() || !dst_coord.has_value())
             return nullopt;
+
+        optional<Piece> promoted_piece = nullopt;
+        if (uci_move.length() == 5)
+        {
+            char promotion_char = uci_move[4];
+            switch (wisdom::toLower (promotion_char))
+            {
+                case 'q': promoted_piece = Piece::Queen; break;
+                case 'r': promoted_piece = Piece::Rook; break;
+                case 'b': promoted_piece = Piece::Bishop; break;
+                case 'n': promoted_piece = Piece::Knight; break;
+                default: return nullopt;
+            }
         }
+
+        return mapCoordinatesToMove (
+            game.getBoard(),
+            game.getCurrentTurn(),
+            *src_coord,
+            *dst_coord,
+            promoted_piece
+        );
     }
 
     auto

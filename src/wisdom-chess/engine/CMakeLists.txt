@@ -17,6 +17,15 @@ CPMAddPackage(
 
 find_package(doctest)
 
+# Header only. Its own CMake project would add tests and install rules, so
+# only its include directory is used.
+CPMAddPackage(
+  NAME expected
+  GITHUB_REPOSITORY TartanLlama/expected
+  GIT_TAG v1.3.1
+  DOWNLOAD_ONLY YES
+)
+
 if (doctest_FOUND)
     include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
 endif()
@@ -49,6 +58,7 @@ add_library(wisdom-chess-core STATIC
         coord.hpp
         error.hpp
         evaluate.hpp
+        expected.hpp
         fen_parser.hpp
         game.hpp
         game_file.hpp
@@ -103,6 +113,7 @@ else()
 endif()
 
 target_include_directories(wisdom-chess-core PUBLIC ../..)
+target_include_directories(wisdom-chess-core SYSTEM PUBLIC ${expected_SOURCE_DIR}/include)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)

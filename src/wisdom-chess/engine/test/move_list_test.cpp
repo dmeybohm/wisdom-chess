@@ -156,5 +156,5 @@ TEST_CASE( "Swapping lists" )
 
 TEST_CASE( "Constructing a move list from an invalid move string throws" )
 {
-    CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), ParseMoveError );
+    CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), PreconditionError );
 }
