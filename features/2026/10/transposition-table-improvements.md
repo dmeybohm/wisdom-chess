@@ -250,7 +250,29 @@ rounds 1 and 2 are usable:
 - The middlegame, the largest search, visits 20% fewer nodes and is
   21 to 24% faster in both rounds. The others are within the noise of
   two rounds.
-- Not yet run: the engine match, which decides the step.
+- Engine matches, base against new, 8+0.08, from
+  `scripts/run-engine-match.sh` with its defaults otherwise:
+
+  | Hash | Entries, base / new | Games | W / D / L for new | Elo | 95% range |
+  |---|---|---|---|---|---|
+  | 16 MB | 524,288 / 1,048,576 | 363 of 500, stopped | 97 / 172 / 94 | +3 | −23 to +29 |
+  | 1 MB | 32,768 / 65,536 | 500 | 151 / 199 / 150 | +1 | −23 to +24 |
+
+- The 16 MB match was stopped because the table barely fills at this
+  time control. A 250 ms search, about one move's time, reaches depth 4
+  or 5 and fills 3,800 entries in the middlegame and 14,000 from the
+  start position. Only interior nodes probe and store: a depth-1 node
+  hands its children to quiescence, which does not touch the table.
+- The 1 MB match puts the table under pressure, and still shows no
+  difference.
+- Fastchess's interim summaries ("Results of base vs new") count wins
+  for the first engine named, base. The script's final table is from
+  the later engine's side. Each was checked against the game lines.
+- Step 1 stays: it gains in deep searches (the middlegame row above)
+  and costs nothing measurable. At 8+0.08 the search is too shallow
+  for the table to decide games, so a match at this time control will
+  likely not separate step 2 either. Deeper searches, from item 4,
+  would make the table matter more.
 
 ### Session #3
 
