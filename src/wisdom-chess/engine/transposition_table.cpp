@@ -156,7 +156,7 @@ namespace wisdom
         int ply
     ) noexcept
     {
-        ASSERT( bound_type != BoundType::Empty );
+        EXPECTS( bound_type != BoundType::Empty );
 
         auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];

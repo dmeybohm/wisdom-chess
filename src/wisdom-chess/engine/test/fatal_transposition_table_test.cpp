@@ -30,4 +30,13 @@ namespace
     {
         [[maybe_unused]] auto table = TranspositionTable::fromEntries (6);
     }
+
+    FATAL_CASE(
+        "transposition-table-store-empty-bound",
+        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: bound_type != BoundType::Empty"
+    )
+    {
+        auto table = TranspositionTable::fromEntries (2);
+        table.store (1, 0, 1, BoundType::Empty, Move::make (0, 0, 1, 1), 0);
+    }
 }
