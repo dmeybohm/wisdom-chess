@@ -89,13 +89,25 @@ number for it, and the first step is to get one.
    and rejected (Session #6 of
    [quiescence-search.md](quiescence-search.md)): it dropped the lines
    quiescence exists to search.
-5. [ ] **Transposition table.** One entry per index, replaced by any other
+5. [x] **Transposition table.** One entry per index, replaced by any other
    position (`engine/transposition_table.cpp:154`), and quiescence does
    not probe or store. [tt-index-metadata.md](tt-index-metadata.md)
    measured a hit rate of 19.3 to 19.7%. Candidates: buckets of two or
    four entries with a depth-preferred slot, and probing in quiescence,
    which [quiescence-search.md](quiescence-search.md) lists as a later
    experiment. Not measured.
+   **Done** on the `transposition-table-improvements` branch, PR #347
+   ([transposition-table-improvements.md](../10/transposition-table-improvements.md)):
+   16-byte entries, twice as many in the same memory, and buckets of
+   four in a cache line, replaced by depth less a penalty for age. The
+   depth-7 report is 24% faster than before, 38% in the middlegame.
+   Probing at the horizon, the part of quiescence whose entries agree,
+   gave no benefit: 12% slower, 5% with a prefetch, so it was reverted
+   and kept on the local `tt-horizon-probe` branch. In engine matches
+   at 8+0.08 the table changes showed little: the default 16 MB never
+   fills at that time control, the larger entry count alone was +1 Elo
+   (−23 to +24) even at 1 MB, and only the buckets showed a gain, +20
+   (−1 to +42) at 1 MB.
 
 ### Engine: move generation
 
@@ -541,3 +553,13 @@ score.
 - Items 15 and 16 are done on the `small-engine-fixups` branch and
   marked so. An empty table entry is now `BoundType::Empty`, not a zero
   hash.
+
+### Session #8
+
+- Item 5 is done on the `transposition-table-improvements` branch and
+  marked so. Of its candidates, the buckets helped and probing in
+  quiescence did not, measured at the horizon only, the one place
+  where quiescence entries agree with each other.
+- At 8+0.08 the search reaches depth 4 or 5 a move and stores a few
+  thousand entries, so matches there barely exercise the table. The
+  gains are in deeper searches, which item 4 would make common.

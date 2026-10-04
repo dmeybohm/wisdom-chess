@@ -16,11 +16,11 @@ namespace
     }
 
     FATAL_CASE(
-        "transposition-table-one-entry",
-        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: entry_count >= 2"
+        "transposition-table-less-than-a-bucket",
+        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: entry_count >= TranspositionBucket::Size"
     )
     {
-        [[maybe_unused]] auto table = TranspositionTable::fromEntries (1);
+        [[maybe_unused]] auto table = TranspositionTable::fromEntries (2);
     }
 
     FATAL_CASE(
@@ -36,7 +36,25 @@ namespace
         "Precondition failed at .*transposition_table\\.cpp:[0-9]+: bound_type != BoundType::Empty"
     )
     {
-        auto table = TranspositionTable::fromEntries (2);
+        auto table = TranspositionTable::fromEntries (4);
         table.store (1, 0, 1, BoundType::Empty, Move::make (0, 0, 1, 1), 0);
+    }
+
+    FATAL_CASE(
+        "depth-and-score-bits-depth-too-large",
+        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: depth >= 0 && depth <= Max_Depth"
+    )
+    {
+        int volatile depth = DepthAndScoreBits::Max_Depth + 1;
+        [[maybe_unused]] auto bits = DepthAndScoreBits::make (depth, 0);
+    }
+
+    FATAL_CASE(
+        "depth-and-score-bits-score-too-large",
+        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: score >= Min_Score && score <= Max_Score"
+    )
+    {
+        int volatile score = DepthAndScoreBits::Max_Score + 1;
+        [[maybe_unused]] auto bits = DepthAndScoreBits::make (1, score);
     }
 }
