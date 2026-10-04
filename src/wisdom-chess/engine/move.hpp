@@ -30,15 +30,6 @@ namespace wisdom
         Castling = 3,
     };
 
-    class ParseMoveError : public Error
-    {
-    public:
-        explicit ParseMoveError (const string& message)
-            : Error { message }
-        {
-        }
-    };
-
     // Combined category/promotion encoding (fits in 4 bits):
     //   0: Default (non-capture, non-promote)
     //   1: Normal capture
@@ -388,7 +379,8 @@ namespace wisdom
         return a.data != b.data;
     }
 
-    // Parse a move. Returns empty if the parse failed.
+    // Parse a move. Returns empty if the parse failed, including a castling
+    // move without a color.
     [[nodiscard]] auto
     moveParseOptional (const string& str, Color who)
         -> optional<Move>;
@@ -410,7 +402,9 @@ namespace wisdom
             optional<Piece> promoted_piece = {}) noexcept
         -> optional<Move>;
 
-    // Parse a move. Throws an exception if it could not parse the move.
+    // Parse a move. A move that does not parse is a precondition failure, and
+    // without a color it must be a normal move or capture. Text from outside
+    // the program goes through moveParseOptional().
     [[nodiscard]] auto
     moveParse (const string& str, Color color = Color::None)
         -> Move;

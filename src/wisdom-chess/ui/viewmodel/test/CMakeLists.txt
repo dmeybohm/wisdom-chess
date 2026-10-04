@@ -18,3 +18,9 @@ doctest_discover_tests(wisdom-chess-viewmodel-tests PROPERTIES LABELS fast)
 if (WISDOM_CHESS_FILC_COMPAT)
     target_compile_definitions(wisdom-chess-viewmodel-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
 endif()
+
+if (TARGET wisdom-chess-fatal-main)
+    wisdom_chess_add_fatal_tests(wisdom-chess-viewmodel-fatal-tests
+        fatal_game_settings_test.cpp)
+    target_link_libraries(wisdom-chess-viewmodel-fatal-tests PRIVATE wisdom::viewmodel)
+endif()

@@ -24,15 +24,6 @@ namespace wisdom
         return col >= 0 && col < Num_Columns;
     }
 
-    class CoordParseError : public Error
-    {
-    public:
-        explicit CoordParseError (string message)
-            : Error (std::move (message))
-        {
-        }
-    };
-
     struct Coord
     {
         int8_t row_and_col;
@@ -213,14 +204,14 @@ namespace wisdom
         return makeCoord (row, col);
     }
 
+    // A coordinate that does not parse is a precondition failure. Text from
+    // outside the program goes through coordParseOptional().
     [[nodiscard]] constexpr auto
     coordParse (string_view str)
         -> Coord
     {
         auto result = coordParseOptional (str);
-        if (!result.has_value())
-            throw CoordParseError ("Invalid coordinate!");
-
+        EXPECTS( result.has_value() );
         return *result;
     }
 

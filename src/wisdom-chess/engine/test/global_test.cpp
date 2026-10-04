@@ -41,46 +41,19 @@ TEST_CASE( "truncate discards the high bits" )
     CHECK( truncate<uint32_t> (runtime_value) == 1U );
 }
 
-TEST_CASE( "narrow throws at runtime when the value does not fit" )
+TEST_CASE( "narrow converts a value that fits" )
 {
-    int too_big = 300;
-    int negative = -1;
-
-    CHECK( narrow<int8_t> (100) == 100 );
-    CHECK_THROWS_AS( (void)narrow<int8_t> (too_big), PreconditionError );
-    CHECK_THROWS_AS( (void)narrow<std::size_t> (negative), PreconditionError );
-}
-
-TEST_CASE( "narrow names its caller in the error" )
-{
-    int too_big = 300;
-
-    try
-    {
-        (void)narrow<int8_t> (too_big);
-        FAIL( "narrow did not throw" );
-    }
-    catch (const PreconditionError& error)
-    {
-        CHECK( error.message().find ("global_test.cpp:") != string::npos );
-    }
-}
-
-TEST_CASE( "narrow_noexcept converts a value that fits" )
-{
-    static_assert (narrow_noexcept<int8_t> (100) == 100);
-    static_assert (noexcept (narrow_noexcept<int8_t> (100)));
+    static_assert (narrow<int8_t> (100) == 100);
 
     int fits = 127;
     std::size_t zero = 0;
-    CHECK( narrow_noexcept<int8_t> (fits) == 127 );
-    CHECK( narrow_noexcept<int> (zero) == 0 );
+    CHECK( narrow<int8_t> (fits) == 127 );
+    CHECK( narrow<int> (zero) == 0 );
 }
 
 TEST_CASE( "narrow_debug converts a value that fits" )
 {
     static_assert (narrow_debug<int8_t> (100) == 100);
-    static_assert (noexcept (narrow_debug<int8_t> (100)));
 
     if constexpr (!Debugging)
     {
@@ -94,10 +67,9 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<int64_t> (int32_t { -1 }) == -1);
     static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
-    static_assert (noexcept (widen<int64_t> (int32_t { 42 })));
 }
 
-TEST_CASE( "to_unsigned converts a nonnegative value and rejects a negative one" )
+TEST_CASE( "to_unsigned converts a nonnegative value" )
 {
     static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);
     static_assert (to_unsigned<uint32_t> (std::numeric_limits<int32_t>::max()) == 0x7fff'ffffU);
@@ -105,29 +77,11 @@ TEST_CASE( "to_unsigned converts a nonnegative value and rejects a negative one"
 
     int ply = 63;
     CHECK( to_unsigned<std::size_t> (ply) == 63 );
-
-    int negative = -1;
-    try
-    {
-        (void)to_unsigned<std::size_t> (negative);
-        FAIL( "to_unsigned did not throw" );
-    }
-    catch (const PreconditionError& error)
-    {
-        CHECK( error.message().find ("global_test.cpp:") != string::npos );
-    }
-}
-
-TEST_CASE( "to_unsigned_noexcept converts a nonnegative value" )
-{
-    static_assert (to_unsigned_noexcept<uint64_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (to_unsigned_noexcept<uint64_t> (int32_t { 42 })));
 }
 
 TEST_CASE( "to_unsigned_debug converts a nonnegative value" )
 {
     static_assert (to_unsigned_debug<uint32_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (to_unsigned_debug<uint64_t> (int32_t { 42 })));
 
     if constexpr (!Debugging)
     {
@@ -141,40 +95,6 @@ TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
     static_assert (CompileTimeRandom::min() == 0);
     static_assert (CompileTimeRandom::max() == std::numeric_limits<uint32_t>::max());
     static_assert (CompileTimeRandom::min() < CompileTimeRandom::max());
-}
-
-TEST_CASE( "Copying an Error cannot throw" )
-{
-    static_assert (std::is_nothrow_copy_constructible_v<Error>);
-    static_assert (std::is_nothrow_copy_assignable_v<Error>);
-    static_assert (std::is_nothrow_copy_constructible_v<PreconditionError>);
-
-    SUBCASE( "A copy keeps its text after the original is destroyed" )
-    {
-        auto original = std::make_unique<Error> ("the message", "the extra info");
-        Error copy { *original };
-        original.reset();
-
-        CHECK( copy.message() == "the message" );
-        CHECK( copy.extraInfo() == "the extra info" );
-        CHECK( string { copy.what() } == "the message" );
-    }
-
-    SUBCASE( "A moved-from error keeps its text" )
-    {
-        Error original { "the message", "the extra info" };
-        Error moved_to { std::move (original) };
-
-        CHECK( moved_to.message() == "the message" );
-        CHECK( original.message() == "the message" );
-    }
-
-    SUBCASE( "The extra info defaults to empty" )
-    {
-        Error error { "the message" };
-
-        CHECK( error.extraInfo().empty() );
-    }
 }
 
 namespace
@@ -204,7 +124,6 @@ TEST_CASE( "nonnull" )
 {
     static_assert (Dereferenceable<nonnull<int>>);
     static_assert (!std::is_default_constructible_v<nonnull<int>>);
-    static_assert (std::is_nothrow_constructible_v<nonnull<int>, int*>); // lint-allow(raw-pointer)
     static_assert (!std::is_constructible_v<nonnull<int>, std::nullptr_t>);
     static_assert (!std::is_assignable_v<nonnull<int>&, std::nullptr_t>);
     static_assert (!std::is_constructible_v<nonnull<int>, nullable<int>>);
@@ -277,7 +196,6 @@ TEST_CASE( "nullable" )
 
         CHECK( !ptr );
         CHECK( ptr == nullptr );
-        CHECK_THROWS_AS( (void)ptr.value(), PreconditionError );
     }
 
     SUBCASE( "value() returns the pointer as nonnull" )
@@ -324,44 +242,15 @@ TEST_CASE( "nullable" )
     }
 }
 
-TEST_CASE( "ENSURES_NOEXCEPT passes a true condition" )
+TEST_CASE( "EXPECTS and ENSURES pass a true condition" )
 {
     auto checked = []() noexcept
     {
-        ENSURES_NOEXCEPT( 1 + 1 == 2 );
+        EXPECTS( 1 + 1 == 2 );
+        ENSURES( 1 + 1 == 2 );
         return true;
     };
     CHECK( checked() );
-}
-
-TEST_CASE( "EXPECTS quotes the condition and the location in the error" )
-{
-    try
-    {
-        EXPECTS( 1 + 1 == 3 );
-        FAIL( "EXPECTS did not throw" );
-    }
-    catch (const PreconditionError& error)
-    {
-        CHECK( error.message().find ("Precondition failed at ") == 0 );
-        CHECK( error.message().find ("global_test.cpp:") != string::npos );
-        CHECK( error.message().find (": 1 + 1 == 3") != string::npos );
-        CHECK( !error.extraInfo().empty() );
-    }
-}
-
-TEST_CASE( "ENSURES quotes the condition in the error" )
-{
-    try
-    {
-        ENSURES( 2 * 2 == 5 );
-        FAIL( "ENSURES did not throw" );
-    }
-    catch (const PostconditionError& error)
-    {
-        CHECK( error.message().find ("Postcondition failed at ") == 0 );
-        CHECK( error.message().find (": 2 * 2 == 5") != string::npos );
-    }
 }
 
 TEST_CASE( "ASSERT" )

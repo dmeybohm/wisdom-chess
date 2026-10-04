@@ -45,7 +45,8 @@ namespace wisdom::ui
                 && thinkingTime >= Min_Thinking_Time && thinkingTime <= Max_Thinking_Time;
         }
 
-        // Configure the engine's game. Throws when a value is out of range.
+        // Configure the engine's game. A value out of range is a precondition
+        // failure.
         void applyTo (nonnull<Game> game) const
         {
             EXPECTS( isInRange() );

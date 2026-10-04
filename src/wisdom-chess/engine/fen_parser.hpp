@@ -2,6 +2,7 @@
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/expected.hpp"
 
 namespace wisdom
 {
@@ -10,11 +11,13 @@ namespace wisdom
     class FenParser final
     {
     public:
-        explicit FenParser (const string& input)
-            : my_active_player { Color::White }
-        {
-            parse (input);
-        }
+        // A FEN string that does not parse is a precondition failure. Text
+        // from outside the program goes through parse().
+        explicit FenParser (const string& input);
+
+        [[nodiscard]] static auto
+        parse (const string& input)
+            -> expected<FenParser, ParseError>;
 
         [[nodiscard]] auto
         getActivePlayer() const noexcept
@@ -29,36 +32,31 @@ namespace wisdom
         [[nodiscard]] auto buildBoard() -> Board;
 
     private:
+        using Result = expected<void, ParseError>;
+
         BoardBuilder my_builder;
-        Color my_active_player;
+        Color my_active_player = Color::White;
 
-        void parse (const string& input);
+        FenParser() = default;
 
-        [[nodiscard]] static auto parsePiece (char ch) -> ColoredPiece;
+        [[nodiscard]] auto parseFields (const string& input) -> Result;
 
-        void parsePieces (string pieces_str);
+        [[nodiscard]] static auto parsePiece (char ch) -> expected<ColoredPiece, ParseError>;
 
-        void parseEnPassant (string en_passant_str);
+        [[nodiscard]] auto parsePieces (string pieces_str) -> Result;
 
-        void validateEnPassantTarget (Color vulnerable_color, Coord target);
+        [[nodiscard]] auto parseEnPassant (string en_passant_str) -> Result;
 
-        void parseCastling (string castling_str);
+        [[nodiscard]] auto validateEnPassantTarget (Color vulnerable_color, Coord target) -> Result;
 
-        void validateCastlingPieces (Color who, CastlingEligibility eligibility);
+        [[nodiscard]] auto parseCastling (string castling_str) -> Result;
 
-        void parseHalfMove (int half_moves);
+        [[nodiscard]] auto validateCastlingPieces (Color who, CastlingEligibility eligibility) -> Result;
 
-        void parseFullMove (int full_moves);
+        [[nodiscard]] auto parseHalfMove (int half_moves) -> Result;
 
-        [[nodiscard]] static auto parseActivePlayer (char ch) -> Color;
-    };
+        [[nodiscard]] auto parseFullMove (int full_moves) -> Result;
 
-    class FenParserError : public Error
-    {
-    public:
-        explicit FenParserError (const string& message)
-            : Error (message)
-        {
-        }
+        [[nodiscard]] static auto parseActivePlayer (char ch) -> expected<Color, ParseError>;
     };
 }

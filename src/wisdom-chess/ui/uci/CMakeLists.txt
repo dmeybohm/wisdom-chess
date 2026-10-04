@@ -200,4 +200,8 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_add_cli_test("UCI: an invalid FEN is reported without debug mode too" wisdom-chess-uci
         INPUT "position fen not a fen at all ok" "isready" "quit"
         EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")
+
+    wisdom_chess_add_cli_test("UCI: a FEN without a king is reported" wisdom-chess-uci
+        INPUT "position fen 8/8/8/8/8/8/8/4K3 w - - 0 1" "isready" "quit"
+        EXPECTED "info string Invalid FEN: .*\\(Each side needs a king!\\)" "readyok")
 endif()

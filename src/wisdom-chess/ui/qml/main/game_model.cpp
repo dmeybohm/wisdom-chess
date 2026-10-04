@@ -243,7 +243,7 @@ namespace wisdom::ui::qml
 
         // The engine does not search again until the move it sent is shown,
         // so a second move can never arrive while one is held.
-        EXPECTS_NOEXCEPT( !my_held_move.has_value() );
+        EXPECTS( !my_held_move.has_value() );
 
         my_held_move = HeldMove { move, who, game_id };
         my_hold_timer.start (remaining);

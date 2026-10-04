@@ -26,7 +26,7 @@ namespace wisdom
             case WebColor::Black:
                 return Color::Black;
             default:
-                throw Error { "Invalid color." };
+                PRECONDITION_FAILED( "a valid color" );
         }
     }
 
@@ -51,7 +51,7 @@ namespace wisdom
             case Black:
                 return WebColor::Black;
             default:
-                throw Error { "Invalid color." };
+                PRECONDITION_FAILED( "a valid color" );
         }
     }
 
@@ -87,7 +87,7 @@ namespace wisdom
             case WebPiece::King:
                 return Piece::King;
             default:
-                throw Error { "Invalid piece." };
+                PRECONDITION_FAILED( "a valid piece" );
         }
     }
 
@@ -120,7 +120,7 @@ namespace wisdom
             case King:
                 return WebPiece::King;
             default:
-                throw Error { "Invalid piece." };
+                PRECONDITION_FAILED( "a valid piece" );
         }
     }
 
@@ -141,7 +141,7 @@ namespace wisdom
             case WebPlayer::ChessEngine:
                 return Player::ChessEngine;
             default:
-                throw Error { "Invalid player." };
+                PRECONDITION_FAILED( "a valid player" );
         }
     }
 
@@ -164,7 +164,7 @@ namespace wisdom
             case ChessEngine:
                 return WebPlayer::ChessEngine;
             default:
-                throw Error { "Invalid player." };
+                PRECONDITION_FAILED( "a valid player" );
         }
     }
 
@@ -209,7 +209,7 @@ namespace wisdom
             case WebGameStatus::InsufficientMaterialDraw:
                 return GameStatus::InsufficientMaterialDraw;
             default:
-                throw Error { "Invalid game status" };
+                PRECONDITION_FAILED( "a valid game status" );
         }
     }
 
@@ -248,7 +248,7 @@ namespace wisdom
             case InsufficientMaterialDraw:
                 return WebGameStatus::InsufficientMaterialDraw;
             default:
-                throw Error { "Invalid game status" };
+                PRECONDITION_FAILED( "a valid game status" );
         }
     }
 
@@ -365,7 +365,7 @@ namespace wisdom
             case WebDrawByRepetitionType::FiftyMovesWithoutProgress:
                 return ProposedDrawType::FiftyMovesWithoutProgress;
             default:
-                throw Error { "Invalid draw type." };
+                PRECONDITION_FAILED( "a valid draw type" );
         }
     }
 
@@ -388,7 +388,7 @@ namespace wisdom
             case FiftyMovesWithoutProgress:
                 return WebDrawByRepetitionType::FiftyMovesWithoutProgress;
             default:
-                throw Error { "Invalid draw type." };
+                PRECONDITION_FAILED( "a valid draw type" );
         }
     }
 

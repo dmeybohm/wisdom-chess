@@ -4,15 +4,6 @@
 
 namespace wisdom
 {
-    class PieceError : public Error
-    {
-    public:
-        explicit PieceError (string extra_info)
-            : Error ("Piece error", std::move (extra_info))
-        {
-        }
-    };
-
     enum class Piece : int8_t
     {
         None = 0,
@@ -259,7 +250,7 @@ namespace wisdom
             case 'P':
                 return Piece::Pawn;
             default:
-                throw Error { "Invalid piece character" };
+                PRECONDITION_FAILED( "a piece character" );
         }
     }
 

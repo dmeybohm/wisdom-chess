@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/generate.hpp"
@@ -67,7 +69,7 @@ namespace wisdom
     auto wisdom::perft::convertMove (const Board& board, Color who, string move_str) -> Move
     {
         if (move_str.size() != 4 && move_str.size() != 5)
-            throw wisdom::Error { "Invalid size of move" };
+            throw std::runtime_error { "Invalid size of move" };
 
         // parse the move into the coordinates
         auto src = wisdom::coordParse (move_str.substr (0, 2));

@@ -88,7 +88,7 @@ TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
 
     SUBCASE( "It writes one move per line" )
     {
-        saveGame (game, file.path());
+        REQUIRE( saveGame (game, file.path()).has_value() );
 
         auto lines = file.lines();
         const auto& moves = game.getHistory().getMoveHistory();
@@ -100,7 +100,7 @@ TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
 
     SUBCASE( "A saved game loads back to the same position" )
     {
-        saveGame (game, file.path());
+        REQUIRE( saveGame (game, file.path()).has_value() );
 
         auto loaded = loadGame (file.path(), players);
 
@@ -113,7 +113,7 @@ TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
     {
         auto new_game = Game::createStandardGame();
 
-        saveGame (new_game, file.path());
+        REQUIRE( saveGame (new_game, file.path()).has_value() );
 
         CHECK( file.lines().empty() );
 
@@ -128,7 +128,7 @@ TEST_CASE( "saveGame() writes FEN to a .fen file" )
     TemporaryFile file { "wisdom-chess-game-file-fen-test.fen" };
     auto game = playSampleGame();
 
-    saveGame (game, file.path());
+    REQUIRE( saveGame (game, file.path()).has_value() );
 
     auto lines = file.lines();
 
@@ -148,8 +148,13 @@ TEST_CASE( "saveGame() reports a file it cannot write" )
 {
     auto game = playSampleGame();
 
-    CHECK_THROWS_AS( saveGame (game, "/nonexistent-directory/game.txt"), Error );
-    CHECK_THROWS_AS( saveGame (game, "/nonexistent-directory/game.fen"), Error );
+    auto as_moves = saveGame (game, "/nonexistent-directory/game.txt");
+    REQUIRE_FALSE( as_moves.has_value() );
+    CHECK( as_moves.error() == "Cannot open /nonexistent-directory/game.txt for writing." );
+
+    auto as_fen = saveGame (game, "/nonexistent-directory/game.fen");
+    REQUIRE_FALSE( as_fen.has_value() );
+    CHECK( as_fen.error() == "Cannot open /nonexistent-directory/game.fen for writing." );
 }
 
 TEST_CASE( "loadGame()" )

@@ -56,16 +56,6 @@ private slots:
         QCOMPARE( config.searchDepthInPlies(), 8 );
     }
 
-    void settingsOutOfRangeAreRejectedWhenApplied()
-    {
-        auto game = wisdom::Game::createStandardGame();
-
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .searchDepth = 0 }.applyTo (&game) );
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .searchDepth = 9 }.applyTo (&game) );
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .thinkingTime = 0 }.applyTo (&game) );
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .thinkingTime = 31 }.applyTo (&game) );
-    }
-
     void configFromDefaultGameSettings()
     {
         GameSettings settings;
@@ -168,11 +158,6 @@ private slots:
 
         QVERIFY( game->state()->getCurrentTurn() == Color::Black );
         QCOMPARE( fenOf (*game), std::string { "4k3/8/8/8/8/8/8/R3K3 b Q - 3 20" } );
-    }
-
-    void fromFenRejectsNonsense()
-    {
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, (void)ChessGame::fromFen ("not a fen", makeConfig()) );
     }
 
     void aCloneHasThePositionPlayersAndConfig()

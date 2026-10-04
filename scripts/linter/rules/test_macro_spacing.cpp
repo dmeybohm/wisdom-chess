@@ -25,8 +25,9 @@ namespace
             std::vector<LintViolation> violations;
 
             static const std::unordered_set<std::string> test_macros = {
-                "EXPECTS", "EXPECTS_NOEXCEPT", "ENSURES", "ENSURES_NOEXCEPT", "ASSERT",
+                "EXPECTS", "ENSURES", "ASSERT", "PRECONDITION_FAILED",
                 "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
+                "FATAL_CASE",
                 "WARN", "WARN_FALSE", "INFO", "CAPTURE", "GENERATE", "SECTION",
                 "CHECK_EQ", "CHECK_NE", "CHECK_GT", "CHECK_LT", "CHECK_GE", "CHECK_LE",
                 "REQUIRE_EQ", "REQUIRE_NE", "REQUIRE_GT", "REQUIRE_LT", "REQUIRE_GE", "REQUIRE_LE",

@@ -349,7 +349,7 @@ namespace wisdom
             else if (who == Color::Black)
                 src_row = First_Row;
             else
-                throw ParseMoveError { "Invalid color parsing castling move." };
+                return nullopt;
 
             string transformed { str };
             std::transform (
@@ -400,17 +400,10 @@ namespace wisdom
         if (tmp.size() < 4)
             return nullopt;
 
-        optional<Coord> src;
-        int offset = 0;
-        try
-        {
-            src = coordParse (tmp.substr (0, 2));
-            offset += 2;
-        }
-        catch ([[maybe_unused]] const CoordParseError& e)
-        {
+        optional<Coord> src = coordParseOptional (tmp.substr (0, 2));
+        if (!src.has_value())
             return nullopt;
-        }
+        int offset = 2;
 
         // allow an 'x' between coordinates, which is used to indicate a capture
         if (tmp[offset] == 'X')
@@ -422,15 +415,9 @@ namespace wisdom
         string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
 
-        optional<Coord> dst;
-        try
-        {
-            dst = coordParse (dst_coord);
-        }
-        catch ([[maybe_unused]] const CoordParseError& e)
-        {
+        optional<Coord> dst = coordParseOptional (dst_coord);
+        if (!dst.has_value())
             return nullopt;
-        }
 
         string rest { tmp.substr (offset) };
         Move move = Move::make (*src, *dst);
@@ -479,23 +466,13 @@ namespace wisdom
     moveParse (const string& str, Color color)
         -> Move
     {
-        if (str.empty())
-            throw ParseMoveError ("Error parsing move: empty string");
-
-        if (toLower (str[0]) == 'o' && color == Color::None)
-            throw ParseMoveError ("Move requires color, but no color provided");
-
         auto optional_result = moveParseOptional (str, color);
-        if (!optional_result.has_value())
-            throw ParseMoveError ("Error parsing move: " + str);
+        EXPECTS( optional_result.has_value() );
 
         auto result = *optional_result;
         auto move_category = result.getMoveCategory();
-        if (color == Color::None && move_category != MoveCategory::NormalCapturing
-            && move_category != MoveCategory::Default)
-        {
-            throw ParseMoveError ("Invalid type of move in moveParse");
-        }
+        EXPECTS( color != Color::None || move_category == MoveCategory::NormalCapturing
+            || move_category == MoveCategory::Default );
 
         return result;
     }

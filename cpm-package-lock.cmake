@@ -9,6 +9,13 @@ CPMDeclarePackage(doctest
   OPTIONS
     "DOCTEST_NO_INSTALL On"
 )
+# expected
+CPMDeclarePackage(expected
+  NAME expected
+  GIT_TAG v1.3.1
+  GITHUB_REPOSITORY TartanLlama/expected
+  DOWNLOAD_ONLY YES
+)
 # nanobench
 CPMDeclarePackage(nanobench
   VERSION 4.3.11

@@ -50,7 +50,7 @@ reason in the same comment, as in
 - Test macros put spaces inside the parentheses instead:
   `CHECK( x == y )`, `REQUIRE( ... )`, and Qt Test's `QCOMPARE( a, b )`.
   So do the contract macros of `engine/error.hpp`: `EXPECTS( x > 0 )`,
-  `ENSURES( ... )`, `EXPECTS_NOEXCEPT( ... )` and `ASSERT( ... )`
+  `ENSURES( ... )`, `ASSERT( ... )` and `PRECONDITION_FAILED( ... )`
   [`test-macro-spacing`].
 - Brace initializers have spaces inside the braces:
   `Coord coord { row, col }`.
@@ -122,13 +122,14 @@ reason in the same comment, as in
 | Private data members | `my_` and `snake_case` | `my_pimpl` |
 | Public data members | `snake_case`, no prefix | `data` |
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
-| Exception classes | ending in `Error` | `ParseMoveError` |
 
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
-(`nonnull`, `nullable`, `owning`), `czstring`, `narrow`, and the
-functions under the contract macros (`expects_noexcept`). The GSL itself
-is not a dependency.
+(`nonnull`, `nullable`, `owning`), `czstring`, and the conversions of
+`engine/numeric_cast.hpp` (`narrow`, `to_unsigned`, ...). The contract
+macros of `engine/error.hpp`, `EXPECTS()`, `ENSURES()` and `ASSERT()`,
+are upper case like any macro; the functions under them, which only the
+macros call, are `snake_case` too. The GSL itself is not a dependency.
 
 A name that JavaScript or QML also uses is spelled as that side spells
 it. The fields of the settings structs are the case: `searchDepth`,
@@ -140,8 +141,8 @@ Getters:
 - A class of the engine names a getter `getX()`: `Game::getBoard()`,
   `Board::getKingPosition()`.
 - A small value type names the part it returns: `Coord::row()`,
-  `ColoredPiece::color()`, `Error::message()`. Names the standard
-  containers use stay as they are: `size()`, `empty()`, `begin()`.
+  `ColoredPiece::color()`. Names the standard containers use stay as
+  they are: `size()`, `empty()`, `begin()`.
 - A Qt class follows Qt, where the getter of a property has no prefix:
   `GameModel::inCheck()`. The view model the frontends share does the
   same.

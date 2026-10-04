@@ -14,9 +14,9 @@ the web version needs no install at all.
 - **Emscripten SDK** for either web build
 - **Node.js** for the React frontend
 
-The engine's other dependencies (doctest, nanobench) are fetched by
-[CPM](https://github.com/cpm-cmake/CPM.cmake) at configure time, pinned
-by `cpm-package-lock.cmake`.
+The engine's other dependencies (doctest, nanobench, tl::expected) are
+fetched by [CPM](https://github.com/cpm-cmake/CPM.cmake) at configure
+time, pinned by `cpm-package-lock.cmake`.
 
 ## Console version
 
@@ -275,9 +275,11 @@ The suites, by the labels and name prefixes `ctest -N` shows:
 - **Engine, slow** (`wisdom-chess-slow-tests`, label `slow`): perft against
   the published node counts and the hash-collision sweep. Needs
   `WISDOM_CHESS_SLOW_TESTS=On`.
-- **`Fatal: ...`**: runs the engine's emergency-logging paths as separate
-  processes and checks that they report before aborting. The cases are
-  listed in `engine/test/fatal_test_main.cpp`.
+- **`Fatal: ...`** (`cmake/FatalTests.cmake`): runs the failed contract
+  checks and other emergency-logging paths of the engine
+  (`wisdom-chess-fatal-tests`) and the view model
+  (`wisdom-chess-viewmodel-fatal-tests`) as separate processes, and
+  checks that they report before aborting.
 - **`UCI: ...`** and **`Console: ...`** (`cmake/CliTests.cmake`): script
   the binaries' standard input and check the output.
 - **View-model** (`wisdom-chess-viewmodel-tests`): the state shared by

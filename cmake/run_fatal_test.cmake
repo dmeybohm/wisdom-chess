@@ -1,4 +1,5 @@
-# Runs one case of wisdom-chess-fatal-tests and judges how it ended.
+# Runs one case of a fatal test program (FatalTests.cmake) and judges how it
+# ended.
 #
 # CTest fails any test whose process dies from a signal, whatever it printed,
 # and not every toolchain lets the process catch its own abort. Running the

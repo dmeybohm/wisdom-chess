@@ -102,6 +102,15 @@ namespace wisdom
         return parser.build();
     }
 
+    auto Game::tryCreateGameFromFen (const string& fen) -> expected<Game, ParseError>
+    {
+        auto parser = FenParser::parse (fen);
+        if (!parser.has_value())
+            return unexpected<ParseError> { parser.error() };
+
+        return parser->build();
+    }
+
     auto Game::createGameFromFen (const string& fen, const Players& players) -> Game
     {
         FenParser parser { fen };

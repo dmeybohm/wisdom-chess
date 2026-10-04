@@ -10,18 +10,6 @@ namespace wisdom
 {
     namespace
     {
-        auto
-        describeFailure (
-            string_view kind,
-            string_view expression,
-            const std::source_location& location
-        )
-            -> string
-        {
-            return string { kind } + " failed at " + location.file_name() + ":"
-                + std::to_string (location.line()) + ": " + string { expression };
-        }
-
         // A message built in place, without the heap. Text that does not
         // fit is dropped.
         class FixedMessage
@@ -53,24 +41,6 @@ namespace wisdom
         private:
             std::array<char, 1024> my_buffer {};
             size_t my_size = 0;
-        };
-    }
-
-    void
-    throwPreconditionError (string_view expression, std::source_location location)
-    {
-        throw PreconditionError {
-            describeFailure ("Precondition", expression, location),
-            location.function_name()
-        };
-    }
-
-    void
-    throwPostconditionError (string_view expression, std::source_location location)
-    {
-        throw PostconditionError {
-            describeFailure ("Postcondition", expression, location),
-            location.function_name()
         };
     }
 
