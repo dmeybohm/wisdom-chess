@@ -252,6 +252,23 @@ TEST_CASE( "Transposition table" )
         CHECK( tt.getStats().probes == 2 );
         CHECK( tt.getStats().hits == 1 );
     }
+
+    SUBCASE( "counts an entry with a zero hash once" )
+    {
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
+
+        BoardHashCode hash = 0;
+        tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
+        tt.store (hash, 100, 6, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
+
+        CHECK( tt.getStats().stored_entries == 1 );
+
+        tt.clear();
+        CHECK( tt.getStats().stored_entries == 0 );
+
+        tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
+        CHECK( tt.getStats().stored_entries == 1 );
+    }
 }
 
 TEST_CASE( "Transposition table sizing" )

@@ -31,6 +31,7 @@ namespace wisdom
 
     enum class BoundType : uint8_t
     {
+        Empty,
         Exact,
         LowerBound,
         UpperBound
@@ -42,7 +43,7 @@ namespace wisdom
         Move best_move {};
         int score = 0;
         int16_t depth = 0;
-        BoundType bound_type = BoundType::Exact;
+        BoundType bound_type = BoundType::Empty;
     };
 
     class TranspositionTable
