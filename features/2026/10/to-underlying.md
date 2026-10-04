@@ -37,6 +37,9 @@ The new conversions:
   value straight to doctest's `CHECK` does the same cast, but a compound
   expression such as `a | b` does not compile there, and MSVC may warn
   on the implicit conversions.
+  It requires the conversion to be `noexcept`: the project does not
+  throw, and `to_bool` itself is `noexcept`, so a throwing `operator bool`
+  would end the process. Requiring it makes that a compile error instead.
 
 With conversions other than integer ones in it, `numeric_cast.hpp` is
 renamed to `cast.hpp`.

@@ -191,13 +191,13 @@ namespace wisdom
     }
 
     // Converts a value to bool, including through an explicit operator bool.
+    // A conversion that can throw does not compile.
     template <typename Source>
+        requires std::is_nothrow_constructible_v<bool, const Source&>
     [[nodiscard]] constexpr auto
     to_bool (const Source& value) noexcept
         -> bool
     {
-        static_assert (std::is_constructible_v<bool, const Source&>);
-
         return static_cast<bool> (value);
     }
 }

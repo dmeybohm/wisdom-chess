@@ -46,7 +46,7 @@ committing C++. The conventions below are about what the code does.
     that it fits the enum's underlying type.
   - `to_double` converts a number to `double`, unchecked.
   - `to_bool` converts to `bool`, including through an explicit
-    `operator bool`.
+    `operator bool`, which must be `noexcept`.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,

@@ -108,6 +108,26 @@ TEST_CASE( "to_double converts a number" )
     static_assert (to_double (1.5f) == 1.5);
 }
 
+namespace
+{
+    template <typename T>
+    concept ConvertsToBool = requires (const T& value) { to_bool (value); };
+
+    struct MayThrowFlag
+    {
+        explicit operator bool() const
+        {
+            return true;
+        }
+    };
+}
+
+TEST_CASE( "to_bool rejects a conversion that can throw" )
+{
+    static_assert (ConvertsToBool<int>);
+    static_assert (!ConvertsToBool<MayThrowFlag>);
+}
+
 TEST_CASE( "to_bool converts through an explicit operator bool" )
 {
     struct Flag
