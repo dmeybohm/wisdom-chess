@@ -580,15 +580,11 @@ namespace wisdom::ui::console
                     },
                     [this] (const PlayCommand::SaveGame& save_game)
                     {
-                        try
-                        {
-                            wisdom::saveGame (my_game, save_game.file_path);
+                        auto saved = wisdom::saveGame (my_game, save_game.file_path);
+                        if (saved.has_value())
                             std::cout << "Game saved to " << save_game.file_path << "\n\n";
-                        }
-                        catch (const Error& error)
-                        {
-                            std::cout << "Error saving game: " << error.message() << "\n\n";
-                        }
+                        else
+                            std::cout << "Error saving game: " << saved.error() << "\n\n";
                     },
                     [this] (const PlayCommand::PrintAvailableMoves&) { printAvailableMoves(); },
                     [this] (const PlayCommand::SetMaxDepth& set_depth)

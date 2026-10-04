@@ -132,7 +132,7 @@ namespace wisdom::ui::qml
         friend class ::ChessEngineTest;
         void runGuarded (const std::function<void()>& body) noexcept;
 
-        void fail (const std::string& message, const std::string& extra_info) noexcept;
+        void fail (const std::string& message) noexcept;
 
         // Keep the logger in sync with the game's config.
         void syncDebugLogging();

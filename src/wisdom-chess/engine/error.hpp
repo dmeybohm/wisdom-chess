@@ -1,12 +1,9 @@
 #pragma once
 
-#include <exception>
-#include <memory>
 #include <source_location>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 
 #include "wisdom-chess/engine/types.hpp"
 
@@ -19,58 +16,6 @@ namespace wisdom
 #else
     inline constexpr bool Debugging = true;
 #endif
-
-    // Errors in this application.
-    class Error : public std::exception
-    {
-    private:
-        struct Text
-        {
-            string message;
-            string extra_info;
-        };
-
-        // Shared, so that copying the exception cannot throw.
-        shared_ptr<const Text> my_text;
-
-    public:
-        Error (string message, string extra_info)
-            : my_text {
-                make_shared<const Text> (Text { std::move (message), std::move (extra_info) })
-            }
-        {
-        }
-
-        explicit Error (string message)
-            : Error (std::move (message), "")
-        {
-        }
-
-        // Declared so that there is no move, which would leave my_text empty.
-        Error (const Error& src) noexcept = default;
-        auto operator= (const Error& src) noexcept -> Error& = default;
-
-        [[nodiscard]] auto
-        message() const noexcept
-            -> const string&
-        {
-            return my_text->message;
-        }
-
-        [[nodiscard]] auto
-        extraInfo() const noexcept
-            -> const string&
-        {
-            return my_text->extra_info;
-        }
-
-        [[nodiscard]] auto
-        what() const noexcept
-            -> czstring override
-        {
-            return my_text->message.c_str();
-        }
-    };
 
     // Reports through logEmergency() and aborts. The kind names the check
     // that failed, such as "Precondition". Allocates nothing: the message

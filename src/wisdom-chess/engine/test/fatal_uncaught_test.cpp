@@ -5,22 +5,24 @@
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
+#include <stdexcept>
+
 #include "fatal_test.hpp"
 
 using namespace wisdom;
 
 namespace
 {
-    FATAL_CASE( "uncaught-error", "Uncaught error: boom", test::Reports_Uncaught_Errors )
+    FATAL_CASE( "uncaught-exception", "Uncaught exception: boom", test::Reports_Uncaught_Errors )
     {
-        throw Error { "boom", "extra detail" };
+        throw std::runtime_error { "boom" };
     }
 
     // The periodic function runs inside the noexcept search, so a throw
     // from it ends the process. Depth 4 reaches the first periodic call.
     FATAL_CASE(
         "periodic-function-throws",
-        "Uncaught error: boom.extra detail",
+        "Uncaught exception: boom",
         test::Reports_Uncaught_Errors
     )
     {
@@ -29,7 +31,7 @@ namespace
         MoveTimer timer { 30 };
         timer.setPeriodicFunction ([] (nonnull<MoveTimer>)
         {
-            throw Error { "boom", "extra detail" };
+            throw std::runtime_error { "boom" };
         });
         auto transposition_table = TranspositionTable::fromMegabytes (1);
         auto search = IterativeSearch::create (

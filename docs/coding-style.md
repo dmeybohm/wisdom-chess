@@ -122,7 +122,6 @@ reason in the same comment, as in
 | Private data members | `my_` and `snake_case` | `my_pimpl` |
 | Public data members | `snake_case`, no prefix | `data` |
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
-| Exception classes | ending in `Error` | `Error` |
 
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
@@ -140,8 +139,8 @@ Getters:
 - A class of the engine names a getter `getX()`: `Game::getBoard()`,
   `Board::getKingPosition()`.
 - A small value type names the part it returns: `Coord::row()`,
-  `ColoredPiece::color()`, `Error::message()`. Names the standard
-  containers use stay as they are: `size()`, `empty()`, `begin()`.
+  `ColoredPiece::color()`. Names the standard containers use stay as
+  they are: `size()`, `empty()`, `begin()`.
 - A Qt class follows Qt, where the getter of a property has no prefix:
   `GameModel::inCheck()`. The view model the frontends share does the
   same.

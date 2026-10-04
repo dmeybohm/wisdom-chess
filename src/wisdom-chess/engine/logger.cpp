@@ -387,13 +387,6 @@ namespace wisdom
             {
                 std::rethrow_exception (current);
             }
-            catch (const Error& e)
-            {
-                auto result = "Uncaught error: " + e.message();
-                if (!e.extraInfo().empty())
-                    result += "\n" + e.extraInfo();
-                return result;
-            }
             catch (const std::exception& e)
             {
                 return string { "Uncaught exception: " } + e.what();

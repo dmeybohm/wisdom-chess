@@ -10,48 +10,36 @@ namespace wisdom
     namespace
     {
         auto
-        openForWriting (const string& filename)
-            -> std::ofstream
+        writeLines (const string& filename, const vector<string>& lines)
+            -> expected<void, string>
         {
             std::ofstream file { filename };
             if (!file)
-                throw Error { "Cannot open " + filename + " for writing." };
-            return file;
-        }
+                return unexpected<string> { "Cannot open " + filename + " for writing." };
 
-        void
-        closeAfterWriting (std::ofstream& file, const string& filename)
-        {
+            for (const auto& line : lines)
+                file << line << "\n";
+
             file.close();
             if (!file)
-                throw Error { "Error writing " + filename + "." };
-        }
+                return unexpected<string> { "Error writing " + filename + "." };
 
-        void
-        saveFen (const Game& game, const string& filename)
-        {
-            auto file = openForWriting (filename);
-            file << game.getBoard().toFenString (game.getCurrentTurn()) << "\n";
-            closeAfterWriting (file, filename);
-        }
-
-        // One move per line, as loadGame() reads them.
-        void
-        saveMoveList (const Game& game, const string& filename)
-        {
-            auto file = openForWriting (filename);
-            for (auto move : game.getHistory().getMoveHistory())
-                file << asString (move) << "\n";
-            closeAfterWriting (file, filename);
+            return {};
         }
     }
 
-    void saveGame (const Game& game, const string& filename)
+    auto
+    saveGame (const Game& game, const string& filename)
+        -> expected<void, string>
     {
         if (filename.find (".fen") != string::npos)
-            saveFen (game, filename);
-        else
-            saveMoveList (game, filename);
+            return writeLines (filename, { game.getBoard().toFenString (game.getCurrentTurn()) });
+
+        // One move per line, as loadGame() reads them.
+        vector<string> moves;
+        for (auto move : game.getHistory().getMoveHistory())
+            moves.push_back (asString (move));
+        return writeLines (filename, moves);
     }
 
     auto

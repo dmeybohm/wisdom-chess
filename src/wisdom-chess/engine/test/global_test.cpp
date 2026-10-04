@@ -103,39 +103,6 @@ TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
     static_assert (CompileTimeRandom::min() < CompileTimeRandom::max());
 }
 
-TEST_CASE( "Copying an Error cannot throw" )
-{
-    static_assert (std::is_nothrow_copy_constructible_v<Error>);
-    static_assert (std::is_nothrow_copy_assignable_v<Error>);
-
-    SUBCASE( "A copy keeps its text after the original is destroyed" )
-    {
-        auto original = std::make_unique<Error> ("the message", "the extra info");
-        Error copy { *original };
-        original.reset();
-
-        CHECK( copy.message() == "the message" );
-        CHECK( copy.extraInfo() == "the extra info" );
-        CHECK( string { copy.what() } == "the message" );
-    }
-
-    SUBCASE( "A moved-from error keeps its text" )
-    {
-        Error original { "the message", "the extra info" };
-        Error moved_to { std::move (original) };
-
-        CHECK( moved_to.message() == "the message" );
-        CHECK( original.message() == "the message" );
-    }
-
-    SUBCASE( "The extra info defaults to empty" )
-    {
-        Error error { "the message" };
-
-        CHECK( error.extraInfo().empty() );
-    }
-}
-
 namespace
 {
     constexpr auto

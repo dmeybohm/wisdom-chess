@@ -60,13 +60,9 @@ namespace wisdom::ui::qml
         {
             std::forward<Body> (body)();
         }
-        catch (const Error& error)
-        {
-            fail (error.message(), error.extraInfo());
-        }
         catch (const std::exception& error)
         {
-            fail (error.what(), "");
+            fail (error.what());
         }
     }
 
@@ -75,12 +71,9 @@ namespace wisdom::ui::qml
         guarded (body);
     }
 
-    void ChessEngine::fail (const string& message, const string& extra_info) noexcept
+    void ChessEngine::fail (const string& message) noexcept
     {
-        auto report = "Engine error: " + message;
-        if (!extra_info.empty())
-            report += "\n" + extra_info;
-        logEmergency (report);
+        logEmergency ("Engine error: " + message);
 
         my_has_failed = true;
         emit engineFailed (QString::fromStdString (message), my_game_id);

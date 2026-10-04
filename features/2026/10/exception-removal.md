@@ -60,7 +60,8 @@ Four branches, each standing alone and each linking back here.
   over the optional forms. `CoordParseError`, `ParseMoveError`,
   `FenParserError`, `BoardBuilderError` and `PieceError` go away.
 - `game_file.cpp`'s two I/O throws stay. Only the console saves games,
-  and native builds keep exceptions.
+  and native builds keep exceptions. (Step 3 changed this: `saveGame()`
+  returns its error, and `Error` is gone.)
 - `expected`: `std::expected` needs C++23, which every toolchain (GCC,
   Clang, MSVC, Apple Clang, Emscripten, the Android NDK) would have to
   support first. `tl::expected` through CPM has nearly the same API, so

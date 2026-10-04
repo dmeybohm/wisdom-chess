@@ -34,6 +34,12 @@ throwing.
   bad FEN throw. The engine's checks under them have fatal cases, apart
   from `GameSettings::applyTo()`'s `EXPECTS( isInRange() )`, whose
   library the fatal test program does not link.
+- `Error` is gone too, since only `saveGame()` and the perft tool still
+  threw it. `saveGame()` returns `expected<void, string>`, and the perft
+  tool throws `std::runtime_error`. `guarded()`, the terminate handler
+  and the console's `main()` lose their `Error` branches, and an uncaught
+  exception is reported as "Uncaught exception:" with its `what()`. The
+  engine and the frontends now define no exception type.
 - Not done: marking functions `noexcept` whose only throw was a contract
   check.
 
@@ -44,5 +50,6 @@ throwing.
 - Made the change and converted the tests.
 - Verified the Release build and its 277 fast tests, including the 39
   fatal cases, before the QML changes, and the QML build with Qt 6.11.2
-  and its 8 test programs after them. Not run on this branch: the
+  and its 8 test programs after them. After removing `Error`, the same
+  again: 276 fast tests and the QML tests. Not run on this branch: the
   medium and slow tests, a Debug build, Clang, MSVC and Emscripten.
