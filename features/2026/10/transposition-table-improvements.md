@@ -296,3 +296,40 @@ rounds 1 and 2 are usable:
   `EXPECTS` on the depth. The two `std::bit_cast`s stay: they
   reinterpret bits rather than convert a value.
 - Step 2 is not measured yet.
+
+### Session #5
+
+Measured step 2 against step 1 and `main`, rebuilt from the rebased
+commits in the scratchpad: `main` at `efddf228` (24-byte entries), step
+1 at `44215789` and step 2 at `edf38e23`. Release, GCC, pinned to one
+core, on a quiet machine. The warm-table benchmark ran through a
+scratch-only hook in `runSearchReport()`.
+
+`--search-report 7`, five alternating rounds, medians:
+
+| Position | Nodes: main → step 1 → step 2 | Time: main | Step 1 | Step 2 | Step 2 vs step 1 |
+|---|---|---|---|---|---|
+| starting | 354,803 → 352,753 → 336,232 | 0.290 s | 0.293 s | 0.284 s | −3.1%, faster 5 of 5 |
+| kiwipete | 1,705,188 → 1,691,380 → 1,678,629 | 1.562 s | 1.544 s | 1.531 s | −0.8%, faster 3 of 5 |
+| italian | 1,670,231 → 1,580,483 → 1,461,432 | 1.897 s | 1.796 s | 1.621 s | −9.7%, faster 5 of 5 |
+| position3 | 79,449 → 72,647 → 72,587 | 0.075 s | 0.071 s | 0.071 s | 0.0%, faster 2 of 5 |
+| position4 | 851,246 → 849,235 → 814,124 | 0.806 s | 0.812 s | 0.782 s | −3.7%, faster 5 of 5 |
+| middlegame | 6,359,105 → 5,107,840 → 4,196,236 | 5.609 s | 4.323 s | 3.473 s | −19.7%, faster 5 of 5 |
+| all six | | 10.24 s | 8.84 s | 7.76 s | −12% |
+
+- Every build chooses the same move with the same score everywhere.
+- Step 2 visits fewer nodes than step 1 in every position, and is 24%
+  faster than `main` in total and 38% in the middlegame.
+
+Warm-table benchmark, 30 plies at depth 6, three alternating rounds,
+medians:
+
+| Build | Cleared before each search | Table kept | Saving |
+|---|---|---|---|
+| main | 10.685 s | 8.782 s | −17.8% |
+| step 1 | 10.557 s | 8.776 s | −16.9% |
+| step 2 | 10.476 s | 8.475 s | −19.1% |
+
+- With the table kept, step 2's slowest run (8.604 s) beat step 1's
+  fastest (8.738 s). A 30-ply game at depth 6 does not fill 16 MB, so
+  this shows the generation causes no harm more than it shows a gain.
