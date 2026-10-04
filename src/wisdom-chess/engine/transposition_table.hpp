@@ -96,6 +96,10 @@ namespace wisdom
         DepthAndScoreBits depth_and_score {};
         Move best_move {};
         BoundType bound_type = BoundType::Empty;
+
+        // Fills the last byte. With padding there, GCC clears the table
+        // through a copy on the stack, several times slower.
+        uint8_t generation = 0;
     };
     static_assert (sizeof (TranspositionEntry) == 16);
 
