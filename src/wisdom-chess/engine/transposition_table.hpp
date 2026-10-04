@@ -97,11 +97,21 @@ namespace wisdom
         Move best_move {};
         BoundType bound_type = BoundType::Empty;
 
-        // Fills the last byte. With padding there, GCC clears the table
-        // through a copy on the stack, several times slower.
+        // The search that last stored or found this entry. Also fills the
+        // last byte: with padding there, GCC clears the table through a
+        // copy on the stack, several times slower.
         uint8_t generation = 0;
     };
     static_assert (sizeof (TranspositionEntry) == 16);
+
+    // The entries one hash index selects, in one cache line.
+    struct alignas (64) TranspositionBucket
+    {
+        static constexpr int Size = 4;
+
+        array<TranspositionEntry, Size> entries {};
+    };
+    static_assert (sizeof (TranspositionBucket) == 64);
 
     class TranspositionTable
     {
@@ -129,7 +139,7 @@ namespace wisdom
         fromMegabytes (int size)
             -> TranspositionTable;
 
-        // The entry count must be a power of two, and at least two.
+        // The entry count must be a power of two, and at least one bucket.
         [[nodiscard]] static auto
         fromEntries (size_t entry_count)
             -> TranspositionTable;
@@ -151,13 +161,18 @@ namespace wisdom
             int ply
         ) noexcept;
 
+        // Begins a search. Entries from earlier searches are replaced
+        // before newer ones of similar depth.
+        void startSearch() noexcept;
+
         void clear() noexcept;
 
+        // The number of entries.
         [[nodiscard]] auto
         getSize() const noexcept
             -> size_t
         {
-            return my_entries.size();
+            return my_buckets.size() * TranspositionBucket::Size;
         }
 
         [[nodiscard]] auto
@@ -168,6 +183,28 @@ namespace wisdom
         }
 
     private:
+        // A stored entry loses this much depth for each search it is old.
+        static constexpr int Age_Weight = 8;
+
+        void allocate (size_t entry_count);
+
+        [[nodiscard]] auto
+        findBucket (BoardHashCode hash) noexcept
+            -> TranspositionBucket&;
+
+        // The entry holding the position, made current, or null.
+        [[nodiscard]] auto
+        findEntry (BoardHashCode hash) noexcept
+            -> nullable<TranspositionEntry>;
+
+        [[nodiscard]] auto
+        chooseEntryToReplace (TranspositionBucket& bucket) const noexcept
+            -> TranspositionEntry&;
+
+        [[nodiscard]] auto
+        getAge (const TranspositionEntry& entry) const noexcept
+            -> int;
+
         [[nodiscard]] auto
         scoreToTT (int score, int ply) const noexcept
             -> int;
@@ -176,8 +213,9 @@ namespace wisdom
         scoreFromTT (int score, int ply) const noexcept
             -> int;
 
-        vector<TranspositionEntry> my_entries;
-        size_t my_size_mask;
+        vector<TranspositionBucket> my_buckets;
+        size_t my_bucket_mask;
+        uint8_t my_generation = 0;
         size_t my_hits = 0;
         size_t my_probes = 0;
         size_t my_stored_entries = 0;

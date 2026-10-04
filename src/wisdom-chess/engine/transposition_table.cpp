@@ -22,10 +22,9 @@ namespace wisdom
 
         size_t power_of_2 = std::bit_floor (entry_count);
 
-        ENSURES( power_of_2 >= 2 );
+        ENSURES( power_of_2 >= TranspositionBucket::Size );
 
-        my_entries.resize (power_of_2);
-        my_size_mask = power_of_2 - 1;
+        allocate (power_of_2);
     }
 
     auto
@@ -37,20 +36,79 @@ namespace wisdom
 
     TranspositionTable::TranspositionTable (FromEntriesTag, size_t entry_count)
     {
-        EXPECTS( entry_count >= 2 );
+        EXPECTS( entry_count >= TranspositionBucket::Size );
 
-        // The index mask below would otherwise leave entries unreachable.
+        // The index mask below would otherwise leave buckets unreachable.
         EXPECTS( std::has_single_bit (entry_count) );
-        my_entries.resize (entry_count);
-        my_size_mask = entry_count - 1;
+        allocate (entry_count);
     }
 
     auto
     TranspositionTable::fromEntries (size_t entry_count)
         -> TranspositionTable
     {
-        EXPECTS( entry_count >= 2 );
         return TranspositionTable { FromEntriesTag {}, entry_count };
+    }
+
+    void
+    TranspositionTable::allocate (size_t entry_count)
+    {
+        auto bucket_count = entry_count / TranspositionBucket::Size;
+        my_buckets.resize (bucket_count);
+        my_bucket_mask = bucket_count - 1;
+    }
+
+    auto
+    TranspositionTable::findBucket (BoardHashCode hash) noexcept
+        -> TranspositionBucket&
+    {
+        return my_buckets[foldHashTo32Bits (hash) & my_bucket_mask];
+    }
+
+    auto
+    TranspositionTable::findEntry (BoardHashCode hash) noexcept
+        -> nullable<TranspositionEntry>
+    {
+        for (auto& entry : findBucket (hash).entries)
+        {
+            if (entry.hash_code == hash && entry.bound_type != BoundType::Empty)
+            {
+                entry.generation = my_generation;
+                return &entry;
+            }
+        }
+        return nullptr;
+    }
+
+    auto
+    TranspositionTable::getAge (const TranspositionEntry& entry) const noexcept
+        -> int
+    {
+        // In eight bits, so that the generation can wrap.
+        return truncate<uint8_t> (unsigned { my_generation } - unsigned { entry.generation });
+    }
+
+    auto
+    TranspositionTable::chooseEntryToReplace (TranspositionBucket& bucket) const noexcept
+        -> TranspositionEntry&
+    {
+        for (auto& entry : bucket.entries)
+        {
+            if (entry.bound_type == BoundType::Empty)
+                return entry;
+        }
+
+        auto worth = [this] (const TranspositionEntry& entry) {
+            return entry.depth_and_score.getDepth() - Age_Weight * getAge (entry);
+        };
+
+        auto* least = &bucket.entries[0];
+        for (auto& entry : bucket.entries)
+        {
+            if (worth (entry) < worth (*least))
+                least = &entry;
+        }
+        return *least;
     }
 
     auto
@@ -87,11 +145,11 @@ namespace wisdom
     {
         my_probes++;
 
-        auto index = foldHashTo32Bits (hash) & my_size_mask;
-        auto& entry = my_entries[index];
-
-        if (entry.hash_code != hash)
+        auto found = findEntry (hash);
+        if (!found)
             return nullopt;
+
+        auto& entry = *found.value();
 
         if (entry.depth_and_score.getDepth() < depth)
             return nullopt;
@@ -131,16 +189,15 @@ namespace wisdom
     TranspositionTable::getBestMove (BoardHashCode hash) noexcept
         -> optional<Move>
     {
-        auto index = foldHashTo32Bits (hash) & my_size_mask;
-        auto& entry = my_entries[index];
-
-        if (entry.hash_code != hash)
+        auto found = findEntry (hash);
+        if (!found)
             return nullopt;
 
-        if (entry.best_move.isNullMove())
+        auto best_move = found.value()->best_move;
+        if (best_move.isNullMove())
             return nullopt;
 
-        return entry.best_move;
+        return best_move;
     }
 
     void
@@ -155,11 +212,11 @@ namespace wisdom
     {
         EXPECTS( bound_type != BoundType::Empty );
 
-        auto index = foldHashTo32Bits (hash) & my_size_mask;
-        auto& entry = my_entries[index];
-
-        if (entry.hash_code == hash && entry.depth_and_score.getDepth() > depth)
+        auto found = findEntry (hash);
+        if (found && found.value()->depth_and_score.getDepth() > depth)
             return;
+
+        auto& entry = found ? *found.value() : chooseEntryToReplace (findBucket (hash));
 
         if (entry.bound_type == BoundType::Empty)
             my_stored_entries++;
@@ -168,12 +225,20 @@ namespace wisdom
         entry.depth_and_score = DepthAndScoreBits::make (depth, scoreToTT (score, ply));
         entry.bound_type = bound_type;
         entry.best_move = best_move;
+        entry.generation = my_generation;
+    }
+
+    void
+    TranspositionTable::startSearch() noexcept
+    {
+        my_generation++;
     }
 
     void
     TranspositionTable::clear() noexcept
     {
-        std::fill (my_entries.begin(), my_entries.end(), TranspositionEntry {});
+        std::fill (my_buckets.begin(), my_buckets.end(), TranspositionBucket {});
+        my_generation = 0;
         my_hits = 0;
         my_probes = 0;
         my_stored_entries = 0;

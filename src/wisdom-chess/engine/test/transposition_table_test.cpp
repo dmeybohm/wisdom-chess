@@ -301,7 +301,7 @@ TEST_CASE( "Depth and score bits" )
 
     SUBCASE( "keeps mate scores at a distance from the root" )
     {
-        TranspositionTable tt = TranspositionTable::fromEntries (2);
+        TranspositionTable tt = TranspositionTable::fromEntries (4);
         BoardHashCode hash = 12345678ULL;
         int mate_score = checkmateScoreInMoves (5);
 
@@ -319,6 +319,166 @@ TEST_CASE( "Depth and score bits" )
 
         REQUIRE( losing.has_value() );
         CHECK( *losing == -mate_score + 2 );
+    }
+}
+
+TEST_CASE( "Transposition table buckets" )
+{
+    // One bucket, so every position shares it.
+    TranspositionTable tt = TranspositionTable::fromEntries (4);
+    auto move = Move::make (0, 0, 1, 1);
+
+    auto store = [&] (BoardHashCode hash, int depth, int score = 0) {
+        tt.store (hash, score, depth, BoundType::Exact, move, 0);
+    };
+    auto holds = [&] (BoardHashCode hash) {
+        return tt.getBestMove (hash).has_value();
+    };
+
+    SUBCASE( "holds four positions" )
+    {
+        for (BoardHashCode hash = 1; hash <= 4; hash++)
+            store (hash, narrow<int> (hash), narrow<int> (hash) * 10);
+
+        for (BoardHashCode hash = 1; hash <= 4; hash++)
+        {
+            CAPTURE( hash );
+            auto score = tt.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0);
+            REQUIRE( score.has_value() );
+            CHECK( *score == narrow<int> (hash) * 10 );
+        }
+        CHECK( tt.getStats().stored_entries == 4 );
+    }
+
+    SUBCASE( "a fifth position replaces the shallowest" )
+    {
+        store (1, 3);
+        store (2, 1);
+        store (3, 4);
+        store (4, 2);
+        store (5, 5);
+
+        CHECK( !holds (2) );
+        CHECK( holds (1) );
+        CHECK( holds (3) );
+        CHECK( holds (4) );
+        CHECK( holds (5) );
+        CHECK( tt.getStats().stored_entries == 4 );
+    }
+
+    SUBCASE( "an older entry is replaced before a newer one of the same depth" )
+    {
+        store (1, 3);
+        store (2, 3);
+        store (3, 3);
+        store (4, 3);
+        tt.startSearch();
+        store (1, 3);
+        store (2, 3);
+        store (3, 3);
+        store (5, 3);
+
+        CHECK( !holds (4) );
+        CHECK( holds (1) );
+        CHECK( holds (2) );
+        CHECK( holds (3) );
+        CHECK( holds (5) );
+    }
+
+    SUBCASE( "an older entry not deep enough is replaced before shallower ones" )
+    {
+        store (1, 1);
+        store (2, 1);
+        store (3, 1);
+        store (4, 5);
+        tt.startSearch();
+        store (1, 1);
+        store (2, 1);
+        store (3, 1);
+        store (5, 1);
+
+        CHECK( !holds (4) );
+        CHECK( holds (1) );
+        CHECK( holds (2) );
+        CHECK( holds (3) );
+        CHECK( holds (5) );
+    }
+
+    SUBCASE( "an older entry deep enough outweighs its age" )
+    {
+        store (1, 12);
+        tt.startSearch();
+        store (2, 1);
+        store (3, 1);
+        store (4, 1);
+        store (5, 1);
+
+        CHECK( holds (1) );
+        CHECK( !holds (2) );
+        CHECK( holds (3) );
+        CHECK( holds (4) );
+        CHECK( holds (5) );
+    }
+
+    SUBCASE( "a stored position is updated in place unless it is deeper" )
+    {
+        store (1, 3, 10);
+        store (2, 1);
+        store (3, 1);
+        store (4, 1);
+
+        store (1, 5, 20);
+        auto deeper = tt.probe (1, 1, -Initial_Alpha, Initial_Alpha, 0);
+        REQUIRE( deeper.has_value() );
+        CHECK( *deeper == 20 );
+
+        store (1, 2, 30);
+        auto kept = tt.probe (1, 1, -Initial_Alpha, Initial_Alpha, 0);
+        REQUIRE( kept.has_value() );
+        CHECK( *kept == 20 );
+
+        CHECK( holds (2) );
+        CHECK( holds (3) );
+        CHECK( holds (4) );
+        CHECK( tt.getStats().stored_entries == 4 );
+    }
+
+    SUBCASE( "finding a position makes its entry current" )
+    {
+        store (1, 3);
+        store (2, 3);
+        store (3, 3);
+        store (4, 3);
+        tt.startSearch();
+
+        (void)tt.probe (1, 3, -Initial_Alpha, Initial_Alpha, 0);
+        store (5, 3);
+
+        CHECK( holds (1) );
+        CHECK( !holds (2) );
+    }
+
+    SUBCASE( "a zero hash does not match an empty entry" )
+    {
+        CHECK( !tt.probe (0, 0, -Initial_Alpha, Initial_Alpha, 0).has_value() );
+        CHECK( !holds (0) );
+
+        store (0, 1, 40);
+        auto score = tt.probe (0, 1, -Initial_Alpha, Initial_Alpha, 0);
+        REQUIRE( score.has_value() );
+        CHECK( *score == 40 );
+    }
+
+    SUBCASE( "clear empties the bucket" )
+    {
+        for (BoardHashCode hash = 1; hash <= 4; hash++)
+            store (hash, 1);
+        tt.startSearch();
+        tt.clear();
+
+        for (BoardHashCode hash = 1; hash <= 4; hash++)
+            CHECK( !holds (hash) );
+        CHECK( tt.getStats().stored_entries == 0 );
     }
 }
 

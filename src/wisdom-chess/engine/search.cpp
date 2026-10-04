@@ -446,6 +446,7 @@ namespace wisdom
         // is noexcept and logs nothing.
         my_output->debug ("Searching position " + my_original_board.toFenString (side));
 
+        my_transposition_table->startSearch();
         my_timer.start();
 
         for (int depth = 1; depth <= my_total_depth; depth++)
