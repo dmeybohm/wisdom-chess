@@ -13,7 +13,7 @@ namespace wisdom
         uint8_t my_flags;
 
         [[nodiscard]] static constexpr auto
-        fromInt (unsigned int flags) noexcept
+        fromPacked (unsigned int flags) noexcept
             -> CastlingEligibility
         {
             return CastlingEligibility (narrow_debug<uint8_t> (flags));
@@ -53,21 +53,21 @@ namespace wisdom
         operator| (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags | other.my_flags);
+            return fromPacked (my_flags | other.my_flags);
         }
 
         [[nodiscard]] constexpr auto
         operator& (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags & other.my_flags);
+            return fromPacked (my_flags & other.my_flags);
         }
 
         [[nodiscard]] constexpr auto
         operator^ (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags ^ other.my_flags);
+            return fromPacked (my_flags ^ other.my_flags);
         }
 
         constexpr auto
@@ -114,13 +114,13 @@ namespace wisdom
             return my_flags != 0;
         }
 
-        template <typename IntegerType = uint8_t>
-        [[nodiscard]] constexpr auto
-        toInt() const noexcept
-            -> IntegerType
+        // The flag bits, for to_uint(). Explicit so the bits do not leak into
+        // arithmetic; a bool conversion uses operator bool instead.
+        template <std::unsigned_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
         {
-            static_assert (std::is_unsigned_v<IntegerType>);
-            return narrow_debug<IntegerType> (my_flags);
+            return widen<Target> (my_flags);
         }
 
         [[nodiscard]] constexpr auto
@@ -136,15 +136,6 @@ namespace wisdom
         static const CastlingEligibility Neither_Side;
 
     };
-
-    template <typename IntegerType = uint8_t>
-    [[nodiscard]] constexpr auto
-    toInt (CastlingEligibility eligibility) noexcept
-        -> IntegerType
-    {
-        static_assert (std::is_unsigned_v<IntegerType>);
-        return eligibility.toInt<IntegerType>();
-    }
 
     namespace CastlingRights
     {

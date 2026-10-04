@@ -23,7 +23,7 @@ int main (int argc, char *argv[]) // lint-allow(raw-pointer): main's signature
         return EXIT_FAILURE;
     }
 
-    auto depth = wisdom::toInt (argv[1]);
+    auto depth = wisdom::parseInt (argv[1]);
     if (!depth.has_value())
     {
         std::cerr << "Invalid depth: " << argv[1] << "\n";

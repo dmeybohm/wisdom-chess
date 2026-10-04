@@ -31,7 +31,7 @@ auto main (int argc, char** argv) -> int // lint-allow(raw-pointer): main's sign
         constexpr int Default_Report_Depth = 6;
 
         auto max_depth = argc > 2
-            ? wisdom::toInt (argv[2])
+            ? wisdom::parseInt (argv[2])
             : std::optional<int> { Default_Report_Depth };
 
         if (std::string { argv[1] } != "--search-report" || argc > 3

@@ -361,7 +361,7 @@ namespace wisdom::ui::console
         readInt (const std::string& prompt_value)
             -> optional<int>
         {
-            return toInt (prompt (prompt_value));
+            return parseInt (prompt (prompt_value));
         }
 
         // Copy the configuration from the old game to the new game.

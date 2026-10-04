@@ -310,7 +310,7 @@ namespace wisdom
     {
         static_assert (std::is_integral_v<IntegerType>);
         ASSERT( color == Color::Black || color == Color::White );
-        int8_t color_as_int = toInt8 (color);
+        auto color_as_int = to_int (color);
         return narrow_debug<IntegerType> (-1 + 2 * (color_as_int - 1));
     }
 }

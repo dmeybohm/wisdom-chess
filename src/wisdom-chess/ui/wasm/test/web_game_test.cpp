@@ -55,7 +55,7 @@ namespace
             CAPTURE( dst );
             int packed_move = game.makeHumanMove (src, dst, promoted);
             REQUIRE( packed_move != WebGame::Illegal_Move );
-            shadow.move (Move::fromInt (packed_move));
+            shadow.move (Move::fromPacked (packed_move));
             checkPieceList();
         }
 

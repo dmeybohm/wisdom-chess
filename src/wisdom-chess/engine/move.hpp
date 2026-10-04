@@ -208,7 +208,7 @@ namespace wisdom
         }
 
         [[nodiscard]] static constexpr auto
-        fromInt (int packed_move) noexcept -> Move
+        fromPacked (int packed_move) noexcept -> Move
         {
             Move m;
             m.data = narrow_debug<uint16_t> (packed_move & 0xffff);
@@ -216,7 +216,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        toInt() const noexcept
+        toPacked() const noexcept
             -> int
         {
             return data;

@@ -24,7 +24,7 @@ namespace
         std::sort (
             result.begin(),
             result.end(),
-            [] (Move a, Move b) { return a.toInt() < b.toInt(); }
+            [] (Move a, Move b) { return a.toPacked() < b.toPacked(); }
         );
         return result;
     }

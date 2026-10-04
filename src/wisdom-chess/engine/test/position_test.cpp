@@ -208,7 +208,7 @@ TEST_CASE( "Piece-square tables are symmetric between the two wings" )
                 if ((row == 7 && col == 0) || (row == 0 && mirror_col == 7))
                     continue;
 
-                INFO( "piece ", toInt (piece), " row ", row, " col ", col );
+                INFO( "piece ", to_int (piece), " row ", row, " col ", col );
                 CHECK( squareScore (piece, row, col) == squareScore (piece, row, mirror_col) );
             }
         }

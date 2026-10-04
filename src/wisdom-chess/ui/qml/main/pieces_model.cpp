@@ -17,23 +17,23 @@ namespace wisdom::ui::qml
     {
         constexpr auto
         whitePiece (Piece piece)
-            -> int8_t
+            -> int
         {
-            return toInt8 (ColoredPiece::make (Color::White, piece));
+            return to_int (ColoredPiece::make (Color::White, piece));
         }
 
         constexpr auto
         blackPiece (Piece piece)
-            -> int8_t
+            -> int
         {
-            return toInt8 (ColoredPiece::make (Color::Black, piece));
+            return to_int (ColoredPiece::make (Color::Black, piece));
         }
 
         auto
         initPieceMap()
-            -> QHash<int8_t, QString>
+            -> QHash<int, QString>
         {
-            auto result = QHash<int8_t, QString> {
+            auto result = QHash<int, QString> {
                 { whitePiece (Piece::Pawn), "../images/Chess_plt45.svg" },
                 { whitePiece (Piece::Rook), "../images/Chess_rlt45.svg" },
                 { whitePiece (Piece::Knight), "../images/Chess_nlt45.svg" },
@@ -78,7 +78,7 @@ namespace wisdom::ui::qml
                 auto piece = board.pieceAt (row, column);
                 if (piece != Piece_And_Color_None)
                 {
-                    PieceInfo new_piece { row, column, piece, my_piece_to_image_path[toInt8 (piece)] };
+                    PieceInfo new_piece { row, column, piece, my_piece_to_image_path[to_int (piece)] };
                     auto last_row = my_pieces.count();
                     beginInsertRows (QModelIndex {}, wisdom::narrow<int> (last_row),
                                      wisdom::narrow<int> (last_row));
@@ -211,7 +211,7 @@ namespace wisdom::ui::qml
             if (movement.promoted_piece != Piece::None)
             {
                 auto promoted_piece = ColoredPiece::make (who, movement.promoted_piece);
-                piece_model.piece_image = my_piece_to_image_path[toInt8 (promoted_piece)];
+                piece_model.piece_image = my_piece_to_image_path[to_int (promoted_piece)];
                 roles_changed.append (PieceImageRole);
             }
 

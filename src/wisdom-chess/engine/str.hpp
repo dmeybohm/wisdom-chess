@@ -71,8 +71,8 @@ namespace wisdom
     join (const vector<string>& strings, const string& separator)
         -> string;
 
-    // Convert the string to an integer.
+    // Parse the string as an integer.
     [[nodiscard]] auto
-    toInt (const string& str)
+    parseInt (const string& str)
         -> optional<int>;
 }

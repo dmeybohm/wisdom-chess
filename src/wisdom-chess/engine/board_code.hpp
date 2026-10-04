@@ -215,7 +215,7 @@ namespace wisdom
 
         void setCastleState (Color who, CastlingEligibility castling_states) noexcept
         {
-            uint8_t castling_bits = toInt (castling_states);
+            uint8_t castling_bits = to_uint<uint8_t> (castling_states);
             std::size_t bit_number = who == Color::White
                 ? CASTLING_STATE_WHITE_BIT
                 : CASTLING_STATE_BLACK_BIT;

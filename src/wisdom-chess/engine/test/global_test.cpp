@@ -67,6 +67,30 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<int64_t> (int32_t { -1 }) == -1);
     static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
+    static_assert (widen<int> (bool { true }) == 1);
+}
+
+TEST_CASE( "widen accepts the same width when the signedness matches" )
+{
+    static_assert (widen<int32_t> (int32_t { -1 }) == -1);
+    static_assert (widen<uint32_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffU);
+    static_assert (widen<long long> (int64_t { -1 }) == -1);
+    static_assert (widen<int64_t> (static_cast<long long> (-1)) == -1);
+}
+
+namespace
+{
+    template <typename Target, typename Source>
+    concept Widens = requires (Source value) { widen<Target> (value); };
+}
+
+TEST_CASE( "widen rejects a target that cannot hold every value" )
+{
+    CHECK( Widens<int32_t, uint16_t> );
+    CHECK_FALSE( Widens<int32_t, uint32_t> );
+    CHECK_FALSE( Widens<uint64_t, int8_t> );
+    CHECK_FALSE( Widens<int16_t, int32_t> );
+    CHECK_FALSE( Widens<int, double> );
 }
 
 TEST_CASE( "to_underlying gives the enum's underlying type" )
@@ -84,6 +108,55 @@ TEST_CASE( "to_underlying gives the enum's underlying type" )
     static_assert (std::is_same_v<decltype (to_underlying (Default::Value)), int>);
     static_assert (to_underlying (Small::Value) == -3);
     static_assert (to_underlying (Default::Value) == 7);
+}
+
+namespace
+{
+    enum class SignedSmall : int8_t
+    {
+        Value = -3
+    };
+    enum class UnsignedSmall : uint8_t
+    {
+        Value = 200
+    };
+    enum class UnsignedWide : uint64_t
+    {
+        Value = 1
+    };
+
+    template <typename Target, typename Source>
+    concept ConvertsToInt = requires (const Source& value) { to_int<Target> (value); };
+
+    template <typename Target, typename Source>
+    concept ConvertsToUint = requires (const Source& value) { to_uint<Target> (value); };
+}
+
+TEST_CASE( "to_int converts an enum that fits in int" )
+{
+    static_assert (to_int (SignedSmall::Value) == -3);
+    static_assert (to_int (UnsignedSmall::Value) == 200);
+    static_assert (std::is_same_v<decltype (to_int (SignedSmall::Value)), int>);
+    static_assert (to_int<int8_t> (SignedSmall::Value) == -3);
+    static_assert (to_int<int64_t> (UnsignedSmall::Value) == 200);
+
+    CHECK_FALSE( ConvertsToInt<int, UnsignedWide> );
+    CHECK_FALSE( ConvertsToInt<int8_t, UnsignedSmall> );
+    CHECK_FALSE( ConvertsToInt<unsigned, SignedSmall> );
+    CHECK_FALSE( ConvertsToInt<int, int> );
+}
+
+TEST_CASE( "to_uint converts an enum with an unsigned underlying type" )
+{
+    static_assert (to_uint<uint8_t> (UnsignedSmall::Value) == 200);
+    static_assert (to_uint<uint64_t> (UnsignedSmall::Value) == 200);
+    static_assert (to_uint (UnsignedSmall::Value) == 200);
+    static_assert (std::is_same_v<decltype (to_uint (UnsignedSmall::Value)), unsigned>);
+
+    CHECK_FALSE( ConvertsToUint<uint8_t, UnsignedWide> );
+    CHECK_FALSE( ConvertsToUint<uint8_t, SignedSmall> );
+    CHECK_FALSE( ConvertsToUint<int, UnsignedSmall> );
+    CHECK_FALSE( ConvertsToUint<uint32_t, uint8_t> );
 }
 
 TEST_CASE( "to_enum converts a value that fits the underlying type" )

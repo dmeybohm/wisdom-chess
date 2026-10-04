@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+#include <limits>
 #include <source_location>
 #include <type_traits>
 
@@ -65,18 +67,22 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Converts to a wider integer type that holds every value of the source,
-    // so it cannot fail. A signed source needs a signed target; to_unsigned()
-    // converts a signed value to an unsigned type.
+    // Whether Target can represent every value of Source: a signed Source
+    // needs a signed Target, and Target has at least as many value bits.
     template <typename Target, typename Source>
+    concept HoldsEveryValueOf = std::is_integral_v<Source> && std::is_integral_v<Target>
+        && (std::is_unsigned_v<Source> || std::is_signed_v<Target>)
+        && std::numeric_limits<Target>::digits >= std::numeric_limits<Source>::digits;
+
+    // Converts to an integer type that holds every value of the source, so it
+    // cannot fail. The target may be the same width when the signedness
+    // matches; to_unsigned() converts a signed value to an unsigned type.
+    template <typename Target, typename Source>
+        requires HoldsEveryValueOf<Target, Source>
     [[nodiscard]] constexpr auto
     widen (Source value) noexcept
         -> Target
     {
-        static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
-        static_assert (sizeof (Target) > sizeof (Source));
-        static_assert (std::is_unsigned_v<Source> || std::is_signed_v<Target>);
-
         return static_cast<Target> (value);
     }
 
@@ -188,6 +194,38 @@ namespace wisdom
         static_assert (std::is_arithmetic_v<Source>);
 
         return static_cast<double> (value);
+    }
+
+    // Converts an enum whose underlying type Target can hold, or a class
+    // through its explicit conversion, to the signed Target. A conversion
+    // that can throw does not compile.
+    template <std::signed_integral Target = int, typename Source>
+        requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
+            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
+    [[nodiscard]] constexpr auto
+    to_int (const Source& value) noexcept
+        -> Target
+    {
+        if constexpr (std::is_enum_v<Source>)
+            return widen<Target> (to_underlying (value));
+        else
+            return static_cast<Target> (value);
+    }
+
+    // Converts an enum whose underlying type Target can hold, or a class
+    // through its explicit conversion, to the unsigned Target. A conversion
+    // that can throw does not compile.
+    template <std::unsigned_integral Target = unsigned, typename Source>
+        requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
+            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
+    [[nodiscard]] constexpr auto
+    to_uint (const Source& value) noexcept
+        -> Target
+    {
+        if constexpr (std::is_enum_v<Source>)
+            return widen<Target> (to_underlying (value));
+        else
+            return static_cast<Target> (value);
     }
 
     // Converts a value to bool, including through an explicit operator bool.

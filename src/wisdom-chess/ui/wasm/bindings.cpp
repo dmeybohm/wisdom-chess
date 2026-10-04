@@ -111,8 +111,8 @@ namespace wisdom::worker
                         EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
-                        to_underlying (mapDrawByRepetitionType (proposed_draw_type)),
-                        to_underlying (mapColor (player)),
+                        to_int (mapDrawByRepetitionType (proposed_draw_type)),
+                        to_int (mapColor (player)),
                         widen<int> (accepted)
                     );
                 }
@@ -182,14 +182,14 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
         EMSCRIPTEN_WASM_WORKER_ID_PARENT,
         mainThreadReceiveMove,
         state->game_id,
-        move->toInt()
+        move->toPacked()
     );
 }
 
 EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
 {
     auto game = GameState::getGame();
-    auto unpacked_move = Move::fromInt (packed_move);
+    auto unpacked_move = Move::fromPacked (packed_move);
     game->move (unpacked_move);
 
     startSearch();
@@ -236,7 +236,7 @@ mainThreadReceiveMove (
     if (game_id != GameModel::currentGameId())
         return;
 
-    Move unpacked_move = Move::fromInt (packed_move);
+    Move unpacked_move = Move::fromPacked (packed_move);
     std::string str = asString (unpacked_move);
     receiveMoveFromWorker (game_id, str.c_str());
 }

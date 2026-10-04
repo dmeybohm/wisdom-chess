@@ -56,7 +56,7 @@ namespace wisdom
     }
 
     auto
-    toInt (const string& str)
+    parseInt (const string& str)
         -> optional<int>
     {
         stringstream ss { str };

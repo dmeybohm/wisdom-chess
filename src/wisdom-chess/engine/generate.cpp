@@ -599,7 +599,7 @@ namespace wisdom
             };
 
             array<KeyedMove, Max_Move_List_Size> keyed; // NOLINT(*-pro-type-member-init)
-            auto count = narrow_debug<size_t> (result.size());
+            auto count = result.size();
 
             for (size_t i = 0; i < count; i++)
             {

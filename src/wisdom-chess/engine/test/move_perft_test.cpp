@@ -256,7 +256,7 @@ namespace
         std::sort (
             result.begin(),
             result.end(),
-            [] (wisdom::Move a, wisdom::Move b) { return a.toInt() < b.toInt(); }
+            [] (wisdom::Move a, wisdom::Move b) { return a.toPacked() < b.toPacked(); }
         );
         return result;
     }
