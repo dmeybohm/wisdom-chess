@@ -15,9 +15,13 @@ in practice `std::bad_alloc`.
   seam, and `GameModel`'s `engineThreadFailed()`, `my_engine_failed` and
   its "Engine error" status.
 - **The slots stay `noexcept`.** An exception that escapes one reaches
-  `std::terminate()`, and the emergency terminate handler reports it as
-  "Uncaught exception: " and its `what()` before aborting: the same
-  report `fail()` made.
+  `std::terminate()`, and the emergency terminate handler logs
+  "Uncaught exception: " and its `what()`, then aborts. If describing
+  the exception fails, it writes "Terminating after an uncaught
+  exception" to `std::cerr` instead. The exception's message still
+  reaches the emergency logger, as it did when `fail()` logged
+  "Engine error: " and the message. What changes is the wording, and
+  that the app ends instead of offering a new game.
 - Why the recovery was not worth keeping:
   - It did nothing in the QML WebAssembly build, which has no exception
     catching, so a throw aborted there anyway.
