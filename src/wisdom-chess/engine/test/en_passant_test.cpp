@@ -46,7 +46,7 @@ TEST_CASE( "en passant" )
 
         REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
-        Move pawn_move = moveParse ("f7f5");
+        Move pawn_move = toMove ("f7f5");
         board = board.withMove (Color::Black, pawn_move);
 
         MoveList move_list = generateAllPotentialMoves (board, Color::White);
@@ -92,7 +92,7 @@ TEST_CASE( "en passant" )
         builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
-        Move pawn_move = moveParse ("d7d5");
+        Move pawn_move = toMove ("d7d5");
         REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         board = board.withMove (Color::Black, pawn_move);
@@ -205,13 +205,13 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         Board start;
 
         auto queen_pawn_last = start
-            .withMove (Color::White, moveParse ("e2 e4"))
-            .withMove (Color::Black, moveParse ("a7 a6"))
-            .withMove (Color::White, moveParse ("d2 d4"));
+            .withMove (Color::White, toMove ("e2 e4"))
+            .withMove (Color::Black, toMove ("a7 a6"))
+            .withMove (Color::White, toMove ("d2 d4"));
         auto king_pawn_last = start
-            .withMove (Color::White, moveParse ("d2 d4"))
-            .withMove (Color::Black, moveParse ("a7 a6"))
-            .withMove (Color::White, moveParse ("e2 e4"));
+            .withMove (Color::White, toMove ("d2 d4"))
+            .withMove (Color::Black, toMove ("a7 a6"))
+            .withMove (Color::White, toMove ("e2 e4"));
 
         CHECK( queen_pawn_last.getUnnormalizedBoardCode()
                != king_pawn_last.getUnnormalizedBoardCode() );
@@ -240,11 +240,11 @@ TEST_CASE( "An en passant target's legality is decided when it is set" )
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("d2", Color::White, Piece::Pawn);
         builder.addPiece ("e4", Color::Black, Piece::Pawn);
-        auto board = Board { builder }.withMove (Color::White, moveParse ("d2 d4"));
+        auto board = Board { builder }.withMove (Color::White, toMove ("d2 d4"));
 
         auto target = board.getLegalEnPassantTarget();
         REQUIRE( target.has_value() );
-        CHECK( target->coord == coordParse ("d3") );
+        CHECK( target->coord == toCoord ("d3") );
         CHECK( target->vulnerable_color == Color::White );
     }
 
@@ -254,7 +254,7 @@ TEST_CASE( "An en passant target's legality is decided when it is set" )
         builder.addPiece ("e1", Color::White, Piece::King);
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("a2", Color::White, Piece::Pawn);
-        auto board = Board { builder }.withMove (Color::White, moveParse ("a2 a4"));
+        auto board = Board { builder }.withMove (Color::White, toMove ("a2 a4"));
 
         CHECK( board.getAnyEnPassantTarget().has_value() );
         CHECK( !board.getLegalEnPassantTarget().has_value() );
@@ -268,7 +268,7 @@ TEST_CASE( "An en passant target's legality is decided when it is set" )
         builder.addPiece ("d2", Color::White, Piece::Pawn);
         builder.addPiece ("e4", Color::Black, Piece::Pawn);
         builder.addPiece ("h4", Color::Black, Piece::King);
-        auto board = Board { builder }.withMove (Color::White, moveParse ("d2 d4"));
+        auto board = Board { builder }.withMove (Color::White, toMove ("d2 d4"));
 
         CHECK( board.getAnyEnPassantTarget().has_value() );
         CHECK( !board.getLegalEnPassantTarget().has_value() );

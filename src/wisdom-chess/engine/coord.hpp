@@ -189,7 +189,7 @@ namespace wisdom
         -> string;
 
     [[nodiscard]] constexpr auto
-    coordParseOptional (string_view str) noexcept
+    parseCoord (string_view str) noexcept
         -> optional<Coord>
     {
         if (str.size() != 2)
@@ -205,12 +205,12 @@ namespace wisdom
     }
 
     // A coordinate that does not parse is a precondition failure. Text from
-    // outside the program goes through coordParseOptional().
+    // outside the program goes through parseCoord().
     [[nodiscard]] constexpr auto
-    coordParse (string_view str)
+    toCoord (string_view str)
         -> Coord
     {
-        auto result = coordParseOptional (str);
+        auto result = parseCoord (str);
         EXPECTS( result.has_value() );
         return *result;
     }

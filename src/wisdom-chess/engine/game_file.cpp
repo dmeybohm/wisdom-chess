@@ -63,7 +63,7 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            auto move = moveParseOptional (input_buf, result.getCurrentTurn());
+            auto move = parseMove (input_buf, result.getCurrentTurn());
             if (!move.has_value())
                 return {};
 

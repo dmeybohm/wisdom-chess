@@ -152,7 +152,7 @@ TEST_CASE( "FEN notation for en passant" )
     auto black_target = board.getAnyEnPassantTarget();
     REQUIRE( black_target.has_value() );
     CHECK( black_target->vulnerable_color == Color::Black );
-    CHECK( black_target->coord == coordParse ("e6") );
+    CHECK( black_target->coord == toCoord ("e6") );
 }
 
 TEST_CASE( "FEN records a double pawn push without an adjacent enemy pawn" )
@@ -162,11 +162,11 @@ TEST_CASE( "FEN records a double pawn push without an adjacent enemy pawn" )
     );
     Board board { game.getBoard() };
 
-    board = board.withMove (Color::White, moveParse ("e2 e4"));
+    board = board.withMove (Color::White, toMove ("e2 e4"));
     CHECK( board.toFenString (Color::Black)
            == "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
 
-    board = board.withMove (Color::Black, moveParse ("e7 e5"));
+    board = board.withMove (Color::Black, toMove ("e7 e5"));
     CHECK( board.toFenString (Color::White)
            == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2" );
 }
@@ -245,11 +245,11 @@ TEST_CASE( "FEN full move number starts at 1" )
         CHECK( board.toFenString (Color::White)
                == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" );
 
-        board = board.withMove (Color::White, moveParse ("e2 e4"));
+        board = board.withMove (Color::White, toMove ("e2 e4"));
         CHECK( board.toFenString (Color::Black)
                == "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
 
-        board = board.withMove (Color::Black, moveParse ("e7 e5"));
+        board = board.withMove (Color::Black, toMove ("e7 e5"));
         CHECK( board.toFenString (Color::White)
                == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2" );
     }

@@ -24,7 +24,7 @@ namespace wisdom
         {
             for (auto&& it : list)
             {
-                append (moveParse (it, color));
+                append (toMove (it, color));
                 color = colorInvert (color);
             }
         }

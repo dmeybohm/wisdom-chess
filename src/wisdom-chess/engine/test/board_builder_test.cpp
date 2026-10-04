@@ -13,14 +13,14 @@ TEST_CASE( "board_builder" )
 {
     SUBCASE( "Specifying coordinates in algebraic notation" )
     {
-        CHECK( coordRow (coordParse ("a8")) == 0 );
-        CHECK( coordRow (coordParse ("a1")) == 7 );
-        CHECK( coordColumn (coordParse ("a8")) == 0 );
-        CHECK( coordColumn (coordParse ("a1")) == 0 );
-        CHECK( coordRow (coordParse ("h1")) == 7 );
-        CHECK( coordRow (coordParse ("h8")) == 0 );
-        CHECK( coordColumn (coordParse ("h1")) == 7 );
-        CHECK( coordColumn (coordParse ("h8")) == 7 );
+        CHECK( coordRow (toCoord ("a8")) == 0 );
+        CHECK( coordRow (toCoord ("a1")) == 7 );
+        CHECK( coordColumn (toCoord ("a8")) == 0 );
+        CHECK( coordColumn (toCoord ("a1")) == 0 );
+        CHECK( coordRow (toCoord ("h1")) == 7 );
+        CHECK( coordRow (toCoord ("h8")) == 0 );
+        CHECK( coordColumn (toCoord ("h1")) == 7 );
+        CHECK( coordColumn (toCoord ("h8")) == 7 );
     }
 
     SUBCASE( "Initializing the board builder" )

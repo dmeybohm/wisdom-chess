@@ -382,7 +382,7 @@ namespace wisdom
     // Parse a move. Returns empty if the parse failed, including a castling
     // move without a color.
     [[nodiscard]] auto
-    moveParseOptional (const string& str, Color who)
+    parseMove (const string& str, Color who)
         -> optional<Move>;
 
     // The coordinate for the taken pawn.
@@ -403,10 +403,10 @@ namespace wisdom
         -> optional<Move>;
 
     // Parse a move. A move that does not parse is a precondition failure, and
-    // without a color it must be a normal move or capture. Text from outside
-    // the program goes through moveParseOptional().
+    // a castling move needs a color. Text from outside the program goes
+    // through parseMove().
     [[nodiscard]] auto
-    moveParse (const string& str, Color color = Color::None)
+    toMove (const string& str, Color color = Color::None)
         -> Move;
 
     // Convert the move to a string.

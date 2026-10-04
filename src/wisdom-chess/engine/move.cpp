@@ -339,7 +339,7 @@ namespace wisdom
     namespace
     {
         auto
-        castleParse (const string& str, Color who)
+        parseCastlingMove (const string& str, Color who)
             -> optional<Move>
         {
             int src_row, dst_col;
@@ -371,7 +371,7 @@ namespace wisdom
     }
 
     auto
-    moveParseOptional (const string& str, Color who)
+    parseMove (const string& str, Color who)
         -> optional<Move>
     {
         bool en_passant = false;
@@ -395,12 +395,12 @@ namespace wisdom
             return nullopt;
 
         if (toLower (tmp[0]) == 'o')
-            return castleParse (tmp, who);
+            return parseCastlingMove (tmp, who);
 
         if (tmp.size() < 4)
             return nullopt;
 
-        optional<Coord> src = coordParseOptional (tmp.substr (0, 2));
+        optional<Coord> src = parseCoord (tmp.substr (0, 2));
         if (!src.has_value())
             return nullopt;
         int offset = 2;
@@ -415,7 +415,7 @@ namespace wisdom
         string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
 
-        optional<Coord> dst = coordParseOptional (dst_coord);
+        optional<Coord> dst = parseCoord (dst_coord);
         if (!dst.has_value())
             return nullopt;
 
@@ -463,18 +463,13 @@ namespace wisdom
     }
 
     auto
-    moveParse (const string& str, Color color)
+    toMove (const string& str, Color color)
         -> Move
     {
-        auto optional_result = moveParseOptional (str, color);
+        auto optional_result = parseMove (str, color);
         EXPECTS( optional_result.has_value() );
 
-        auto result = *optional_result;
-        auto move_category = result.getMoveCategory();
-        EXPECTS( color != Color::None || move_category == MoveCategory::NormalCapturing
-            || move_category == MoveCategory::Default );
-
-        return result;
+        return *optional_result;
     }
 
     auto

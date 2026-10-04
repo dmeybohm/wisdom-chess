@@ -58,10 +58,11 @@ committing C++. The conventions below are about what the code does.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,
-  `FenParser::parse()`, `moveParseOptional()`, `coordParseOptional()`.
-  The forms without one (`createGameFromFen()`, `moveParse()`,
-  `coordParse()`) are for strings the program wrote, such as literals,
-  and treat a bad one as a precondition failure.
+  `FenParser::parse()`, `parseMove()`, `parseCoord()`, `parseInt()`.
+  The forms without one (`createGameFromFen()`, `toMove()`,
+  `toCoord()`) are for strings the program wrote, such as literals,
+  and treat a bad one as a precondition failure. Name a new pair the
+  same way: `parseX()` for outside text, `toX()` for the program's own.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check a
   function's contract and abort when it is broken, so they suit `noexcept`
   functions too. See `features/2026/10/exception-removal.md`.
@@ -133,6 +134,14 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On
 cmake --build build -j8
 ctest --test-dir build -j 4          # -L fast / -L medium / -L slow to pick one
 ```
+
+CI runs the full suite on every platform, so run it locally only for a
+large functional change, such as one to the search, move generation or
+a frontend's game flow, and not for a small or mechanical one, such as a
+rename. Otherwise run the tests that cover the change (`-tc` for a
+doctest case, `ctest -R` for a named test), then commit and open the
+PR. When CI or a review reports a failing test, reproduce and fix it
+with that test alone where possible.
 
 Run new engine tests in a Debug build as well. `Board::withMove()` and
 `generateLegalMoves()` take a color that must be the side to move, and

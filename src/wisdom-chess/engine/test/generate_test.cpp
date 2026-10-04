@@ -207,18 +207,18 @@ TEST_CASE( "generate en passant moves" )
 {
     Board board;
 
-    board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
-    board = board.withMove (Color::Black, moveParse ("d7 d5", Color::Black));
-    board = board.withMove (Color::White, moveParse ("e4 e5", Color::White));
-    board = board.withMove (Color::Black, moveParse ("f7 f5", Color::Black));
+    board = board.withMove (Color::White, toMove ("e2 e4", Color::White));
+    board = board.withMove (Color::Black, toMove ("d7 d5", Color::Black));
+    board = board.withMove (Color::White, toMove ("e4 e5", Color::White));
+    board = board.withMove (Color::Black, toMove ("f7 f5", Color::Black));
 
     auto move_list = generateAllPotentialMoves (board, Color::White);
 
     INFO( move_list );
-    CHECK( containsMove (move_list, moveParse ("e5f6 ep", Color::White)) );
+    CHECK( containsMove (move_list, toMove ("e5f6 ep", Color::White)) );
 
     // Only the pawn that just moved two squares can be taken that way.
-    CHECK( !containsMove (move_list, moveParse ("e5 d6 ep", Color::White)) );
+    CHECK( !containsMove (move_list, toMove ("e5 d6 ep", Color::White)) );
 }
 
 TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
@@ -239,8 +239,8 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
     INFO( move_list );
     REQUIRE( move_list.size() >= 2 );
-    CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
-    CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
+    CHECK( *move_list.begin() == toMove ("c4xd3", Color::Black) );
+    CHECK( *(move_list.begin() + 1) == toMove ("c4xb3", Color::Black) );
 }
 
 TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
@@ -248,9 +248,9 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
     SUBCASE( "The priority move is first, then the killers in slot order" )
     {
         Board board;
-        Move priority = moveParse ("d2 d4", Color::White);
-        Move first_killer = moveParse ("g1 f3", Color::White);
-        Move second_killer = moveParse ("e2 e4", Color::White);
+        Move priority = toMove ("d2 d4", Color::White);
+        Move first_killer = toMove ("g1 f3", Color::White);
+        Move second_killer = toMove ("e2 e4", Color::White);
 
         auto move_list = generateAllPotentialMoves (
             board, Color::White,
@@ -279,7 +279,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
-        Move killer = moveParse ("e1 d1", Color::Black);
+        Move killer = toMove ("e1 d1", Color::Black);
 
         auto move_list = generateAllPotentialMoves (
             board, Color::Black, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
@@ -287,9 +287,9 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
 
         INFO( move_list );
         REQUIRE( move_list.size() >= 4 );
-        CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
-        CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
-        CHECK( *(move_list.begin() + 2) == moveParse ("e4xd3", Color::Black) );
+        CHECK( *move_list.begin() == toMove ("c4xd3", Color::Black) );
+        CHECK( *(move_list.begin() + 1) == toMove ("c4xb3", Color::Black) );
+        CHECK( *(move_list.begin() + 2) == toMove ("e4xd3", Color::Black) );
         CHECK( *(move_list.begin() + 3) == killer );
     }
 
@@ -302,7 +302,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board = Board { builder };
-        Move killer = moveParse ("e1 d1", Color::White);
+        Move killer = toMove ("e1 d1", Color::White);
 
         auto move_list = generateAllPotentialMoves (
             board, Color::White, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
@@ -310,7 +310,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
 
         INFO( move_list );
         REQUIRE( move_list.size() >= 5 );
-        CHECK( *move_list.begin() == moveParse ("a7 a8 (Q)", Color::White) );
+        CHECK( *move_list.begin() == toMove ("a7 a8 (Q)", Color::White) );
         CHECK( (move_list.begin() + 3)->isPromoting() );
         CHECK( *(move_list.begin() + 4) == killer );
     }
@@ -318,7 +318,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
     SUBCASE( "A killer that is not in the list changes nothing" )
     {
         Board board;
-        Move absent = moveParse ("a1 h8", Color::White);
+        Move absent = toMove ("a1 h8", Color::White);
 
         auto plain = generateAllPotentialMoves (board, Color::White);
         auto ordered = generateAllPotentialMoves (
@@ -333,9 +333,9 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
     {
         Board board;
         auto history = make_unique<CutoffHistory>();
-        Move killer = moveParse ("d2 d4", Color::White);
-        Move often = moveParse ("g1 f3", Color::White);
-        Move seldom = moveParse ("h2 h3", Color::White);
+        Move killer = toMove ("d2 d4", Color::White);
+        Move often = toMove ("g1 f3", Color::White);
+        Move seldom = toMove ("h2 h3", Color::White);
 
         history->store (Color::White, seldom, 2);
         history->store (Color::White, often, 3);
@@ -356,7 +356,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
     {
         Board board;
         auto history = make_unique<CutoffHistory>();
-        Move scored = moveParse ("h2 h3", Color::White);
+        Move scored = toMove ("h2 h3", Color::White);
 
         history->store (Color::White, scored, 2);
 
@@ -380,7 +380,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         Board board;
         auto history = make_unique<CutoffHistory>();
 
-        history->store (Color::Black, moveParse ("h2 h3", Color::White), 5);
+        history->store (Color::Black, toMove ("h2 h3", Color::White), 5);
 
         auto plain = generateAllPotentialMoves (board, Color::White);
         auto ordered = generateAllPotentialMoves (
@@ -432,7 +432,7 @@ TEST_CASE( "hasLegalMove" )
 
         CHECK( hasLegalMove (board) );
 
-        board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
+        board = board.withMove (Color::White, toMove ("e2 e4", Color::White));
 
         CHECK( hasLegalMove (board) );
     }
@@ -471,8 +471,8 @@ TEST_CASE( "hasLegalMove" )
     SUBCASE( "A player in check whose only evasion is a block has a legal move" )
     {
         auto board = board_from_fen ("6rk/6pp/8/8/8/8/1B6/K6R b - - 0 1");
-        auto with_check = board.withMove (Color::Black, moveParse ("g7 g6", Color::Black));
-        with_check = with_check.withMove (Color::White, moveParse ("b2 f6", Color::White));
+        auto with_check = board.withMove (Color::Black, toMove ("g7 g6", Color::Black));
+        with_check = with_check.withMove (Color::White, toMove ("b2 f6", Color::White));
 
         auto legal_moves = generateLegalMoves (with_check, Color::Black);
 
@@ -585,7 +585,7 @@ TEST_CASE( "generateCaptures" )
         auto captures = generateCaptures (board, Color::White);
 
         CHECK( captures.size() == 1 );
-        CHECK( containsMove (captures, moveParse ("e5f6 ep", Color::White)) );
+        CHECK( containsMove (captures, toMove ("e5f6 ep", Color::White)) );
     }
 
     SUBCASE( "Only promotions to a queen are included" )
@@ -594,8 +594,8 @@ TEST_CASE( "generateCaptures" )
         auto captures = generateCaptures (board, Color::White);
 
         CHECK( captures.size() == 2 );
-        CHECK( containsMove (captures, moveParse ("a7a8 (Q)", Color::White)) );
-        CHECK( containsMove (captures, moveParse ("a7xb8 (Q)", Color::White)) );
+        CHECK( containsMove (captures, toMove ("a7a8 (Q)", Color::White)) );
+        CHECK( containsMove (captures, toMove ("a7xb8 (Q)", Color::White)) );
     }
 
     SUBCASE( "Matches the captures and queen promotions of all moves" )
@@ -654,7 +654,7 @@ TEST_CASE( "generateLegalEnPassantMoves" )
         auto board = board_from_fen ("4k3/8/8/8/2pPp3/8/8/4K3 b - d3 0 1");
 
         MoveList expected { Color::Black, { "c4d3 ep" } };
-        expected.append (moveParse ("e4d3 ep", Color::Black));
+        expected.append (toMove ("e4d3 ep", Color::Black));
 
         CHECK( generateLegalEnPassantMoves (board) == expected );
     }

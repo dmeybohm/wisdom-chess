@@ -152,7 +152,7 @@ namespace wisdom
             return {};
 
         string cstr { en_passant_str.substr (0, 2) };
-        auto target = coordParseOptional (cstr);
+        auto target = parseCoord (cstr);
         if (!target.has_value())
             return parseError ("Error parsing en passant coordinate: Invalid coordinate!");
 

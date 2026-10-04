@@ -303,7 +303,7 @@ namespace wisdom::ui::test
         squareAt (czstring coord_text) const
             -> QQuickItem*
         {
-            auto coord = wisdom::coordParse (coord_text);
+            auto coord = wisdom::toCoord (coord_text);
             for (auto* square : squares())
             {
                 if (square->property ("boardRow").toInt() == coord.row<int>()
@@ -319,7 +319,7 @@ namespace wisdom::ui::test
         pieceAt (czstring coord_text) const
             -> QQuickItem*
         {
-            auto coord = wisdom::coordParse (coord_text);
+            auto coord = wisdom::toCoord (coord_text);
             for (auto* piece : pieces())
             {
                 if (piece->property ("row").toInt() == coord.row<int>()
@@ -413,7 +413,7 @@ namespace wisdom::ui::test
         boardPieceAt (czstring coord_text) const
             -> ColoredPiece
         {
-            return board().pieceAt (wisdom::coordParse (coord_text));
+            return board().pieceAt (wisdom::toCoord (coord_text));
         }
 
         GameModel game_model;

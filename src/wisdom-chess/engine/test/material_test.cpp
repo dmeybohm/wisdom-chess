@@ -82,7 +82,7 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is updated by a pawn doing a capture" )
     {
-        auto capture_move = moveParse ("e6xf7", Color::White);
+        auto capture_move = toMove ("e6xf7", Color::White);
 
         brd = brd.withMove (Color::White, capture_move);
         const auto& material = brd.getMaterial();
@@ -93,7 +93,7 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a pawn being captured" )
     {
-        auto capture_move = moveParse ("h2xe2", Color::White);
+        auto capture_move = toMove ("h2xe2", Color::White);
 
         brd = brd.withMove (Color::White, capture_move);
         const auto& material = brd.getMaterial();
@@ -106,7 +106,7 @@ TEST_CASE( "Piece count" )
     SUBCASE( "Is saved and restored after a promotion" )
     {
         brd = brd.withCurrentTurn (Color::Black);
-        auto promoting_move = moveParse ("e2e1 (Q)", Color::Black);
+        auto promoting_move = toMove ("e2e1 (Q)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);
         const auto& material = brd.getMaterial();
@@ -119,7 +119,7 @@ TEST_CASE( "Piece count" )
     SUBCASE( "Is saved and restored after a promotion with a capture" )
     {
         brd = brd.withCurrentTurn (Color::Black);
-        auto promoting_move = moveParse ("e2xd1 (R)", Color::Black);
+        auto promoting_move = toMove ("e2xd1 (R)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);
         const auto& material = brd.getMaterial();

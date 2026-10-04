@@ -26,7 +26,7 @@ TEST_CASE( "findFirstCoordWithPiece()" )
     SUBCASE( "Returns the first position if there are multiple positions with the same combo" )
     {
         auto black_pawn_pos = board.findFirstCoordWithPiece (Piece::Pawn);
-        auto expected_black_pawn_pos = coordParse ("a7");
+        auto expected_black_pawn_pos = toCoord ("a7");
         CHECK( *black_pawn_pos == expected_black_pawn_pos );
     }
 
@@ -41,9 +41,9 @@ TEST_CASE( "findFirstCoordWithPiece()" )
         REQUIRE( white_king_pos.has_value() );
         auto black_pawn_pos = board.findFirstCoordWithPiece (Piece::Pawn);
 
-        auto expected_white_king_pos = coordParse ("e1");
-        auto expected_black_king_pos= coordParse ("e8");
-        auto expected_black_pawn_pos = coordParse ("a7");
+        auto expected_white_king_pos = toCoord ("e1");
+        auto expected_black_king_pos= toCoord ("e8");
+        auto expected_black_pawn_pos = toCoord ("a7");
 
         CHECK( *white_king_pos == expected_white_king_pos );
         CHECK( *black_king_pos == expected_black_king_pos );

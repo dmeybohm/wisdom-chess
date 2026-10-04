@@ -33,7 +33,7 @@ TEST_CASE( "board code" )
 
         CHECK( code.getHashCode() == 0 );
 
-        Coord a8 = coordParse ("a8");
+        Coord a8 = toCoord ("a8");
         ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
         code.addPiece (a8, black_pawn);
 
@@ -43,7 +43,7 @@ TEST_CASE( "board code" )
 
         REQUIRE( code == initial );
 
-        Coord h1 = coordParse ("h1");
+        Coord h1 = toCoord ("h1");
         ColoredPiece white_king = ColoredPiece::make (Color::White, Piece::King);
         code.addPiece (h1, white_king);
 
@@ -77,7 +77,7 @@ TEST_CASE( "board code" )
 
         REQUIRE( numberOfSetBits (initial) > 0 );
 
-        Move a8xb7 = moveParse ("a8xb7");
+        Move a8xb7 = toMove ("a8xb7");
         code.applyMove (brd, a8xb7);
         REQUIRE( initial != code );
     }
@@ -98,7 +98,7 @@ TEST_CASE( "board code" )
 
         REQUIRE( numberOfSetBits (initial) > 0 );
 
-        Move b7b8_Q = moveParse ("b7b8_Q (Q)");
+        Move b7b8_Q = toMove ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
         REQUIRE( initial != code );
     }
@@ -119,7 +119,7 @@ TEST_CASE( "board code" )
 
         REQUIRE( numberOfSetBits (initial) > 0 );
 
-        Move castle_queenside = moveParse ("o-o-o", Color::Black);
+        Move castle_queenside = toMove ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
         REQUIRE( initial != code );
     }
@@ -140,7 +140,7 @@ TEST_CASE( "board code" )
 
         REQUIRE( numberOfSetBits (initial) > 0 );
 
-        Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
+        Move promote_castle_move = toMove ("b7xa8 (Q)", Color::Black);
         REQUIRE( promote_castle_move.isPromoting() );
         REQUIRE( promote_castle_move.isNormalCapturing() );
 
@@ -153,10 +153,10 @@ TEST_CASE( "board code" )
         Board default_board;
         BoardCode code = default_board.getUnnormalizedBoardCode();
 
-        Move white_knight_ahead = moveParse ("g1f3", Color::White),
-             white_knight_return = moveParse ("f3g1", Color::White);
-        Move black_knight_ahead = moveParse ("g8f6", Color::Black),
-             black_knight_return = moveParse ("f6g8", Color::Black);
+        Move white_knight_ahead = toMove ("g1f3", Color::White),
+             white_knight_return = toMove ("f3g1", Color::White);
+        Move black_knight_ahead = toMove ("g8f6", Color::Black),
+             black_knight_return = toMove ("f6g8", Color::Black);
 
         Board new_board = default_board
             .withMove (Color::White, white_knight_ahead)
@@ -172,8 +172,8 @@ TEST_CASE( "board code" )
     {
         Board default_board;
 
-        Move white_knight_ahead = moveParse ("g1f3", Color::White);
-        Move black_knight_ahead = moveParse ("g8f6", Color::Black);
+        Move white_knight_ahead = toMove ("g1f3", Color::White);
+        Move black_knight_ahead = toMove ("g8f6", Color::Black);
 
         Board moved_board = default_board
             .withMove (Color::White, white_knight_ahead)
@@ -192,8 +192,8 @@ TEST_CASE( "board code" )
     {
         Board default_board;
 
-        Move white_knight_ahead = moveParse ("g1f3", Color::White);
-        Move black_knight_ahead = moveParse ("g8f6", Color::Black);
+        Move white_knight_ahead = toMove ("g1f3", Color::White);
+        Move black_knight_ahead = toMove ("g8f6", Color::Black);
 
         Board moved_board = default_board
             .withMove (Color::White, white_knight_ahead)
@@ -239,7 +239,7 @@ TEST_CASE( "board code" )
         builder.setCurrentTurn (Color::White);
 
         Board before = Board { builder };
-        Move promote_move = moveParse ("b7b8 (Q)", Color::White);
+        Move promote_move = toMove ("b7b8 (Q)", Color::White);
         Board after = before.withMove (Color::White, promote_move);
 
         BoardBuilder expected_builder;
@@ -265,7 +265,7 @@ TEST_CASE( "board code" )
         builder.setCurrentTurn (Color::White);
 
         Board before = Board { builder };
-        Move capture_move = moveParse ("e4xd6", Color::White);
+        Move capture_move = toMove ("e4xd6", Color::White);
         Board after = before.withMove (Color::White, capture_move);
 
         BoardBuilder expected_builder;
@@ -291,7 +291,7 @@ TEST_CASE( "board code" )
         builder.setCurrentTurn (Color::White);
 
         Board before = Board { builder };
-        Move promote_capture = moveParse ("b7xa8 (Q)", Color::White);
+        Move promote_capture = toMove ("b7xa8 (Q)", Color::White);
         Board after = before.withMove (Color::White, promote_capture);
 
         BoardBuilder expected_builder;
@@ -315,7 +315,7 @@ TEST_CASE( "Board code can be converted" )
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
-            coordParse ("h1"),
+            toCoord ("h1"),
             ColoredPiece::make (Color::White, Piece::King)
         );
 
@@ -332,7 +332,7 @@ TEST_CASE( "Board code can be converted" )
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
-            coordParse ("h1"),
+            toCoord ("h1"),
             ColoredPiece::make (Color::White, Piece::King)
         );
 
@@ -352,11 +352,11 @@ TEST_CASE( "Board code stores metadata" )
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece (
-            coordParse ("a1"),
+            toCoord ("a1"),
             ColoredPiece::make (Color::White, Piece::King)
         );
         code.addPiece (
-            coordParse ("h8"),
+            toCoord ("h8"),
             ColoredPiece::make (Color::Black, Piece::King)
         );
 
@@ -370,7 +370,7 @@ TEST_CASE( "Board code stores metadata" )
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
         code.setCastleState (Color::Black, CastlingRights::Queenside);
-        code.setEnPassantTarget (Color::White, coordParse ("e3"), EnPassantTargetState::Legal);
+        code.setEnPassantTarget (Color::White, toCoord ("e3"), EnPassantTargetState::Legal);
 
         auto modified_hash = code.getHashCode();
         auto modified_high_48_bits = modified_hash & Piece_Hash_Mask;
@@ -435,7 +435,7 @@ TEST_CASE( "Board code stores metadata" )
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.getAnyEnPassantTarget();
-        auto expected_coord = coordParse ("d6");
+        auto expected_coord = toCoord ("d6");
         REQUIRE( en_passant_target.has_value() );
         CHECK( en_passant_target->vulnerable_color == Color::Black );
         CHECK( en_passant_target->coord == expected_coord );
@@ -460,7 +460,7 @@ TEST_CASE( "Board code stores metadata" )
 
         auto en_passant_target = with_state_code.getAnyEnPassantTarget();
 
-        auto expected_coord = coordParse ("e3");
+        auto expected_coord = toCoord ("e3");
         REQUIRE( en_passant_target.has_value() );
         CHECK( en_passant_target->vulnerable_color == Color::White );
         CHECK( en_passant_target->coord == expected_coord );
@@ -559,7 +559,7 @@ TEST_CASE( "Zobrist piece index mapping" )
 
     SUBCASE( "Different colored pieces at same square have different hashes" )
     {
-        Coord h3 = coordParse ("h3");
+        Coord h3 = toCoord ("h3");
 
         ColoredPiece white_knight = ColoredPiece::make (Color::White, Piece::Knight);
         ColoredPiece black_bishop = ColoredPiece::make (Color::Black, Piece::Bishop);
@@ -590,12 +590,12 @@ TEST_CASE( "Zobrist piece index mapping" )
 
 TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
 {
-    auto e3 = coordParse ("e3");
+    auto e3 = toCoord ("e3");
 
     auto starting_code = []
     {
         BoardCode code = BoardCode::fromEmptyBoard();
-        code.addPiece (coordParse ("e4"), ColoredPiece::make (Color::White, Piece::Pawn));
+        code.addPiece (toCoord ("e4"), ColoredPiece::make (Color::White, Piece::Pawn));
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
         code.setCastleState (Color::Black, CastlingRights::Queenside);

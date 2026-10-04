@@ -96,10 +96,10 @@ namespace
     {
         for (int i = 0; i < times; i++)
         {
-            game->move (moveParse ("g1 f3", Color::White));
-            game->move (moveParse ("g8 f6", Color::Black));
-            game->move (moveParse ("f3 g1", Color::White));
-            game->move (moveParse ("f6 g8", Color::Black));
+            game->move (toMove ("g1 f3", Color::White));
+            game->move (toMove ("g8 f6", Color::Black));
+            game->move (toMove ("f3 g1", Color::White));
+            game->move (toMove ("f6 g8", Color::Black));
         }
     }
 }
@@ -190,12 +190,12 @@ TEST_CASE( "Game::status" )
     {
         auto game = Game::createStandardGame();
 
-        game.move (moveParse ("f2 f3", Color::White));
-        game.move (moveParse ("e7 e5", Color::Black));
-        game.move (moveParse ("g2 g4", Color::White));
+        game.move (toMove ("f2 f3", Color::White));
+        game.move (toMove ("e7 e5", Color::Black));
+        game.move (toMove ("g2 g4", Color::White));
         CHECK( game.getStatus() == GameStatus::Playing );
 
-        game.move (moveParse ("d8 h4", Color::Black));
+        game.move (toMove ("d8 h4", Color::Black));
         CHECK( game.getStatus() == GameStatus::Checkmate );
     }
 
@@ -299,7 +299,7 @@ TEST_CASE( "Game::status" )
         auto before = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 99 80");
         CHECK( before.getStatus() == GameStatus::Playing );
 
-        before.move (moveParse ("a1 a2", Color::White));
+        before.move (toMove ("a1 a2", Color::White));
         CHECK( before.getStatus() == GameStatus::FiftyMovesWithoutProgressReached );
 
         SUBCASE( "Accepted by both players" )
@@ -332,7 +332,7 @@ TEST_CASE( "Game::status" )
         );
         CHECK( game.getStatus() == GameStatus::Playing );
 
-        game.move (moveParse ("a1 a2", Color::White));
+        game.move (toMove ("a1 a2", Color::White));
         CHECK( game.getStatus() == GameStatus::SeventyFiveMovesWithoutProgressDraw );
     }
 
@@ -340,7 +340,7 @@ TEST_CASE( "Game::status" )
     {
         auto game = Game::createGameFromFen ("4k3/8/8/8/8/8/r7/R3K3 w - - 99 80");
 
-        game.move (moveParse ("a1xa2", Color::White));
+        game.move (toMove ("a1xa2", Color::White));
 
         CHECK( game.getStatus() == GameStatus::Playing );
     }
@@ -349,7 +349,7 @@ TEST_CASE( "Game::status" )
     {
         auto game = Game::createGameFromFen ("6k1/5ppp/8/8/8/8/8/R3K3 w - - 99 80");
 
-        game.move (moveParse ("a1 a8", Color::White));
+        game.move (toMove ("a1 a8", Color::White));
 
         CHECK( game.getStatus() == GameStatus::Checkmate );
     }
@@ -363,7 +363,7 @@ TEST_CASE( "Game::status" )
         );
         CHECK( game.getStatus() == GameStatus::Playing );
 
-        game.move (moveParse ("a1 a8", Color::White));
+        game.move (toMove ("a1 a8", Color::White));
 
         REQUIRE( History::hasBeenSeventyFiveMovesWithoutProgress (game.getBoard()) );
         CHECK( game.getStatus() == GameStatus::Checkmate );

@@ -21,10 +21,10 @@ TEST_CASE( "Initial board position is added to history" )
     //
     auto run_test = [] (nonnull<Game> game)
     {
-        Move white_move = moveParse ("g1 f3");
-        Move black_move = moveParse ("b8 c6");
-        Move white_return_move = moveParse ("f3 g1");
-        Move black_return_move = moveParse ("c6 b8");
+        Move white_move = toMove ("g1 f3");
+        Move black_move = toMove ("b8 c6");
+        Move white_return_move = toMove ("f3 g1");
+        Move black_return_move = toMove ("c6 b8");
         auto& history = game->getHistory();
 
         for (int i = 0; i < 2; i++)
@@ -184,7 +184,7 @@ TEST_CASE( "findBestMove finds a move in a position that can be claimed as a dra
         auto move = game.findBestMove (logger, &table);
 
         REQUIRE( move.has_value() );
-        CHECK( *move == moveParse ("a1xb1", Color::White) );
+        CHECK( *move == toMove ("a1xb1", Color::White) );
     }
 
     SUBCASE( "On the third occurrence of the position" )
@@ -192,10 +192,10 @@ TEST_CASE( "findBestMove finds a move in a position that can be claimed as a dra
         auto game = Game::createGameFromFen ("6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1");
         for (int i = 0; i < 2; i++)
         {
-            game.move (moveParse ("e1 e2", Color::White));
-            game.move (moveParse ("g8 h8", Color::Black));
-            game.move (moveParse ("e2 e1", Color::White));
-            game.move (moveParse ("h8 g8", Color::Black));
+            game.move (toMove ("e1 e2", Color::White));
+            game.move (toMove ("g8 h8", Color::Black));
+            game.move (toMove ("e2 e1", Color::White));
+            game.move (toMove ("h8 g8", Color::Black));
         }
         REQUIRE( game.getStatus() == GameStatus::ThreefoldRepetitionReached );
         game.setMaxDepth (2);
@@ -203,7 +203,7 @@ TEST_CASE( "findBestMove finds a move in a position that can be claimed as a dra
         auto move = game.findBestMove (logger, &table);
 
         REQUIRE( move.has_value() );
-        CHECK( *move == moveParse ("a1 a8", Color::White) );
+        CHECK( *move == toMove ("a1 a8", Color::White) );
     }
 
     SUBCASE( "With insufficient material" )
@@ -277,7 +277,7 @@ TEST_CASE( "The draw arbiter decides the limits of the search" )
         game.setMaxDepth (2);
 
         auto logger = makeNullLogger();
-        auto takes_pawn = moveParse ("a1xa7", Color::White);
+        auto takes_pawn = toMove ("a1xa7", Color::White);
 
         TranspositionTable table = TranspositionTable::fromMegabytes (1);
         auto under_the_game = game.findBestMove (logger, &table);
@@ -308,14 +308,14 @@ TEST_CASE( "setCurrentTurn keeps the history's current position in step" )
     SUBCASE( "After a move, and the position recurs" )
     {
         auto game = Game::createStandardGame();
-        game.move (moveParse ("g1 f3"));
+        game.move (toMove ("g1 f3"));
         game.setCurrentTurn (Color::White);
 
         CHECK( game.getHistory().isCertainlyNthRepetition (game.getBoard(), 1) );
 
-        game.move (moveParse ("f3 g1"));
+        game.move (toMove ("f3 g1"));
         game.setCurrentTurn (Color::White);
-        game.move (moveParse ("g1 f3"));
+        game.move (toMove ("g1 f3"));
         game.setCurrentTurn (Color::White);
 
         CHECK( game.getHistory().isCertainlyNthRepetition (game.getBoard(), 2) );

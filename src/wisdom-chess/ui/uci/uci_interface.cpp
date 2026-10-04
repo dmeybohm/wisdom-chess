@@ -580,8 +580,8 @@ namespace wisdom
         if (uci_move.length() < 4)
             return nullopt;
 
-        auto src_coord = coordParseOptional (uci_move.substr (0, 2));
-        auto dst_coord = coordParseOptional (uci_move.substr (2, 2));
+        auto src_coord = parseCoord (uci_move.substr (0, 2));
+        auto dst_coord = parseCoord (uci_move.substr (2, 2));
         if (!src_coord.has_value() || !dst_coord.has_value())
             return nullopt;
 

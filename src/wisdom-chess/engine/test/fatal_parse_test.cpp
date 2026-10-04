@@ -15,7 +15,7 @@ namespace
         "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
     )
     {
-        [[maybe_unused]] Coord coord = coordParse ("z9");
+        [[maybe_unused]] Coord coord = toCoord ("z9");
     }
 
     FATAL_CASE(
@@ -23,7 +23,7 @@ namespace
         "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
     )
     {
-        [[maybe_unused]] Move move = moveParse ("invalid");
+        [[maybe_unused]] Move move = toMove ("invalid");
     }
 
     FATAL_CASE(
@@ -31,15 +31,7 @@ namespace
         "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
     )
     {
-        [[maybe_unused]] Move move = moveParse ("o-o");
-    }
-
-    FATAL_CASE(
-        "move-parse-en-passant-without-color",
-        "Precondition failed at .*move\\.cpp:[0-9]+: color != Color::None"
-    )
-    {
-        [[maybe_unused]] Move move = moveParse ("e5 d6 ep");
+        [[maybe_unused]] Move move = toMove ("o-o");
     }
 
     FATAL_CASE(
