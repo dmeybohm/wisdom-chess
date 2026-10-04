@@ -102,10 +102,10 @@ namespace wisdom
         CutoffHistory my_cutoff_history;
 
         int my_total_depth;
-        int my_nodes_visited = 0;
-        int my_alpha_beta_cutoffs = 0;
+        int64_t my_nodes_visited = 0;
+        int64_t my_alpha_beta_cutoffs = 0;
         int64_t my_total_nodes_visited = 0;
-        int my_total_alpha_beta_cutoffs = 0;
+        int64_t my_total_alpha_beta_cutoffs = 0;
         int64_t my_quiescence_nodes_visited = 0;
         int64_t my_total_quiescence_nodes_visited = 0;
         Color my_searching_color = Color::None;

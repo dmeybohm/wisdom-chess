@@ -182,16 +182,18 @@ number for it, and the first step is to get one.
 
 ### Small items
 
-15. [ ] **Node counters mix widths.** `my_nodes_visited` and the cutoff
+15. [x] **Node counters mix widths.** `my_nodes_visited` and the cutoff
     counters are `int`; the totals are `int64_t`
     (`engine/search.cpp:84-89`). An `int` holds 2.1 billion; the
     depth-8 middlegame search in
     [quiescence-search.md](quiescence-search.md) counted 365 million, so
     two more plies would pass it.
-16. [ ] **Zero as the empty marker.** `TranspositionTable::store()` counts
+16. [x] **Zero as the empty marker.** `TranspositionTable::store()` counts
     an entry as new when `hash_code == 0`
     (`engine/transposition_table.cpp:157`). A position that hashes to
     zero is counted again on every store. Statistics only.
+    **Items 15 and 16 done** on the `small-engine-fixups` branch
+    ([small-engine-fixups.md](../10/small-engine-fixups.md)).
 
 ## Item 3: options for a cheaper `hasLegalMove()`
 
@@ -533,3 +535,9 @@ score.
   marked so. That branch also moved `coordColor()` and
   `pawnDirection()` from `board.hpp` to `coord.hpp`, which was not an
   item.
+
+### Session #7
+
+- Items 15 and 16 are done on the `small-engine-fixups` branch and
+  marked so. An empty table entry is now `BoundType::Empty`, not a zero
+  hash.

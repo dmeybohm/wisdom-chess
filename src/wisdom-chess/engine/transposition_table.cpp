@@ -122,6 +122,9 @@ namespace wisdom
                     return adjusted_score;
                 }
                 break;
+
+            case BoundType::Empty:
+                break;
         }
 
         return nullopt;
@@ -153,13 +156,15 @@ namespace wisdom
         int ply
     ) noexcept
     {
+        EXPECTS( bound_type != BoundType::Empty );
+
         auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
 
         if (entry.hash_code == hash && entry.depth > depth)
             return;
 
-        if (entry.hash_code == 0)
+        if (entry.bound_type == BoundType::Empty)
             my_stored_entries++;
 
         entry.hash_code = hash;
