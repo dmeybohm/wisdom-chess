@@ -125,8 +125,8 @@ namespace
         Value = 1
     };
 
-    template <typename Source>
-    concept ConvertsToInt = requires (Source value) { to_int (value); };
+    template <typename Target, typename Source>
+    concept ConvertsToInt = requires (const Source& value) { to_int<Target> (value); };
 
     template <typename Target, typename Source>
     concept ConvertsToUint = requires (const Source& value) { to_uint<Target> (value); };
@@ -136,15 +136,22 @@ TEST_CASE( "to_int converts an enum that fits in int" )
 {
     static_assert (to_int (SignedSmall::Value) == -3);
     static_assert (to_int (UnsignedSmall::Value) == 200);
+    static_assert (std::is_same_v<decltype (to_int (SignedSmall::Value)), int>);
+    static_assert (to_int<int8_t> (SignedSmall::Value) == -3);
+    static_assert (to_int<int64_t> (UnsignedSmall::Value) == 200);
 
-    CHECK_FALSE( ConvertsToInt<UnsignedWide> );
-    CHECK_FALSE( ConvertsToInt<int> );
+    CHECK_FALSE( ConvertsToInt<int, UnsignedWide> );
+    CHECK_FALSE( ConvertsToInt<int8_t, UnsignedSmall> );
+    CHECK_FALSE( ConvertsToInt<unsigned, SignedSmall> );
+    CHECK_FALSE( ConvertsToInt<int, int> );
 }
 
 TEST_CASE( "to_uint converts an enum with an unsigned underlying type" )
 {
     static_assert (to_uint<uint8_t> (UnsignedSmall::Value) == 200);
     static_assert (to_uint<uint64_t> (UnsignedSmall::Value) == 200);
+    static_assert (to_uint (UnsignedSmall::Value) == 200);
+    static_assert (std::is_same_v<decltype (to_uint (UnsignedSmall::Value)), unsigned>);
 
     CHECK_FALSE( ConvertsToUint<uint8_t, UnsignedWide> );
     CHECK_FALSE( ConvertsToUint<uint8_t, SignedSmall> );

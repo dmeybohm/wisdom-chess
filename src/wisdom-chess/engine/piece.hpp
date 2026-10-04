@@ -114,10 +114,11 @@ namespace wisdom
 
         // The packed type and color, for to_int(). Explicit so the packed
         // value does not leak into arithmetic or a bool conversion.
+        template <std::signed_integral Target>
         [[nodiscard]] constexpr explicit
-        operator int() const noexcept
+        operator Target() const noexcept
         {
-            return piece_type_and_color;
+            return widen<Target> (piece_type_and_color);
         }
 
         [[nodiscard]] static constexpr auto

@@ -40,8 +40,8 @@ TEST_CASE( "Color invert" )
 
 namespace
 {
-    template <typename Source>
-    concept ConvertsToInt = requires (const Source& value) { to_int (value); };
+    template <typename Target, typename Source>
+    concept ConvertsToInt = requires (const Source& value) { to_int<Target> (value); };
 }
 
 TEST_CASE( "to_int gives a colored piece's packed value" )
@@ -50,7 +50,10 @@ TEST_CASE( "to_int gives a colored piece's packed value" )
     CHECK( to_int (ColoredPiece::make (Color::White, Piece::Pawn)) == 0b01'001 );
     CHECK( to_int (ColoredPiece::make (Color::Black, Piece::King)) == 0b10'110 );
 
-    CHECK( ConvertsToInt<ColoredPiece> );
+    CHECK( to_int<int8_t> (ColoredPiece::make (Color::Black, Piece::King)) == 0b10'110 );
+
+    CHECK( ConvertsToInt<int64_t, ColoredPiece> );
+    CHECK_FALSE( ConvertsToInt<unsigned, ColoredPiece> );
     CHECK_FALSE( std::is_convertible_v<ColoredPiece, int> );
     CHECK_FALSE( std::is_constructible_v<bool, ColoredPiece> );
 }

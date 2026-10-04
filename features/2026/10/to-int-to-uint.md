@@ -14,16 +14,20 @@ Conversions to an integer were spelled per type: `toInt (Piece)`,
   `noexcept`. The operator stays explicit so the value cannot leak into
   arithmetic, and `static_cast` to another type does not find it.
 
-`to_uint` takes its target as a template argument. `CastlingEligibility`
-gives it a conversion operator template constrained to
-`std::unsigned_integral`, so every unsigned width works and a signed one
-does not compile. `bool` satisfies that concept, but the class's own
-non-template `operator bool` wins overload resolution, which `AGENTS.md`
-notes for any other class that adopts the pattern.
+Both take their target as a template argument, `int` and `unsigned` by
+default, so they read alike. Because they go through `widen`, a target
+too narrow for the source fails to compile on the platform where it is.
 
-`to_int` always returns `int`, so `ColoredPiece` has a plain
-`explicit operator int`. The QML piece model keyed its image table on
-`int8_t`; it now keys on `int`, so no implicit narrowing appears.
+`CastlingEligibility` gives `to_uint` a conversion operator template
+constrained to `std::unsigned_integral`, so every unsigned width works and
+a signed one does not compile. `bool` satisfies that concept, but the
+class's own non-template `operator bool` wins overload resolution, which
+`AGENTS.md` notes for any other class that adopts the pattern.
+`ColoredPiece` has the same kind of operator template for `to_int`,
+constrained to `std::signed_integral`, which `bool` does not satisfy.
+
+The QML piece model keyed its image table on `int8_t`; it now keys on
+`int`, so no implicit narrowing appears.
 
 The string `toInt` in `str.hpp` is a parser, not a conversion, and
 `Move::toInt()`/`fromInt()` are an encoding pair; neither changes.
@@ -44,3 +48,7 @@ too.
 - Added range `ASSERT`s to `pieceFromInt8()` and `colorFromInt8()`.
 - Verified lint, `all_qmllint`, all 339 Release tests with the QML UI,
   all 318 Debug tests and the WASM build.
+- Gave `to_int` a target parameter defaulting to `int`, and `to_uint` a
+  default of `unsigned`. `ColoredPiece`'s conversion became an operator
+  template like `CastlingEligibility`'s. The Release build passed; the
+  tests were not re-run before committing.

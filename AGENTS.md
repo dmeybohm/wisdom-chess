@@ -44,11 +44,12 @@ committing C++. The conventions below are about what the code does.
   - `truncate` discards an unsigned value's high bits on purpose.
   - `to_underlying` converts an enum to its underlying type, as C++23's
     `std::to_underlying` does.
-  - `to_int` converts an enum to `int`, and `to_uint` an enum to an
-    unsigned type, both through `widen`. `to_uint` also takes a class
-    with an explicit, `noexcept` conversion operator template, as
-    `CastlingEligibility` has: give such a class its own `explicit
-    operator bool`, or `if (x)` would use the template.
+  - `to_int` and `to_uint` convert an enum to a signed or unsigned type,
+    `int` and `unsigned` by default, through `widen`. They also take a
+    class with an explicit, `noexcept` conversion operator template, as
+    `ColoredPiece` and `CastlingEligibility` have. A template for
+    unsigned types also matches `bool`: give such a class its own
+    `explicit operator bool`, or `if (x)` would use the template.
   - `to_enum` and `to_enum_debug` convert an integer to an enum, checking
     that it fits the enum's underlying type.
   - `to_double` converts a number to `double`, unchecked.

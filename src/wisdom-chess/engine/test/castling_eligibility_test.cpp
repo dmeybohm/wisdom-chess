@@ -310,6 +310,7 @@ TEST_CASE( "to_uint on castling eligibility" )
         CHECK( to_uint<uint16_t> (eligibility) == 3 );
         CHECK( to_uint<uint32_t> (eligibility) == 3 );
         CHECK( to_uint<uint64_t> (eligibility) == 3 );
+        CHECK( to_uint (eligibility) == 3U );
     }
 
     SUBCASE( "Signed types are rejected" )

@@ -196,26 +196,26 @@ namespace wisdom
         return static_cast<double> (value);
     }
 
-    // Converts an enum whose underlying type int can hold, or a class through
-    // its explicit conversion, to int. A conversion that can throw does not
-    // compile.
-    template <typename Source>
-        requires (std::is_enum_v<Source> && HoldsEveryValueOf<int, std::underlying_type_t<Source>>)
-            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<int, const Source&>)
+    // Converts an enum whose underlying type Target can hold, or a class
+    // through its explicit conversion, to the signed Target. A conversion
+    // that can throw does not compile.
+    template <std::signed_integral Target = int, typename Source>
+        requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
+            || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
     [[nodiscard]] constexpr auto
     to_int (const Source& value) noexcept
-        -> int
+        -> Target
     {
         if constexpr (std::is_enum_v<Source>)
-            return widen<int> (to_underlying (value));
+            return widen<Target> (to_underlying (value));
         else
-            return static_cast<int> (value);
+            return static_cast<Target> (value);
     }
 
     // Converts an enum whose underlying type Target can hold, or a class
     // through its explicit conversion, to the unsigned Target. A conversion
     // that can throw does not compile.
-    template <std::unsigned_integral Target, typename Source>
+    template <std::unsigned_integral Target = unsigned, typename Source>
         requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
             || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
     [[nodiscard]] constexpr auto
