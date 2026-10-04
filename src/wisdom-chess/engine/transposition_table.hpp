@@ -161,6 +161,18 @@ namespace wisdom
             int ply
         ) noexcept;
 
+        // Starts loading the bucket that a probe or store of the position
+        // will read. Only a hint: it changes nothing, and with a compiler
+        // other than GCC or Clang it does nothing.
+        void prefetch (BoardHashCode hash) const noexcept
+        {
+#if defined(__GNUC__) || defined(__clang__)
+            __builtin_prefetch (&my_buckets[foldHashTo32Bits (hash) & my_bucket_mask]);
+#else
+            (void)hash;
+#endif
+        }
+
         // Begins a search. Entries from earlier searches are replaced
         // before newer ones of similar depth.
         void startSearch() noexcept;
