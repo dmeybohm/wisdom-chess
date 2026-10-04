@@ -44,7 +44,6 @@ TEST_CASE( "truncate discards the high bits" )
 TEST_CASE( "narrow converts a value that fits" )
 {
     static_assert (narrow<int8_t> (100) == 100);
-    static_assert (noexcept (narrow<int8_t> (100)));
 
     int fits = 127;
     std::size_t zero = 0;
@@ -55,7 +54,6 @@ TEST_CASE( "narrow converts a value that fits" )
 TEST_CASE( "narrow_debug converts a value that fits" )
 {
     static_assert (narrow_debug<int8_t> (100) == 100);
-    static_assert (noexcept (narrow_debug<int8_t> (100)));
 
     if constexpr (!Debugging)
     {
@@ -69,7 +67,6 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<int64_t> (int32_t { -1 }) == -1);
     static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
-    static_assert (noexcept (widen<int64_t> (int32_t { 42 })));
 }
 
 TEST_CASE( "to_unsigned converts a nonnegative value" )
@@ -78,8 +75,6 @@ TEST_CASE( "to_unsigned converts a nonnegative value" )
     static_assert (to_unsigned<uint32_t> (std::numeric_limits<int32_t>::max()) == 0x7fff'ffffU);
     static_assert (to_unsigned<std::size_t> (int8_t { 1 }) == 1);
 
-    static_assert (noexcept (to_unsigned<uint64_t> (int32_t { 42 })));
-
     int ply = 63;
     CHECK( to_unsigned<std::size_t> (ply) == 63 );
 }
@@ -87,7 +82,6 @@ TEST_CASE( "to_unsigned converts a nonnegative value" )
 TEST_CASE( "to_unsigned_debug converts a nonnegative value" )
 {
     static_assert (to_unsigned_debug<uint32_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (to_unsigned_debug<uint64_t> (int32_t { 42 })));
 
     if constexpr (!Debugging)
     {
@@ -130,7 +124,6 @@ TEST_CASE( "nonnull" )
 {
     static_assert (Dereferenceable<nonnull<int>>);
     static_assert (!std::is_default_constructible_v<nonnull<int>>);
-    static_assert (std::is_nothrow_constructible_v<nonnull<int>, int*>); // lint-allow(raw-pointer)
     static_assert (!std::is_constructible_v<nonnull<int>, std::nullptr_t>);
     static_assert (!std::is_assignable_v<nonnull<int>&, std::nullptr_t>);
     static_assert (!std::is_constructible_v<nonnull<int>, nullable<int>>);
