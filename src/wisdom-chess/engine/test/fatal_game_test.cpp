@@ -94,6 +94,6 @@ namespace
         Board board = Board { BoardBuilder::fromDefaultPosition() };
         History history = History::fromInitialBoard (board);
         history.addTentativePosition (board);
-        history.addPosition (board, moveParse ("e2 e4", Color::White));
+        history.addPosition (board, toMove ("e2 e4", Color::White));
     }
 }

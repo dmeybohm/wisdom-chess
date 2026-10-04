@@ -22,11 +22,11 @@ TEST_CASE( "Third repetition is detected" )
 
         auto board = Board { builder };
 
-        Move black_move = moveParse ("e8 d8");
-        Move black_return_move = moveParse ("d8 e8");
+        Move black_move = toMove ("e8 d8");
+        Move black_return_move = toMove ("d8 e8");
 
-        Move white_move = moveParse ("e1 d1");
-        Move white_return_move = moveParse ("d1 e1");
+        Move white_move = toMove ("e1 d1");
+        Move white_return_move = toMove ("d1 e1");
 
         // Record initial position.
         history.addTentativePosition (board);
@@ -80,14 +80,14 @@ TEST_CASE( "Third repetition is detected" )
 
         auto board = Board { builder };
 
-        Move black_move = moveParse ("e8 d8");
-        Move black_return_move = moveParse ("d8 e8");
+        Move black_move = toMove ("e8 d8");
+        Move black_return_move = toMove ("d8 e8");
 
-        Move white_move = moveParse ("e1 d1");
-        Move white_return_move = moveParse ("d1 e1");
+        Move white_move = toMove ("e1 d1");
+        Move white_return_move = toMove ("d1 e1");
 
         // Record initial position. we don't care about move here.
-        Move initial_move = moveParse ("e7 e5");
+        Move initial_move = toMove ("e7 e5");
         board = board.withMove (Color::Black, initial_move);
         history.addTentativePosition (board);
 
@@ -133,8 +133,8 @@ TEST_CASE( "Third repetition is detected" )
         History history;
         Board board;
 
-        Move initial_white_pawn_move = moveParse ("e2 e4");
-        Move initial_black_pawn_move = moveParse ("e7 e5");
+        Move initial_white_pawn_move = toMove ("e2 e4");
+        Move initial_black_pawn_move = toMove ("e7 e5");
 
         board = board.withMove (Color::White, initial_white_pawn_move);
         history.addTentativePosition (board);
@@ -142,11 +142,11 @@ TEST_CASE( "Third repetition is detected" )
 
         board = board.withMove (Color::Black, initial_black_pawn_move);
         history.addTentativePosition (board);
-        Move white_move = moveParse ("e1 e2");
-        Move white_return_move = moveParse ("e2 e1");
+        Move white_move = toMove ("e1 e2");
+        Move white_return_move = toMove ("e2 e1");
 
-        Move black_move = moveParse ("e8 e7");
-        Move black_return_move = moveParse ("e7 e8");
+        Move black_move = toMove ("e8 e7");
+        Move black_return_move = toMove ("e7 e8");
 
         board = board.withMove (Color::White, white_move);
         history.addTentativePosition (board);
@@ -199,11 +199,11 @@ TEST_CASE( "Repetition counts a position despite an unusable en passant target" 
         auto board = Board { builder };
         auto history = History::fromInitialBoard (board);
 
-        Move double_push = moveParse ("a2 a4");
-        Move black_out = moveParse ("e8 d8");
-        Move black_back = moveParse ("d8 e8");
-        Move white_out = moveParse ("e1 d1");
-        Move white_back = moveParse ("d1 e1");
+        Move double_push = toMove ("a2 a4");
+        Move black_out = toMove ("e8 d8");
+        Move black_back = toMove ("d8 e8");
+        Move white_out = toMove ("e1 d1");
+        Move white_back = toMove ("d1 e1");
 
         board = board.withMove (Color::White, double_push);
         history.addPosition (board, double_push);
@@ -251,11 +251,11 @@ TEST_CASE( "Repetition counts a position despite an unusable en passant target" 
         auto board = Board { builder };
         auto history = History::fromInitialBoard (board);
 
-        Move double_push = moveParse ("d2 d4");
-        Move black_out = moveParse ("h4 h5");
-        Move black_back = moveParse ("h5 h4");
-        Move white_out = moveParse ("e1 f1");
-        Move white_back = moveParse ("f1 e1");
+        Move double_push = toMove ("d2 d4");
+        Move black_out = toMove ("h4 h5");
+        Move black_back = toMove ("h5 h4");
+        Move white_out = toMove ("e1 f1");
+        Move white_back = toMove ("f1 e1");
 
         board = board.withMove (Color::White, double_push);
         history.addPosition (board, double_push);
@@ -299,11 +299,11 @@ TEST_CASE( "A legal en passant capture keeps a position distinct until the right
     auto board = Board { builder };
     auto history = History::fromInitialBoard (board);
 
-    Move double_push = moveParse ("d2 d4");
-    Move black_out = moveParse ("e8 d8");
-    Move black_back = moveParse ("d8 e8");
-    Move white_out = moveParse ("e1 d1");
-    Move white_back = moveParse ("d1 e1");
+    Move double_push = toMove ("d2 d4");
+    Move black_out = toMove ("e8 d8");
+    Move black_back = toMove ("d8 e8");
+    Move white_out = toMove ("e1 d1");
+    Move white_back = toMove ("d1 e1");
 
     board = board.withMove (Color::White, double_push);
     history.addPosition (board, double_push);
@@ -346,13 +346,13 @@ TEST_CASE( "An unusable en passant target is ignored however the position enters
     builder.addPiece ("a2", Color::White, Piece::Pawn);
 
     auto board = Board { builder };
-    board = board.withMove (Color::White, moveParse ("a2 a4"));
+    board = board.withMove (Color::White, toMove ("a2 a4"));
     REQUIRE( board.getAnyEnPassantTarget().has_value() );
 
-    Move black_out = moveParse ("e8 d8");
-    Move black_back = moveParse ("d8 e8");
-    Move white_out = moveParse ("e1 d1");
-    Move white_back = moveParse ("d1 e1");
+    Move black_out = toMove ("e8 d8");
+    Move black_back = toMove ("d8 e8");
+    Move white_out = toMove ("e1 d1");
+    Move white_back = toMove ("d1 e1");
 
     SUBCASE( "as the initial board" )
     {
@@ -460,10 +460,10 @@ TEST_CASE( "Many moves without progress are detected" )
 
     auto board = Board { builder };
 
-    Move first = moveParse ("e1 d1");
-    Move second = moveParse ("e8 d8");
-    Move third = moveParse ("d1 e1");
-    Move fourth = moveParse ("d8 e8");
+    Move first = toMove ("e1 d1");
+    Move second = toMove ("e8 d8");
+    Move third = toMove ("d1 e1");
+    Move fourth = toMove ("d8 e8");
 
     auto make_useless_moves = [&board, first, second, third, fourth] (int count)
     {
@@ -511,7 +511,7 @@ TEST_CASE( "Positions cannot be committed while tentative positions are pending"
 {
     Board board = Board { BoardBuilder::fromDefaultPosition() };
     History history = History::fromInitialBoard (board);
-    Move move = moveParse ("e2 e4", Color::White);
+    Move move = toMove ("e2 e4", Color::White);
 
     history.addTentativePosition (board);
     history.removeLastTentativePosition();

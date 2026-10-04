@@ -446,7 +446,7 @@ TEST_CASE( "Test can castle" )
         CHECK( board.ableToCastle (Color::White, CastlingRights::Kingside) );
         color = colorInvert (color);
     }
-    auto castling = moveParse ("o-o", Color::White);
+    auto castling = toMove ("o-o", Color::White);
     (void)board.withMove (Color::White, castling);
 }
 
@@ -475,7 +475,7 @@ TEST_CASE( "King move removes the remaining castling right" )
         FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
         Board board = parser.buildBoard();
 
-        board = board.withMove (Color::White, moveParse ("e1 d1"));
+        board = board.withMove (Color::White, toMove ("e1 d1"));
 
         CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
     }
@@ -485,7 +485,7 @@ TEST_CASE( "King move removes the remaining castling right" )
         FenParser parser { "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1" };
         Board board = parser.buildBoard();
 
-        board = board.withMove (Color::White, moveParse ("e1 f1"));
+        board = board.withMove (Color::White, toMove ("e1 f1"));
 
         CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
     }
@@ -495,7 +495,7 @@ TEST_CASE( "King move removes the remaining castling right" )
         FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
         Board board = parser.buildBoard();
 
-        board = board.withMove (Color::White, moveParse ("o-o", Color::White));
+        board = board.withMove (Color::White, toMove ("o-o", Color::White));
 
         CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
     }
@@ -644,21 +644,21 @@ TEST_CASE( "Rook move for a castling move" )
 {
     SUBCASE( "White kingside" )
     {
-        CHECK( castlingRookMove (moveParse ("o-o", Color::White)) == moveParse ("h1 f1") );
+        CHECK( castlingRookMove (toMove ("o-o", Color::White)) == toMove ("h1 f1") );
     }
 
     SUBCASE( "White queenside" )
     {
-        CHECK( castlingRookMove (moveParse ("o-o-o", Color::White)) == moveParse ("a1 d1") );
+        CHECK( castlingRookMove (toMove ("o-o-o", Color::White)) == toMove ("a1 d1") );
     }
 
     SUBCASE( "Black kingside" )
     {
-        CHECK( castlingRookMove (moveParse ("o-o", Color::Black)) == moveParse ("h8 f8") );
+        CHECK( castlingRookMove (toMove ("o-o", Color::Black)) == toMove ("h8 f8") );
     }
 
     SUBCASE( "Black queenside" )
     {
-        CHECK( castlingRookMove (moveParse ("o-o-o", Color::Black)) == moveParse ("a8 d8") );
+        CHECK( castlingRookMove (toMove ("o-o-o", Color::Black)) == toMove ("a8 d8") );
     }
 }

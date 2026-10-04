@@ -59,7 +59,7 @@ namespace wisdom
         constexpr void
         addPiece (string_view coord_str, Color who, Piece piece_type)
         {
-            Coord algebraic = coordParse (coord_str);
+            Coord algebraic = toCoord (coord_str);
 
             addPiece (algebraic.row(), algebraic.column(), who, piece_type);
         }
@@ -109,7 +109,7 @@ namespace wisdom
         constexpr void
         addRowOfSameColorAndPiece (string_view coord_str, Color who, Piece piece_type)
         {
-            Coord coord = coordParse (coord_str);
+            Coord coord = toCoord (coord_str);
 
             for (int col = 0; col < Num_Columns; col++)
                 addPiece (coord.row(), col, who, piece_type);
@@ -129,7 +129,7 @@ namespace wisdom
             const PieceRow& piece_types
         )
         {
-            Coord coord = coordParse (coord_str);
+            Coord coord = toCoord (coord_str);
 
             for (auto col = 0; col < Num_Columns; col++)
                 addPiece (coord.row(), col, who, piece_types[col]);
@@ -145,7 +145,7 @@ namespace wisdom
         setEnPassantTarget (Color vulnerable_color, string_view coord_str)
         {
             my_en_passant_target = {
-                .coord = coordParse (coord_str),
+                .coord = toCoord (coord_str),
                 .vulnerable_color = vulnerable_color
             };
         }

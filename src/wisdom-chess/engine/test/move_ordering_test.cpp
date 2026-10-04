@@ -7,9 +7,9 @@ using namespace wisdom;
 TEST_CASE( "KillerTable" )
 {
     KillerTable table;
-    Move first = moveParse ("g1 f3", Color::White);
-    Move second = moveParse ("e2 e4", Color::White);
-    Move third = moveParse ("d2 d4", Color::White);
+    Move first = toMove ("g1 f3", Color::White);
+    Move second = toMove ("e2 e4", Color::White);
+    Move third = toMove ("d2 d4", Color::White);
 
     SUBCASE( "A new table has no killers" )
     {
@@ -54,8 +54,8 @@ TEST_CASE( "KillerTable" )
     SUBCASE( "A capture is not stored" )
     {
         table.store (3, first);
-        table.store (3, moveParse ("e4xd5", Color::White));
-        table.store (3, moveParse ("e5 d6 ep", Color::White));
+        table.store (3, toMove ("e4xd5", Color::White));
+        table.store (3, toMove ("e5 d6 ep", Color::White));
 
         CHECK( table.getKillers (3) == KillerMoves { first, nullopt } );
     }
@@ -63,15 +63,15 @@ TEST_CASE( "KillerTable" )
     SUBCASE( "A promotion is not stored" )
     {
         table.store (3, first);
-        table.store (3, moveParse ("b7 b8 (Q)", Color::White));
-        table.store (3, moveParse ("b7xa8 (N)", Color::White));
+        table.store (3, toMove ("b7 b8 (Q)", Color::White));
+        table.store (3, toMove ("b7xa8 (N)", Color::White));
 
         CHECK( table.getKillers (3) == KillerMoves { first, nullopt } );
     }
 
     SUBCASE( "Castling is stored" )
     {
-        Move castle = moveParse ("o-o", Color::White);
+        Move castle = toMove ("o-o", Color::White);
         table.store (3, castle);
 
         CHECK( table.getKillers (3) == KillerMoves { castle, nullopt } );
@@ -81,8 +81,8 @@ TEST_CASE( "KillerTable" )
 TEST_CASE( "CutoffHistory" )
 {
     CutoffHistory history;
-    Move knight = moveParse ("g1 f3", Color::White);
-    Move pawn = moveParse ("e2 e4", Color::White);
+    Move knight = toMove ("g1 f3", Color::White);
+    Move pawn = toMove ("e2 e4", Color::White);
 
     SUBCASE( "A new table scores every move zero" )
     {
@@ -109,8 +109,8 @@ TEST_CASE( "CutoffHistory" )
 
     SUBCASE( "A capture or a promotion is not counted" )
     {
-        Move capture = moveParse ("e4xd5", Color::White);
-        Move promotion = moveParse ("b7 b8 (Q)", Color::White);
+        Move capture = toMove ("e4xd5", Color::White);
+        Move promotion = toMove ("b7 b8 (Q)", Color::White);
 
         history.store (Color::White, capture, 3);
         history.store (Color::White, promotion, 3);

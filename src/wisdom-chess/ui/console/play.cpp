@@ -527,7 +527,7 @@ namespace wisdom::ui::console
             }
             else
             {
-                auto optional_move = moveParseOptional (input, my_game.getCurrentTurn());
+                auto optional_move = parseMove (input, my_game.getCurrentTurn());
                 PlayCommand::AnyCommand result = PlayCommand::ShowError { "Invalid move or command." };
 
                 if (!optional_move.has_value())

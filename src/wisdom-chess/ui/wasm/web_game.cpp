@@ -49,7 +49,7 @@ namespace wisdom
             if (text == nullptr)
                 return nullopt;
 
-            return coordParseOptional (text);
+            return parseCoord (text);
         }
     }
 
@@ -79,7 +79,7 @@ namespace wisdom
 
     void WebGame::makeComputerMove (czstring move_text)
     {
-        applyMove (moveParse (move_text, my_game.getCurrentTurn()));
+        applyMove (toMove (move_text, my_game.getCurrentTurn()));
     }
 
     auto

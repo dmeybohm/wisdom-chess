@@ -117,10 +117,10 @@ namespace
     {
         for (int i = 0; i < times; i++)
         {
-            game->move (moveParse ("g1 f3", Color::White));
-            game->move (moveParse ("g8 f6", Color::Black));
-            game->move (moveParse ("f3 g1", Color::White));
-            game->move (moveParse ("f6 g8", Color::Black));
+            game->move (toMove ("g1 f3", Color::White));
+            game->move (toMove ("g8 f6", Color::Black));
+            game->move (toMove ("f3 g1", Color::White));
+            game->move (toMove ("f6 g8", Color::Black));
         }
     }
 }
@@ -243,7 +243,7 @@ TEST_CASE( "Updating the displayed state of a game" )
         view_model.updateDisplayedGameState();
         REQUIRE( view_model.inCheck() );
 
-        view_model.game().move (moveParse ("e1xe2", Color::White));
+        view_model.game().move (toMove ("e1xe2", Color::White));
         view_model.updateDisplayedGameState();
 
         CHECK( !view_model.inCheck() );
@@ -405,9 +405,9 @@ TEST_CASE( "GameViewModelBase::isLegalMove" )
     {
         TestViewModel view_model { Game::createGame (Humans) };
 
-        CHECK( view_model.isLegalMove (moveParse ("e2 e4", Color::White)) );
-        CHECK( !view_model.isLegalMove (moveParse ("e2 e5", Color::White)) );
-        CHECK( !view_model.isLegalMove (moveParse ("e7 e5", Color::Black)) );
+        CHECK( view_model.isLegalMove (toMove ("e2 e4", Color::White)) );
+        CHECK( !view_model.isLegalMove (toMove ("e2 e5", Color::White)) );
+        CHECK( !view_model.isLegalMove (toMove ("e7 e5", Color::Black)) );
     }
 
     SUBCASE( "A move that leaves the king in check is not legal" )
@@ -416,15 +416,15 @@ TEST_CASE( "GameViewModelBase::isLegalMove" )
             Game::createGameFromFen ("k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1", Humans)
         };
 
-        CHECK( !view_model.isLegalMove (moveParse ("e2 d2", Color::White)) );
-        CHECK( view_model.isLegalMove (moveParse ("e2 e5", Color::White)) );
+        CHECK( !view_model.isLegalMove (toMove ("e2 d2", Color::White)) );
+        CHECK( view_model.isLegalMove (toMove ("e2 e5", Color::White)) );
     }
 
     SUBCASE( "No move is legal for the human while it is the engine's turn" )
     {
         TestViewModel view_model { Game::createGame (Player::ChessEngine, Player::Human) };
 
-        CHECK( !view_model.isLegalMove (moveParse ("e2 e4", Color::White)) );
+        CHECK( !view_model.isLegalMove (toMove ("e2 e4", Color::White)) );
     }
 }
 
@@ -436,8 +436,8 @@ TEST_CASE( "GameViewModelBase::needsPawnPromotion" )
 
     auto needs_promotion = [&view_model] (czstring src_text, czstring dst_text)
     {
-        auto src = coordParse (src_text);
-        auto dst = coordParse (dst_text);
+        auto src = toCoord (src_text);
+        auto dst = toCoord (dst_text);
         return view_model.needsPawnPromotion (src.row(), src.column(), dst.row(), dst.column());
     };
 

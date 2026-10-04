@@ -12,7 +12,7 @@ using namespace wisdom::ui::qml;
 using wisdom::Color;
 using wisdom::czstring;
 using wisdom::Move;
-using wisdom::moveParse;
+using wisdom::toMove;
 using wisdom::Player;
 
 namespace
@@ -68,7 +68,7 @@ namespace
     listRowAt (const PiecesModel& model, czstring coord_text)
         -> int
     {
-        auto coord = wisdom::coordParse (coord_text);
+        auto coord = wisdom::toCoord (coord_text);
         for (int i = 0; i < model.rowCount ({}); i++)
         {
             if (roleOf (model, i, PiecesModel::RowRole).toInt() == coord.row<int>()
@@ -104,7 +104,7 @@ namespace
         void play (czstring move_text)
         {
             auto who = game->state()->getCurrentTurn();
-            auto move = moveParse (move_text, who);
+            auto move = toMove (move_text, who);
 
             game->state()->move (move);
             model.playerMoved (move, who);

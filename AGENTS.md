@@ -58,10 +58,11 @@ committing C++. The conventions below are about what the code does.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,
-  `FenParser::parse()`, `moveParseOptional()`, `coordParseOptional()`.
-  The forms without one (`createGameFromFen()`, `moveParse()`,
-  `coordParse()`) are for strings the program wrote, such as literals,
-  and treat a bad one as a precondition failure.
+  `FenParser::parse()`, `parseMove()`, `parseCoord()`, `parseInt()`.
+  The forms without one (`createGameFromFen()`, `toMove()`,
+  `toCoord()`) are for strings the program wrote, such as literals,
+  and treat a bad one as a precondition failure. Name a new pair the
+  same way: `parseX()` for outside text, `toX()` for the program's own.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check a
   function's contract and abort when it is broken, so they suit `noexcept`
   functions too. See `features/2026/10/exception-removal.md`.

@@ -12,7 +12,7 @@ namespace
     )
     {
         MoveList list;
-        Move move = moveParse ("e2 e4", Color::White);
+        Move move = toMove ("e2 e4", Color::White);
 
         for (std::ptrdiff_t i = 0; i <= Max_Move_List_Size; i++)
             list.append (move);

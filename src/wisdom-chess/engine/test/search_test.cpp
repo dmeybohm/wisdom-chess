@@ -278,7 +278,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     // assert the bishop has moved:
     INFO( "Info:", asString (*result.move) );
-    REQUIRE( game.getBoard().pieceAt (coordParse ("b4"))
+    REQUIRE( game.getBoard().pieceAt (toCoord ("b4"))
              != ColoredPiece::make (Color::Black, Piece::Bishop) );
 }
 
@@ -298,7 +298,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 
     // assert the bishop has moved:
     INFO( "Info:", asString (*result.move) );
-    auto a3_piece = game.getBoard().pieceAt (coordParse ("a3"));
+    auto a3_piece = game.getBoard().pieceAt (toCoord ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
     bool is_in_check = isKingThreatened (game.getBoard(), Color::Black,
                                          game.getBoard().getKingPosition (Color::Black));
@@ -311,7 +311,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
     auto game = fen.build();
 
-    game.move (moveParse ("e5 d6 ep", Color::White));
+    game.move (toMove ("e5 d6 ep", Color::White));
 
     SearchHelper helper;
     auto search = helper.build (game.getBoard(), 4, 10);
@@ -324,7 +324,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     INFO( "Chosen move:", asString (*result.move) );
 
     auto board = game.getBoard();
-    auto target_piece = board.pieceAt (coordParse ("d6"));
+    auto target_piece = board.pieceAt (toCoord ("d6"));
     CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn) );
     CHECK( pieceColor (target_piece) == Color::Black );
 }
@@ -351,7 +351,7 @@ TEST_CASE( "Can avoid stalemate" )
     FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
     auto game = fen.build();
 
-    game.move (moveParse ("a5 a6", Color::White));
+    game.move (toMove ("a5 a6", Color::White));
 
     SearchHelper helper;
     IterativeSearch search = helper.build (game.getBoard(), 6, 5);
@@ -378,7 +378,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK( *result.move != moveParse ("b3xf7") );
+        CHECK( *result.move != toMove ("b3xf7") );
     }
 
     SUBCASE( "Depth 8" )
@@ -390,7 +390,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK( *result.move != moveParse ("b3xf7") );
+        CHECK( *result.move != toMove ("b3xf7") );
     }
 }
 
@@ -400,7 +400,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
     auto hash = board.getBoardCode().getHashCode();
-    Move fake_move = Move::make (coordParse ("e2"), coordParse ("e4"));
+    Move fake_move = Move::make (toCoord ("e2"), toCoord ("e4"));
     tt.store (hash, 100, 10, BoundType::Exact, fake_move, 0);
 
     History history;
@@ -467,7 +467,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     }
 
     // Black: Bd6-b8
-    auto move1 = moveParse ("d6 b8");
+    auto move1 = toMove ("d6 b8");
     board = board.withMove (Color::Black, move1);
     history.addPosition (board, move1);
 
@@ -479,7 +479,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     }
 
     // White: Ra6-a2
-    auto move2 = moveParse ("a6 a2");
+    auto move2 = toMove ("a6 a2");
     board = board.withMove (Color::White, move2);
     history.addPosition (board, move2);
 
@@ -491,7 +491,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     }
 
     // Black: Bb8-d6
-    auto move3 = moveParse ("b8 d6");
+    auto move3 = toMove ("b8 d6");
     board = board.withMove (Color::Black, move3);
     history.addPosition (board, move3);
 
@@ -504,7 +504,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     }
 
     // White: Ra2-a6
-    auto move4 = moveParse ("a2 a6");
+    auto move4 = toMove ("a2 a6");
     board = board.withMove (Color::White, move4);
     history.addPosition (board, move4);
 
@@ -516,7 +516,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     }
 
     // Black: Bd6-b8
-    auto move5 = moveParse ("d6 b8");
+    auto move5 = toMove ("d6 b8");
     board = board.withMove (Color::Black, move5);
     history.addPosition (board, move5);
 
@@ -529,7 +529,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Current position: Bb8, Ra2 (Black to move)
     // White: Ra6-a2
-    auto move6 = moveParse ("a6 a2");
+    auto move6 = toMove ("a6 a2");
     board = board.withMove (Color::White, move6);
     history.addPosition (board, move6);
 
@@ -548,7 +548,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Black should NOT choose Bb8-d6 because it allows White to draw
     // The material advantage (~600 centipawns) is worth more than a draw
-    CHECK( *result.move != moveParse ("b8 d6") );
+    CHECK( *result.move != toMove ("b8 d6") );
 
     // Alternatively, check that the score is significantly positive (not near 0/draw)
     CHECK( result.score > 100 );
@@ -650,9 +650,9 @@ TEST_CASE( "A stalemate at the horizon is not scored as a win" )
     SearchResult result = search.iterativelyDeepen (Color::White);
 
     REQUIRE( result.move.has_value() );
-    CHECK( *result.move != moveParse ("b6 a6", Color::White) );
-    CHECK( *result.move != moveParse ("h2 h3", Color::White) );
-    CHECK( *result.move != moveParse ("h2 h4", Color::White) );
+    CHECK( *result.move != toMove ("b6 a6", Color::White) );
+    CHECK( *result.move != toMove ("h2 h3", Color::White) );
+    CHECK( *result.move != toMove ("h2 h4", Color::White) );
 }
 
 TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
@@ -675,7 +675,7 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
         auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", Claimable_Draw_Limits);
 
         REQUIRE( result.move.has_value() );
-        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( *result.move == toMove ("a1 a8", Color::White) );
         CHECK( isCheckmatingOpponentScore (result.score) );
     }
 
@@ -684,7 +684,7 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
         auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", Automatic_Draw_Limits);
 
         REQUIRE( result.move.has_value() );
-        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( *result.move == toMove ("a1 a8", Color::White) );
         CHECK( isCheckmatingOpponentScore (result.score) );
     }
 }
@@ -729,7 +729,7 @@ TEST_CASE( "Quiescence search" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         REQUIRE( result.move.has_value() );
-        CHECK( *result.move != moveParse ("d1xd5", Color::White) );
+        CHECK( *result.move != toMove ("d1xd5", Color::White) );
     }
 
     SUBCASE( "A capture that wins after the recapture is taken" )
@@ -740,7 +740,7 @@ TEST_CASE( "Quiescence search" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         REQUIRE( result.move.has_value() );
-        CHECK( *result.move == moveParse ("d2xd5", Color::White) );
+        CHECK( *result.move == toMove ("d2xd5", Color::White) );
     }
 
     SUBCASE( "A mate on the last ply is found by searching the evasions" )
@@ -751,7 +751,7 @@ TEST_CASE( "Quiescence search" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         REQUIRE( result.move.has_value() );
-        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( *result.move == toMove ("a1 a8", Color::White) );
         CHECK( result.score == checkmateScoreInMoves (1) );
     }
 

@@ -23,7 +23,7 @@ TEST_CASE( "Initializing move list" )
         moves.push_back (move);
 
     std::vector expected = {
-        moveParse ("e4 d4"), moveParse ("d2 d1")
+        toMove ("e4 d4"), toMove ("d2 d1")
     };
     REQUIRE( moves == expected );
 }
@@ -60,16 +60,16 @@ TEST_CASE( "Moving move list pointer" )
 
     auto ptr = moved.begin();
     REQUIRE( moved.size() == 2 );
-    REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
-    REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
+    REQUIRE( *ptr++ == toMove ("e4 d4", Color::Black) );
+    REQUIRE( *ptr == toMove ("d2 d1", Color::White) );
 }
 
 TEST_CASE( "Appending a move" )
 {
     MoveList list;
 
-    list.append (moveParse ("e4 e5"));
-    list.append (moveParse ("d7 d5"));
+    list.append (toMove ("e4 e5"));
+    list.append (toMove ("d7 d5"));
 
     REQUIRE( list.size() == 2 );
 }
@@ -80,43 +80,43 @@ TEST_CASE( "Copying" )
     {
         MoveList first_list;
 
-        first_list.append (moveParse ("e4 d4"));
-        first_list.append (moveParse ("d2 d1"));
+        first_list.append (toMove ("e4 d4"));
+        first_list.append (toMove ("d2 d1"));
         auto first_ptr = first_list.begin();
         REQUIRE( first_list.size() == 2 );
-        REQUIRE( *first_ptr++ == moveParse ("e4 d4", Color::Black) );
-        REQUIRE( *first_ptr == moveParse ("d2 d1", Color::White) );
+        REQUIRE( *first_ptr++ == toMove ("e4 d4", Color::Black) );
+        REQUIRE( *first_ptr == toMove ("d2 d1", Color::White) );
 
         MoveList second_list { first_list };
         auto second_ptr = second_list.begin();
         REQUIRE( second_list.size() == 2 );
-        REQUIRE( *second_ptr++ == moveParse ("e4 d4", Color::Black) );
-        REQUIRE( *second_ptr == moveParse ("d2 d1", Color::White) );
+        REQUIRE( *second_ptr++ == toMove ("e4 d4", Color::Black) );
+        REQUIRE( *second_ptr == toMove ("d2 d1", Color::White) );
     }
 
     SUBCASE( "Overwriting a list works" )
     {
         MoveList first_list;
 
-        first_list.append (moveParse ("e4 d4"));
-        first_list.append (moveParse ("d2 d1"));
+        first_list.append (toMove ("e4 d4"));
+        first_list.append (toMove ("d2 d1"));
 
         MoveList second_list;
 
-        second_list.append (moveParse ("e3 d3"));
-        second_list.append (moveParse ("d3 d1"));
+        second_list.append (toMove ("e3 d3"));
+        second_list.append (toMove ("d3 d1"));
 
         first_list = second_list;
 
         auto first_ptr = first_list.begin();
         REQUIRE( first_list.size() == 2 );
-        REQUIRE( *first_ptr++ == moveParse ("e3 d3", Color::Black) );
-        REQUIRE( *first_ptr == moveParse ("d3 d1", Color::White) );
+        REQUIRE( *first_ptr++ == toMove ("e3 d3", Color::Black) );
+        REQUIRE( *first_ptr == toMove ("d3 d1", Color::White) );
 
         auto second_ptr = second_list.begin();
         REQUIRE( second_list.size() == 2 );
-        REQUIRE( *second_ptr++ == moveParse ("e3 d3", Color::Black) );
-        REQUIRE( *second_ptr == moveParse ("d3 d1", Color::White) );
+        REQUIRE( *second_ptr++ == toMove ("e3 d3", Color::Black) );
+        REQUIRE( *second_ptr == toMove ("d3 d1", Color::White) );
     }
 }
 
@@ -141,8 +141,8 @@ TEST_CASE( "Swapping lists" )
         MoveList first;
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
-        first.append (moveParse ("e2 d4", Color::White));
-        first.append (moveParse ("a8 a1", Color::Black));
+        first.append (toMove ("e2 d4", Color::White));
+        first.append (toMove ("a8 a1", Color::Black));
 
         std::swap (first, second);
 

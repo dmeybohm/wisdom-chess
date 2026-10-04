@@ -20,14 +20,14 @@ TEST_CASE( "A coordinate can be generated" )
 
 TEST_CASE( "Coord_parse specifying coordinates in algebraic notation" )
 {
-    CHECK( coordRow (coordParse ("a8")) == 0 );
-    CHECK( coordRow (coordParse ("a1")) == 7 );
-    CHECK( coordColumn (coordParse ("a8")) == 0 );
-    CHECK( coordColumn (coordParse ("a1")) == 0 );
-    CHECK( coordRow (coordParse ("h1")) == 7 );
-    CHECK( coordRow (coordParse ("h8")) == 0 );
-    CHECK( coordColumn (coordParse ("h1")) == 7 );
-    CHECK( coordColumn (coordParse ("h8")) == 7 );
+    CHECK( coordRow (toCoord ("a8")) == 0 );
+    CHECK( coordRow (toCoord ("a1")) == 7 );
+    CHECK( coordColumn (toCoord ("a8")) == 0 );
+    CHECK( coordColumn (toCoord ("a1")) == 0 );
+    CHECK( coordRow (toCoord ("h1")) == 7 );
+    CHECK( coordRow (toCoord ("h8")) == 0 );
+    CHECK( coordColumn (toCoord ("h1")) == 7 );
+    CHECK( coordColumn (toCoord ("h8")) == 7 );
 }
 
 TEST_CASE( "CoordIterator" )
@@ -44,9 +44,9 @@ TEST_CASE( "CoordIterator" )
 
     SUBCASE( "Iteration begins at the stored coordinate" )
     {
-        CoordIterator iterator { coordParse ("a1") };
+        CoordIterator iterator { toCoord ("a1") };
 
-        CHECK( *iterator.begin() == coordParse ("a1") );
+        CHECK( *iterator.begin() == toCoord ("a1") );
         CHECK( std::distance (iterator.begin(), iterator.end()) == Num_Columns );
     }
 
@@ -62,15 +62,15 @@ TEST_CASE( "CoordIterator" )
 
 TEST_CASE( "Parsing a coordinate without exceptions" )
 {
-    CHECK( coordParseOptional ("e2") == coordParse ("e2") );
-    CHECK( coordParseOptional ("h8") == coordParse ("h8") );
+    CHECK( parseCoord ("e2") == toCoord ("e2") );
+    CHECK( parseCoord ("h8") == toCoord ("h8") );
 
-    CHECK( !coordParseOptional ("").has_value() );
-    CHECK( !coordParseOptional ("e").has_value() );
-    CHECK( !coordParseOptional ("e22").has_value() );
-    CHECK( !coordParseOptional ("z9").has_value() );
-    CHECK( !coordParseOptional ("i1").has_value() );
-    CHECK( !coordParseOptional ("a0").has_value() );
+    CHECK( !parseCoord ("").has_value() );
+    CHECK( !parseCoord ("e").has_value() );
+    CHECK( !parseCoord ("e22").has_value() );
+    CHECK( !parseCoord ("z9").has_value() );
+    CHECK( !parseCoord ("i1").has_value() );
+    CHECK( !parseCoord ("a0").has_value() );
 }
 
 TEST_CASE( "coordColor()" )
@@ -85,10 +85,10 @@ TEST_CASE( "coordColor()" )
     CHECK( coordColor (top_right) == Color::Black );
     CHECK( coordColor (bottom_left) == Color::Black );
 
-    auto d5 = coordParse ("d5");
-    auto e5 = coordParse ("e5");
-    auto d4 = coordParse ("d4");
-    auto e4 = coordParse ("e4");
+    auto d5 = toCoord ("d5");
+    auto e5 = toCoord ("e5");
+    auto d4 = toCoord ("d4");
+    auto e4 = toCoord ("e4");
 
     CHECK( coordColor (d5) == Color::White );
     CHECK( coordColor (e4) == Color::White );

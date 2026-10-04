@@ -67,7 +67,7 @@ namespace
         };
 
         for (auto move_text : move_texts)
-            game.move (moveParse (move_text, game.getCurrentTurn()));
+            game.move (toMove (move_text, game.getCurrentTurn()));
 
         return game;
     }
@@ -181,8 +181,8 @@ TEST_CASE( "loadGame()" )
 
         REQUIRE( game.has_value() );
         CHECK( game->getCurrentTurn() == Color::White );
-        CHECK( game->getBoard().pieceAt (coordParse ("e5")) == ColoredPiece::make (Color::Black, Piece::Pawn) );
-        CHECK( game->getBoard().pieceAt (coordParse ("g1")) == ColoredPiece::make (Color::White, Piece::Knight) );
+        CHECK( game->getBoard().pieceAt (toCoord ("e5")) == ColoredPiece::make (Color::Black, Piece::Pawn) );
+        CHECK( game->getBoard().pieceAt (toCoord ("g1")) == ColoredPiece::make (Color::White, Piece::Knight) );
     }
 
     SUBCASE( "An unparseable move yields no game" )

@@ -56,3 +56,13 @@ Out of scope:
 
 - Created the branch, stacked on `to-int-to-uint` (#345), and this plan.
   Nothing is renamed yet.
+
+### Session #2
+
+- Renamed `coordParseOptional`, `coordParse`, `moveParseOptional`,
+  `moveParse` and `castleParse` across 41 files, including the comments
+  that name the other form.
+- `AGENTS.md` lists `parseInt()` with the parsers and states the naming
+  rule for a new pair.
+- Verified lint, all 339 Release tests with the QML UI, all 318 Debug
+  tests and the WASM build.

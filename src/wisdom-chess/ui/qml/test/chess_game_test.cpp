@@ -8,7 +8,7 @@ using namespace wisdom::ui::qml;
 
 using wisdom::Color;
 using wisdom::czstring;
-using wisdom::moveParse;
+using wisdom::toMove;
 using wisdom::nonnull;
 using wisdom::Piece;
 using wisdom::Player;
@@ -163,7 +163,7 @@ private slots:
     void aCloneHasThePositionPlayersAndConfig()
     {
         auto game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine, makeConfig());
-        game->state()->move (moveParse ("e2 e4", Color::White));
+        game->state()->move (toMove ("e2 e4", Color::White));
         game->setPlayers (Player::ChessEngine, Player::Human);
 
         auto clone = game->clone();
@@ -183,7 +183,7 @@ private slots:
         auto game = ChessGame::fromPlayers (Player::Human, Player::Human, makeConfig());
         auto clone = game->clone();
 
-        clone->state()->move (moveParse ("e2 e4", Color::White));
+        clone->state()->move (toMove ("e2 e4", Color::White));
 
         QVERIFY( fenOf (*clone) != fenOf (*game) );
         QVERIFY( game->state()->getCurrentTurn() == Color::White );
@@ -192,8 +192,8 @@ private slots:
     void moveFromCoordinates()
     {
         auto game = ChessGame::fromPlayers (Player::Human, Player::Human, makeConfig());
-        auto src = wisdom::coordParse ("e2");
-        auto dst = wisdom::coordParse ("e4");
+        auto src = wisdom::toCoord ("e2");
+        auto dst = wisdom::toCoord ("e4");
 
         auto [move, who] = game->moveFromCoordinates (
             src.row<int>(), src.column<int>(), dst.row<int>(), dst.column<int>(), std::nullopt
@@ -201,7 +201,7 @@ private slots:
 
         QVERIFY( who == Color::White );
         QVERIFY( move.has_value() );
-        QVERIFY( *move == moveParse ("e2 e4", Color::White) );
+        QVERIFY( *move == toMove ("e2 e4", Color::White) );
     }
 
     void moveFromCoordinatesRecognizesSpecialMoves()
@@ -209,8 +209,8 @@ private slots:
         auto map = [] (const ChessGame& game, czstring src_text, czstring dst_text,
                        std::optional<Piece> promoted = std::nullopt)
         {
-            auto src = wisdom::coordParse (src_text);
-            auto dst = wisdom::coordParse (dst_text);
+            auto src = wisdom::toCoord (src_text);
+            auto dst = wisdom::toCoord (dst_text);
             return game.moveFromCoordinates (
                 src.row<int>(), src.column<int>(), dst.row<int>(), dst.column<int>(), promoted
             ).first;
@@ -220,11 +220,11 @@ private slots:
         auto promoting = ChessGame::fromFen ("1n2k3/P7/8/8/8/8/8/4K3 w - - 0 1", makeConfig());
         auto en_passant = ChessGame::fromFen ("4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1", makeConfig());
 
-        QVERIFY( map (*castling, "e1", "g1") == moveParse ("o-o", Color::White) );
-        QVERIFY( map (*castling, "e1", "c1") == moveParse ("o-o-o", Color::White) );
-        QVERIFY( map (*promoting, "a7", "a8", Piece::Rook) == moveParse ("a7 a8(R)", Color::White) );
-        QVERIFY( map (*promoting, "a7", "b8", Piece::Queen) == moveParse ("a7xb8(Q)", Color::White) );
-        QVERIFY( map (*en_passant, "e5", "d6") == moveParse ("e5 d6 ep", Color::White) );
+        QVERIFY( map (*castling, "e1", "g1") == toMove ("o-o", Color::White) );
+        QVERIFY( map (*castling, "e1", "c1") == toMove ("o-o-o", Color::White) );
+        QVERIFY( map (*promoting, "a7", "a8", Piece::Rook) == toMove ("a7 a8(R)", Color::White) );
+        QVERIFY( map (*promoting, "a7", "b8", Piece::Queen) == toMove ("a7xb8(Q)", Color::White) );
+        QVERIFY( map (*en_passant, "e5", "d6") == toMove ("e5 d6 ep", Color::White) );
         QVERIFY( !map (*castling, "c3", "c4").has_value() );
     }
 };

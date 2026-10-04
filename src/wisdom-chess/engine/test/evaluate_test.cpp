@@ -34,7 +34,7 @@ TEST_CASE( "Checkmate detection" )
         Board board;
         CHECK( !isCheckmated (board) );
 
-        board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
+        board = board.withMove (Color::White, toMove ("e2 e4", Color::White));
         CHECK( !isCheckmated (board) );
     }
 
@@ -99,7 +99,7 @@ TEST_CASE( "Stalemate detection" )
         Board board;
         CHECK( !isStalemated (board) );
 
-        board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
+        board = board.withMove (Color::White, toMove ("e2 e4", Color::White));
         CHECK( !isStalemated (board) );
     }
 
@@ -126,7 +126,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 {
     auto is_legal = [] (const Board& board, Color who, czstring move_text)
     {
-        auto move = moveParse (move_text, who);
+        auto move = toMove (move_text, who);
         auto after = board.withMove (who, move);
         return isLegalPositionAfterMove (after, who, move);
     };
@@ -381,10 +381,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
     {
         for (int i = 0; i < times; i++)
         {
-            game->move (moveParse ("g1 f3", Color::White));
-            game->move (moveParse ("g8 f6", Color::Black));
-            game->move (moveParse ("f3 g1", Color::White));
-            game->move (moveParse ("f6 g8", Color::Black));
+            game->move (toMove ("g1 f3", Color::White));
+            game->move (toMove ("g8 f6", Color::Black));
+            game->move (toMove ("f3 g1", Color::White));
+            game->move (toMove ("f6 g8", Color::Black));
         }
     };
 
