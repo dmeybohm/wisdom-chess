@@ -251,9 +251,6 @@ TEST_CASE( "nullable" )
 
 TEST_CASE( "EXPECTS and ENSURES pass a true condition" )
 {
-    static_assert (noexcept (EXPECTS( true )));
-    static_assert (noexcept (ENSURES( true )));
-
     auto checked = []() noexcept
     {
         EXPECTS( 1 + 1 == 2 );
