@@ -451,7 +451,7 @@ TEST_CASE( "Hash collision analysis" )
 
         for (int bit = 0; bit < 48; ++bit)
         {
-            double ratio = static_cast<double> (bit_counts[bit]) / non_zero_entries;
+            double ratio = to_double (bit_counts[bit]) / non_zero_entries;
             CHECK_MESSAGE( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );
             CHECK_MESSAGE( ratio < 0.7, "Bit " << bit << " is set too often: " << ratio );
         }

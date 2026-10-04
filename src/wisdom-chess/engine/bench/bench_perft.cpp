@@ -49,7 +49,7 @@ namespace wisdom::bench
 
         void printNps (czstring label, int64_t nodes, double seconds)
         {
-            double nps = seconds > 0.0 ? static_cast<double> (nodes) / seconds : 0.0;
+            double nps = seconds > 0.0 ? to_double (nodes) / seconds : 0.0;
             std::cout << "  " << label << ": "
                       << nodes << " nodes in "
                       << std::fixed << std::setprecision (3) << seconds << "s"
