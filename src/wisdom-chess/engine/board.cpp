@@ -247,7 +247,7 @@ namespace wisdom
             coord_end,
             finder
         );
-        auto diff = narrow_noexcept<int> (result - coord_begin);
+        auto diff = narrow<int> (result - coord_begin);
 
         return (result != coord_end)
             ? std::make_optional<Coord> (Coord::fromIndex (diff))

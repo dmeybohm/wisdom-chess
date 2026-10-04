@@ -1,5 +1,6 @@
 #include <QSignalSpy>
 #include <QTest>
+#include <stdexcept>
 
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
@@ -92,20 +93,17 @@ private slots:
         QCOMPARE( moves.count(), 1 );
     }
 
-    // A search depth out of range breaks a precondition of the settings.
     void aSlotThatThrowsReportsTheFailure()
     {
         ChessEngine engine { makeStartingGame(), 7 };
         QSignalSpy failures { &engine, &ChessEngine::engineFailed };
 
-        auto out_of_range = Quick_Search;
-        out_of_range.searchDepth = wisdom::ui::GameSettings::Max_Search_Depth + 1;
-        engine.updateConfig (out_of_range, ignoreTimer);
+        engine.runGuarded ([] { throw std::runtime_error { "out of resources" }; });
 
         QCOMPARE( failures.count(), 1 );
 
         auto message = failures.at (0).at (0).toString();
-        QVERIFY( message.contains (QStringLiteral ("Precondition failed")) );
+        QCOMPARE( message, QStringLiteral ("out of resources") );
         QCOMPARE( failures.at (0).at (1).toInt(), 7 );
     }
 
@@ -115,9 +113,7 @@ private slots:
         QSignalSpy failures { &engine, &ChessEngine::engineFailed };
         QSignalSpy moves { &engine, &ChessEngine::engineMoved };
 
-        auto out_of_range = Quick_Search;
-        out_of_range.searchDepth = wisdom::ui::GameSettings::Max_Search_Depth + 1;
-        engine.updateConfig (out_of_range, ignoreTimer);
+        engine.runGuarded ([] { throw std::runtime_error { "out of resources" }; });
         QCOMPARE( failures.count(), 1 );
 
         // It is the engine's turn, but it stays stopped.

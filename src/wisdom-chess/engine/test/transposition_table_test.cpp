@@ -276,17 +276,8 @@ TEST_CASE( "Transposition table sizing" )
         CHECK( by_default.getSize() >= 2 );
     }
 
-    SUBCASE( "Sizes too small to hold any entries are rejected" )
+    SUBCASE( "An entry count that is a power of two is kept" )
     {
-        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (0), PreconditionError );
-        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (-1), PreconditionError );
-        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (0), PreconditionError );
-        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (1), PreconditionError );
-    }
-
-    SUBCASE( "An entry count must be a power of two" )
-    {
-        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (6), PreconditionError );
         CHECK( TranspositionTable::fromEntries (4).getSize() == 4 );
     }
 }

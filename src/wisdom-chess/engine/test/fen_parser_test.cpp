@@ -372,20 +372,11 @@ TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
     }
 }
 
-TEST_CASE( "A FEN string that does not parse" )
+TEST_CASE( "A FEN string that does not parse is returned as an error" )
 {
-    SUBCASE( "is returned as an error by the parsing functions" )
-    {
-        auto parser = FenParser::parse ("not a fen");
-        REQUIRE_FALSE( parser.has_value() );
-        CHECK( parser.error().message == "Invalid piece type!" );
+    auto parser = FenParser::parse ("not a fen");
+    REQUIRE_FALSE( parser.has_value() );
+    CHECK( parser.error().message == "Invalid piece type!" );
 
-        CHECK( fenError ("not a fen") == "Invalid piece type!" );
-    }
-
-    SUBCASE( "is a precondition failure for the other functions" )
-    {
-        CHECK_THROWS_AS( FenParser { "not a fen" }, PreconditionError );
-        CHECK_THROWS_AS( (void)Game::createGameFromFen ("not a fen"), PreconditionError );
-    }
+    CHECK( fenError ("not a fen") == "Invalid piece type!" );
 }

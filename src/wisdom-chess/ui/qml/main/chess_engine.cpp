@@ -70,6 +70,11 @@ namespace wisdom::ui::qml
         }
     }
 
+    void ChessEngine::runGuarded (const std::function<void()>& body) noexcept
+    {
+        guarded (body);
+    }
+
     void ChessEngine::fail (const string& message, const string& extra_info) noexcept
     {
         auto report = "Engine error: " + message;

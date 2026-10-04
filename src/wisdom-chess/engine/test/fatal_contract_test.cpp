@@ -17,26 +17,30 @@ namespace
     }
 
     FATAL_CASE(
-        "ensures-noexcept-failure",
+        "null-nullable-value",
+        "Precondition failed at .*ptr\\.hpp:[0-9]+: my_ptr != nullptr"
+    )
+    {
+        nullable<int> null_ptr;
+        [[maybe_unused]] nonnull<int> ptr = null_ptr.value();
+    }
+
+    FATAL_CASE(
+        "expects-failure",
+        "Precondition failed at .*fatal_contract_test\\.cpp:[0-9]+: condition"
+    )
+    {
+        volatile bool condition = false;
+        EXPECTS( condition );
+    }
+
+    FATAL_CASE(
+        "ensures-failure",
         "Postcondition failed at .*fatal_contract_test\\.cpp:[0-9]+: condition"
     )
     {
         volatile bool condition = false;
-        ENSURES_NOEXCEPT( condition );
-    }
-
-    FATAL_CASE(
-        "expects-through-noexcept",
-        "Uncaught error: Precondition failed at",
-        test::Reports_Uncaught_Errors
-    )
-    {
-        volatile bool condition = false;
-        auto checked = [&]() noexcept
-        {
-            EXPECTS( condition );
-        };
-        checked();
+        ENSURES( condition );
     }
 
     // ASSERT() only checks when Debugging is on.

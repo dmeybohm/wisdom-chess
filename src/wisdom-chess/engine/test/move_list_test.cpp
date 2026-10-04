@@ -153,8 +153,3 @@ TEST_CASE( "Swapping lists" )
         CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
     }
 }
-
-TEST_CASE( "Constructing a move list from an invalid move string throws" )
-{
-    CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), PreconditionError );
-}

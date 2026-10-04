@@ -26,7 +26,7 @@ namespace wisdom
             case WebColor::Black:
                 return Color::Black;
             default:
-                throw Error { "Invalid color." };
+                terminateOnCheckFailure ("Precondition", "a valid color", std::source_location::current());
         }
     }
 
@@ -51,7 +51,7 @@ namespace wisdom
             case Black:
                 return WebColor::Black;
             default:
-                throw Error { "Invalid color." };
+                terminateOnCheckFailure ("Precondition", "a valid color", std::source_location::current());
         }
     }
 
@@ -87,7 +87,7 @@ namespace wisdom
             case WebPiece::King:
                 return Piece::King;
             default:
-                throw Error { "Invalid piece." };
+                terminateOnCheckFailure ("Precondition", "a valid piece", std::source_location::current());
         }
     }
 
@@ -120,7 +120,7 @@ namespace wisdom
             case King:
                 return WebPiece::King;
             default:
-                throw Error { "Invalid piece." };
+                terminateOnCheckFailure ("Precondition", "a valid piece", std::source_location::current());
         }
     }
 
@@ -141,7 +141,7 @@ namespace wisdom
             case WebPlayer::ChessEngine:
                 return Player::ChessEngine;
             default:
-                throw Error { "Invalid player." };
+                terminateOnCheckFailure ("Precondition", "a valid player", std::source_location::current());
         }
     }
 
@@ -164,7 +164,7 @@ namespace wisdom
             case ChessEngine:
                 return WebPlayer::ChessEngine;
             default:
-                throw Error { "Invalid player." };
+                terminateOnCheckFailure ("Precondition", "a valid player", std::source_location::current());
         }
     }
 
@@ -209,7 +209,7 @@ namespace wisdom
             case WebGameStatus::InsufficientMaterialDraw:
                 return GameStatus::InsufficientMaterialDraw;
             default:
-                throw Error { "Invalid game status" };
+                terminateOnCheckFailure ("Precondition", "a valid game status", std::source_location::current());
         }
     }
 
@@ -248,7 +248,7 @@ namespace wisdom
             case InsufficientMaterialDraw:
                 return WebGameStatus::InsufficientMaterialDraw;
             default:
-                throw Error { "Invalid game status" };
+                terminateOnCheckFailure ("Precondition", "a valid game status", std::source_location::current());
         }
     }
 
@@ -365,7 +365,7 @@ namespace wisdom
             case WebDrawByRepetitionType::FiftyMovesWithoutProgress:
                 return ProposedDrawType::FiftyMovesWithoutProgress;
             default:
-                throw Error { "Invalid draw type." };
+                terminateOnCheckFailure ("Precondition", "a valid draw type", std::source_location::current());
         }
     }
 
@@ -388,7 +388,7 @@ namespace wisdom
             case FiftyMovesWithoutProgress:
                 return WebDrawByRepetitionType::FiftyMovesWithoutProgress;
             default:
-                throw Error { "Invalid draw type." };
+                terminateOnCheckFailure ("Precondition", "a valid draw type", std::source_location::current());
         }
     }
 

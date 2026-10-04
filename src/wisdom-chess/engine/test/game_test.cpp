@@ -268,21 +268,6 @@ TEST_CASE( "The draw arbiter decides the limits of the search" )
         CHECK( copy.getDrawLimits() == Automatic_Draw_Limits );
     }
 
-    SUBCASE( "Limits that are not positive are rejected" )
-    {
-        auto game = Game::createStandardGame();
-
-        CHECK_THROWS_AS(
-            game.setExternalDrawArbiter ({ .repetitions = 0, .half_moves_without_progress = 100 }),
-            PreconditionError
-        );
-        CHECK_THROWS_AS(
-            game.setExternalDrawArbiter ({ .repetitions = 3, .half_moves_without_progress = 0 }),
-            PreconditionError
-        );
-        CHECK( game.getDrawArbiter() == DrawArbiter::GameEngine );
-    }
-
     SUBCASE( "findBestMove searches at the game's limits" )
     {
         // White stays well behind after taking the pawn, so it only takes
@@ -338,26 +323,9 @@ TEST_CASE( "setCurrentTurn keeps the history's current position in step" )
     }
 }
 
-TEST_CASE( "Game rejects a colour that is not a player" )
+TEST_CASE( "Game keeps the search depth and timeout it is given" )
 {
     auto game = Game::createStandardGame();
-
-    CHECK_THROWS_AS( (void)game.getPlayer (Color::None), PreconditionError );
-    CHECK_THROWS_AS( (void)game.computerWantsDraw (Color::None), PreconditionError );
-    CHECK_THROWS_AS( game.setCurrentTurn (Color::None), PreconditionError );
-    CHECK_THROWS_AS(
-        game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, Color::None, true),
-        PreconditionError
-    );
-}
-
-TEST_CASE( "Game rejects a search depth or timeout of zero" )
-{
-    auto game = Game::createStandardGame();
-
-    CHECK_THROWS_AS( game.setMaxDepth (0), PreconditionError );
-    CHECK_THROWS_AS( game.setMaxDepth (-1), PreconditionError );
-    CHECK_THROWS_AS( game.setSearchTimeout (chrono::milliseconds { 0 }), PreconditionError );
 
     game.setMaxDepth (3);
     game.setSearchTimeout (chrono::milliseconds { 1 });

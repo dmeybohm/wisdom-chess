@@ -7,21 +7,30 @@ using namespace wisdom;
 namespace
 {
     FATAL_CASE(
-        "narrow-noexcept-overflow",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow_noexcept: the value fits"
+        "narrow-overflow",
+        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow: the value fits"
     )
     {
         int volatile too_big = 300;
-        [[maybe_unused]] auto narrowed = narrow_noexcept<int8_t> (too_big);
+        [[maybe_unused]] auto narrowed = narrow<int8_t> (too_big);
     }
 
     FATAL_CASE(
-        "to-unsigned-noexcept-negative",
-        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_unsigned_noexcept: the value is nonnegative"
+        "narrow-negative-to-unsigned",
+        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: narrow: the value fits"
     )
     {
         int volatile negative = -1;
-        [[maybe_unused]] auto converted = to_unsigned_noexcept<std::size_t> (negative);
+        [[maybe_unused]] auto narrowed = narrow<std::size_t> (negative);
+    }
+
+    FATAL_CASE(
+        "to-unsigned-negative",
+        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_unsigned: the value is nonnegative"
+    )
+    {
+        int volatile negative = -1;
+        [[maybe_unused]] auto converted = to_unsigned<std::size_t> (negative);
     }
 
     // The _debug conversions only check when Debugging is on.

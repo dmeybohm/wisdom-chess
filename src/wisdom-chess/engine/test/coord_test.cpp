@@ -71,8 +71,6 @@ TEST_CASE( "Parsing a coordinate without exceptions" )
     CHECK( !coordParseOptional ("z9").has_value() );
     CHECK( !coordParseOptional ("i1").has_value() );
     CHECK( !coordParseOptional ("a0").has_value() );
-
-    CHECK_THROWS_AS( (void)coordParse ("z9"), PreconditionError );
 }
 
 TEST_CASE( "coordColor()" )

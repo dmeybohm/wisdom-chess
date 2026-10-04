@@ -514,9 +514,6 @@ TEST_CASE( "Positions cannot be committed while tentative positions are pending"
     Move move = moveParse ("e2 e4", Color::White);
 
     history.addTentativePosition (board);
-
-    CHECK_THROWS_AS( history.addPosition (board, move), PreconditionError );
-
     history.removeLastTentativePosition();
 
     CHECK_NOTHROW( history.addPosition (board, move) );

@@ -21,7 +21,7 @@ namespace wisdom
         constexpr nonnull (T* ptr) noexcept // lint-allow(raw-pointer): wraps a raw pointer
             : my_ptr { ptr }
         {
-            EXPECTS_NOEXCEPT( ptr != nullptr );
+            EXPECTS( ptr != nullptr );
         }
 
         template <typename U>
@@ -104,7 +104,7 @@ namespace wisdom
             return my_ptr != nullptr;
         }
 
-        // Throws PreconditionError when null.
+        // A null is a precondition failure.
         [[nodiscard]] constexpr auto
         value() const
             -> nonnull<T>

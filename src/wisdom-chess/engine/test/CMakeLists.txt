@@ -81,9 +81,12 @@ if (WISDOM_CHESS_FAST_TESTS)
     add_executable(wisdom-chess-fatal-tests
         fatal_board_test.cpp
         fatal_contract_test.cpp
+        fatal_game_test.cpp
         fatal_move_list_test.cpp
         fatal_numeric_cast_test.cpp
+        fatal_parse_test.cpp
         fatal_test_main.cpp
+        fatal_transposition_table_test.cpp
         fatal_uncaught_test.cpp)
     target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
     wisdom_chess_enable_warnings(wisdom-chess-fatal-tests)

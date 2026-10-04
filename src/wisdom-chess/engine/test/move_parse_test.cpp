@@ -27,21 +27,15 @@ TEST_CASE( "moveParse" )
     {
         CHECK( !moveParseOptional ("o-o", Color::None).has_value() );
         CHECK( !moveParseOptional ("o-o-o", Color::None).has_value() );
-        CHECK_THROWS_AS( (void)moveParse ("o-o"), PreconditionError );
     }
 
     SUBCASE( "Invalid moves are rejected" )
     {
         CHECK( !moveParseOptional ("invalid", Color::White).has_value() );
-        CHECK_THROWS_AS( (void)moveParse ("invalid"), PreconditionError );
     }
 
     SUBCASE( "Empty and whitespace-only input" )
     {
-        CHECK_THROWS_AS( (void)moveParse (""), PreconditionError );
-        CHECK_THROWS_AS( (void)moveParse ("", Color::White), PreconditionError );
-        CHECK_THROWS_AS( (void)moveParse ("   "), PreconditionError );
-
         CHECK( !moveParseOptional ("", Color::White).has_value() );
         CHECK( !moveParseOptional ("  \t ", Color::White).has_value() );
     }

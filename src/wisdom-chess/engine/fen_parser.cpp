@@ -25,7 +25,8 @@ namespace wisdom
         auto result = parseFields (input);
         if (!result.has_value())
         {
-            throwPreconditionError (
+            terminateOnCheckFailure (
+                "Precondition",
                 "a valid FEN string: " + result.error().message,
                 std::source_location::current()
             );

@@ -14,6 +14,8 @@
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 
+class ChessEngineTest;
+
 namespace wisdom::ui::qml
 {
     class QmlEngineGameStatusUpdate;
@@ -124,6 +126,11 @@ namespace wisdom::ui::qml
         // none reaches Qt.
         template <typename Body>
         void guarded (Body&& body) noexcept;
+
+        // No slot can be made to throw since the contract checks abort, so
+        // the tests throw through this instead.
+        friend class ::ChessEngineTest;
+        void runGuarded (const std::function<void()>& body) noexcept;
 
         void fail (const std::string& message, const std::string& extra_info) noexcept;
 

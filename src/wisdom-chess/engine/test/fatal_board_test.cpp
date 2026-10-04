@@ -35,4 +35,43 @@ namespace
         Color volatile color = Color::None;
         [[maybe_unused]] bool promote = needPawnPromotion (0, color);
     }
+
+    FATAL_CASE(
+        "board-builder-invalid-coordinate",
+        "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
+    )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("a9", Color::White, Piece::Pawn);
+    }
+
+    FATAL_CASE(
+        "board-builder-half-move-clock-out-of-range",
+        "Precondition failed at .*board_builder\\.hpp:[0-9]+: new_half_moves_clock >= 0"
+    )
+    {
+        BoardBuilder builder;
+        int volatile clock = -1;
+        builder.setHalfMovesClock (clock);
+    }
+
+    FATAL_CASE(
+        "board-builder-full-moves-out-of-range",
+        "Precondition failed at .*board_builder\\.hpp:[0-9]+: new_full_moves >= 1"
+    )
+    {
+        BoardBuilder builder;
+        int volatile full_moves = 0;
+        builder.setFullMoves (full_moves);
+    }
+
+    FATAL_CASE(
+        "board-builder-replace-king",
+        "Precondition failed at .*board_builder\\.hpp:[0-9]+: pieceType \\(my_squares"
+    )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("a8", Color::Black, Piece::King);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+    }
 }

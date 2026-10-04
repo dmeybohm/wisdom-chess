@@ -72,33 +72,6 @@ namespace wisdom
         }
     };
 
-    class PreconditionError : public Error
-    {
-    public:
-        using Error::Error;
-    };
-
-    class PostconditionError : public Error
-    {
-    public:
-        using Error::Error;
-    };
-
-    // The expression is the text of the failed condition, or a description
-    // of what was expected. The location is taken by value throughout: a
-    // reference would put a temporary on the stack of every checking caller.
-    [[noreturn]] void
-    throwPreconditionError (
-        string_view expression,
-        std::source_location location
-    );
-
-    [[noreturn]] void
-    throwPostconditionError (
-        string_view expression,
-        std::source_location location
-    );
-
     // Reports through logEmergency() and aborts. The kind names the check
     // that failed, such as "Precondition". Allocates nothing: the message
     // is built on the stack, since the heap may be what failed.
@@ -111,25 +84,11 @@ namespace wisdom
 
     // The checks below are called through the macros at the end of this
     // file, which supply the text of the condition. In a constant
-    // expression, a false condition is a compile error instead of a throw
-    // or an abort.
+    // expression, a false condition is a compile error instead of an abort.
 
-    // Throws PreconditionError when the condition is false.
+    // Reports the failure and aborts when the condition is false.
     constexpr void
     expects (
-        bool condition,
-        string_view expression,
-        std::source_location location = std::source_location::current()
-    )
-    {
-        if (!condition) [[unlikely]]
-            throwPreconditionError (expression, location);
-    }
-
-    // Reports the failure and aborts when the condition is false. For
-    // noexcept functions, where expects() could not propagate its exception.
-    constexpr void
-    expects_noexcept (
         bool condition,
         string_view expression,
         std::source_location location = std::source_location::current()
@@ -139,22 +98,9 @@ namespace wisdom
             terminateOnCheckFailure ("Precondition", expression, location);
     }
 
-    // Throws PostconditionError when the condition is false.
+    // Reports the failure and aborts when the condition is false.
     constexpr void
     ensures (
-        bool condition,
-        string_view expression,
-        std::source_location location = std::source_location::current()
-    )
-    {
-        if (!condition) [[unlikely]]
-            throwPostconditionError (expression, location);
-    }
-
-    // Reports the failure and aborts when the condition is false. For
-    // noexcept functions, where ensures() could not propagate its exception.
-    constexpr void
-    ensures_noexcept (
         bool condition,
         string_view expression,
         std::source_location location = std::source_location::current()
@@ -181,9 +127,7 @@ namespace wisdom
 // Written with spaces inside the parentheses, like the test macros:
 // EXPECTS( index < size ). The failure message quotes the condition.
 #define EXPECTS(condition) ::wisdom::expects ((condition), #condition)
-#define EXPECTS_NOEXCEPT(condition) ::wisdom::expects_noexcept ((condition), #condition)
 #define ENSURES(condition) ::wisdom::ensures ((condition), #condition)
-#define ENSURES_NOEXCEPT(condition) ::wisdom::ensures_noexcept ((condition), #condition)
 
 // A replacement for assert(): in a build without Debugging the condition is
 // type-checked but not evaluated, except in a constant expression, where a

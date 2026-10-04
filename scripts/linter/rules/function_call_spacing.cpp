@@ -39,7 +39,7 @@ namespace
                 "if", "for", "while", "switch", "catch", "sizeof", "alignof", "decltype",
                 "typeid", "noexcept", "void", "return", "throw", "co_return", "co_yield",
                 "co_await", "defined", "NOLINT", "Expects", "Ensures", "assert", "static_assert",
-                "EXPECTS", "EXPECTS_NOEXCEPT", "ENSURES", "ENSURES_NOEXCEPT", "ASSERT",
+                "EXPECTS", "ENSURES", "ASSERT",
                 "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
                 "FATAL_CASE",
                 "REQUIRE_THROWS", "REQUIRE_THROWS_AS", "REQUIRE_THROWS_WITH",

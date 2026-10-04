@@ -30,15 +30,12 @@ committing C++. The conventions below are about what the code does.
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
 - Integer conversions go through `engine/numeric_cast.hpp`. A conversion
-  that can lose a value has three forms: a checked form that throws
-  `PreconditionError`, a `_noexcept` form that terminates instead, for an
-  invariant in a `noexcept` function, and a `_debug` form that terminates
-  but checks only when `Debugging` is on, like `ASSERT`, so not in Release
-  or RelWithDebInfo:
-  - `narrow`, `narrow_noexcept` and `narrow_debug` for a value that may
-    not fit the target type.
-  - `to_unsigned`, `to_unsigned_noexcept` and `to_unsigned_debug` for a
-    nonnegative signed value, such as an array index, into an unsigned
+  that can lose a value has two forms: a checked form that terminates,
+  and a `_debug` form that terminates but checks only when `Debugging` is
+  on, like `ASSERT`, so not in Release or RelWithDebInfo:
+  - `narrow` and `narrow_debug` for a value that may not fit the target
+    type.
+  - `to_unsigned` and `to_unsigned_debug` for a nonnegative signed value, such as an array index, into an unsigned
     type at least as wide.
   - `widen` for a wider type that holds every value of the source, which
     cannot fail: a signed source needs a signed target.
@@ -50,9 +47,10 @@ committing C++. The conventions below are about what the code does.
   The forms without one (`createGameFromFen()`, `moveParse()`,
   `coordParse()`) are for strings the program wrote, such as literals,
   and treat a bad one as a precondition failure.
-- `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
-  input and throw. `EXPECTS_NOEXCEPT( cond )` and `ENSURES_NOEXCEPT( cond )`
-  abort and belong only in `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts
+- `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check a
+  function's contract and abort when it is broken, so they suit `noexcept`
+  functions too. See `features/2026/10/exception-removal.md`.
+  `ASSERT( cond )` replaces `assert()`: it aborts
   only when `Debugging` is on, and otherwise the condition is not
   evaluated. The macros quote the condition in the failure message, so
   the functions under them (`expects()`, ...) are not called directly.
@@ -83,7 +81,7 @@ committing C++. The conventions below are about what the code does.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
   `nonnull<Type>` or `nullable<Type>`, which cannot be dereferenced: test
-  it, then take `value()` for a `nonnull`, which throws when null. A
+  it, then take `value()` for a `nonnull`, which aborts when null. A
   `nonnull` checks for null when constructed, where a null aborts, and
   not when dereferenced; pass `get()` to an API that takes a raw pointer.
   See `features/2026/10/single-nonnull.md`. A C string is `czstring` or
@@ -129,7 +127,7 @@ binaries' standard input. A UCI script that starts a search must send
 `stop` before `quit`, or no `bestmove` is printed.
 
 The `Fatal: ...` tests cover what doctest cannot catch because it ends
-the process: a failed `EXPECTS_NOEXCEPT` or `ASSERT`, a null `nonnull`, an
+the process: a failed `EXPECTS` or `ASSERT`, a null `nonnull`, an
 uncaught exception. Add one with `FATAL_CASE( name, expected [, listed] )`
 (`engine/test/fatal_test.hpp`) in the `fatal_*_test.cpp` file for its
 area, and list a new file in the `wisdom-chess-fatal-tests` target; the

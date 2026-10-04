@@ -29,39 +29,23 @@ namespace wisdom
             && isNegative (converted) == isNegative (value);
     }
 
-    // Throws PreconditionError, naming the caller, when the value does not
-    // fit in Target. In a constant expression, that is a compile error.
+    // Aborts, naming the caller, when the value does not fit in Target. In a
+    // constant expression, that is a compile error.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    narrow (Source value, std::source_location location = std::source_location::current())
+    narrow (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            throwPreconditionError ("narrow: the value fits in the target type", location);
+            terminateOnCheckFailure ("Precondition", "narrow: the value fits in the target type", location);
 
         return static_cast<Target> (value);
     }
 
-    // Like narrow(), but aborts instead of throwing, naming the caller. For an
-    // invariant inside a noexcept function.
-    template <typename Target, typename Source>
-    [[nodiscard]] constexpr auto
-    narrow_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
-        -> Target
-    {
-        static_assert (std::is_arithmetic_v<Source>);
-        static_assert (std::is_arithmetic_v<Target>);
-
-        if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "narrow_noexcept: the value fits in the target type", location);
-
-        return static_cast<Target> (value);
-    }
-
-    // Like narrow_noexcept(), but checked only when Debugging is on or in a
+    // Like narrow(), but checked only when Debugging is on or in a
     // constant expression, as ASSERT() is. Release and RelWithDebInfo builds
     // do a plain static_cast.
     template <typename Target, typename Source>
@@ -97,10 +81,10 @@ namespace wisdom
     }
 
     // Converts a nonnegative signed value to an unsigned type at least as
-    // wide. Throws PreconditionError, naming the caller, for a negative value.
+    // wide. Aborts, naming the caller, for a negative value.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    to_unsigned (Source value, std::source_location location = std::source_location::current())
+    to_unsigned (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
@@ -108,28 +92,12 @@ namespace wisdom
         static_assert (sizeof (Target) >= sizeof (Source));
 
         if (value < 0) [[unlikely]]
-            throwPreconditionError ("to_unsigned: the value is nonnegative", location);
+            terminateOnCheckFailure ("Precondition", "to_unsigned: the value is nonnegative", location);
 
         return static_cast<Target> (value);
     }
 
-    // Like to_unsigned(), but aborts instead of throwing for a failed invariant.
-    template <typename Target, typename Source>
-    [[nodiscard]] constexpr auto
-    to_unsigned_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
-        -> Target
-    {
-        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
-        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
-        static_assert (sizeof (Target) >= sizeof (Source));
-
-        if (value < 0) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "to_unsigned_noexcept: the value is nonnegative", location);
-
-        return static_cast<Target> (value);
-    }
-
-    // Like to_unsigned_noexcept(), but checked only when Debugging is on or in
+    // Like to_unsigned(), but checked only when Debugging is on or in
     // a constant expression, as ASSERT() is. Release and RelWithDebInfo builds
     // do a plain static_cast.
     template <typename Target, typename Source>
