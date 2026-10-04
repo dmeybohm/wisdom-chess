@@ -389,3 +389,25 @@ both have 65,536 entries and only the buckets and ageing differ:
   root.
 - Release: all 331 tests pass. Debug: the 318 fast and medium tests
   pass. Lint is clean.
+- Measured step 3 against step 2 and `main` (`efddf228`), as in
+  Session #5, under `systemd-inhibit`, with no other builds or tests
+  running. `--search-report 7`, five alternating rounds, medians:
+
+  | Position | Nodes: step 2 → step 3 | Time: step 2 → step 3 | Change | Rounds faster |
+  |---|---|---|---|---|
+  | starting | 336,232 → 333,381 | 0.268 s → 0.310 s | +15.7% | 0 of 5 |
+  | kiwipete | 1,678,629 → 1,628,027 | 1.495 s → 1.613 s | +7.9% | 0 of 5 |
+  | italian | 1,461,432 → 1,437,998 | 1.560 s → 1.650 s | +5.8% | 1 of 5 |
+  | position3 | 72,587 → 70,416 | 0.072 s → 0.068 s | −5.6% | 5 of 5 |
+  | position4 | 814,124 → 750,721 | 0.759 s → 0.719 s | −5.3% | 4 of 5 |
+  | middlegame | 4,196,236 → 4,358,692 | 3.280 s → 4.035 s | +23.0% | 0 of 5 |
+  | all six | | 7.43 s → 8.39 s | +13% | |
+
+  The middlegame's depth-7 score moved from 57 to 54, with the same
+  move; every other move and score is unchanged. Warm-table benchmark,
+  table kept, medians of three: `main` 8.45 s, step 2 8.29 s, step 3
+  8.86 s.
+- Step 3 is slower. Nodes fall in five positions but time rises: each
+  horizon node now pays for a hash, a probe into a 16 MB table, which is
+  likely a cache miss, and a store, where about half of these nodes
+  would otherwise stop at the stand-pat test. Not kept as it stands.
