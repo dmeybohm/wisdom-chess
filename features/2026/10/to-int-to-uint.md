@@ -30,7 +30,8 @@ The QML piece model keyed its image table on `int8_t`; it now keys on
 `int`, so no implicit narrowing appears.
 
 The string `toInt` in `str.hpp` is a parser, not a conversion, and
-`Move::toInt()`/`fromInt()` are an encoding pair; neither changes.
+`Move::toInt()`/`fromInt()` are an encoding pair, so they are renamed
+`toPacked()`/`fromPacked()` instead of going through `to_int`.
 `pieceIndex` and `colorIndex` are named indices with range checks and stay
 too.
 
@@ -52,3 +53,4 @@ too.
   default of `unsigned`. `ColoredPiece`'s conversion became an operator
   template like `CastlingEligibility`'s. The Release build passed; the
   tests were not re-run before committing.
+- Renamed `Move::toInt()`/`fromInt()` to `toPacked()`/`fromPacked()`.

@@ -117,7 +117,7 @@ namespace wisdom
         }
 
         applyMove (*move);
-        return move->toInt();
+        return move->toPacked();
     }
 
     void WebGame::setSettings (const wisdom::GameSettings& settings)
