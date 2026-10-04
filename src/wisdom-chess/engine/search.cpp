@@ -275,6 +275,13 @@ namespace wisdom
 
             Board child_board = parent_board.withMove (side, move);
 
+            // The child probes the table first. The unnormalized code differs
+            // only by an en passant target nothing can capture, which at worst
+            // loads the wrong bucket.
+            my_transposition_table->prefetch (
+                child_board.getUnnormalizedBoardCode().getHashCode()
+            );
+
             if (!isLegalPositionAfterMove (child_board, side, move))
                 continue;
 
