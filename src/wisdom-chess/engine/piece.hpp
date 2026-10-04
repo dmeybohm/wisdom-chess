@@ -34,28 +34,28 @@ namespace wisdom
     pieceFromInt8 (int8_t integer) noexcept
         -> Piece
     {
-        return static_cast<Piece> (integer);
+        return to_enum_debug<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
     pieceFromInt (int integer) noexcept
         -> Piece
     {
-        return static_cast<Piece> (integer);
+        return to_enum_debug<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
     colorFromInt8 (int8_t integer) noexcept
         -> Color
     {
-        return static_cast<Color> (integer);
+        return to_enum_debug<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
     colorFromInt (int integer) noexcept
         -> Color
     {
-        return static_cast<Color> (integer);
+        return to_enum_debug<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
@@ -63,7 +63,7 @@ namespace wisdom
         -> Color
     {
         ASSERT( index == Color_Index_White || index == Color_Index_Black );
-        return static_cast<Color> (index + 1);
+        return to_enum_debug<Color> (index + 1);
     }
 
     [[nodiscard]] constexpr auto

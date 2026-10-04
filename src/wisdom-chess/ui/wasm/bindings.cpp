@@ -209,8 +209,8 @@ workerReceiveSettings (
     state->restart_requested.store (false);
     state->updateSettings (
         GameSettings {
-            static_cast<WebPlayer> (white_player),
-            static_cast<WebPlayer> (black_player),
+            to_enum<WebPlayer> (white_player),
+            to_enum<WebPlayer> (black_player),
             thinking_time,
             search_depth,
             debug_logging != 0

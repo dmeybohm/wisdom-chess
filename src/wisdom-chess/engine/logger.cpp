@@ -113,7 +113,7 @@ namespace wisdom
         std::memcpy (&length, header + sizeof level_byte, sizeof length);
 
         return Record {
-            static_cast<Logger::LogLevel> (level_byte),
+            to_enum_debug<Logger::LogLevel> (level_byte),
             length
         };
     }

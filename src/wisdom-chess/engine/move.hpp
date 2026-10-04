@@ -264,7 +264,7 @@ namespace wisdom
         {
             auto c = getCombined();
             if (c <= Combined_Castling)
-                return static_cast<MoveCategory> (c);
+                return to_enum_debug<MoveCategory> (c);
             if (c >= Combined_Promote_Capture_Base)
                 return MoveCategory::NormalCapturing;
             return MoveCategory::Default;
