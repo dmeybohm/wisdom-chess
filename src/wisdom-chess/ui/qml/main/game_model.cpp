@@ -694,7 +694,7 @@ namespace wisdom::ui::qml
     auto GameModel::qmlThirdRepetitionDrawStatus() const noexcept
         -> ui::QmlDrawByRepetitionStatus
     {
-        return static_cast<ui::QmlDrawByRepetitionStatus> (thirdRepetitionDrawStatus());
+        return ui::mapDrawByRepetitionStatus (thirdRepetitionDrawStatus());
     }
 
     void
@@ -702,13 +702,13 @@ namespace wisdom::ui::qml
         ui::QmlDrawByRepetitionStatus draw_status
     ) noexcept
     {
-        setThirdRepetitionDrawStatus (static_cast<DrawStatus> (draw_status));
+        setThirdRepetitionDrawStatus (ui::mapDrawByRepetitionStatus (draw_status));
     }
 
     auto GameModel::qmlFiftyMovesDrawStatus() const noexcept
         -> ui::QmlDrawByRepetitionStatus
     {
-        return static_cast<ui::QmlDrawByRepetitionStatus> (fiftyMovesDrawStatus());
+        return ui::mapDrawByRepetitionStatus (fiftyMovesDrawStatus());
     }
 
     void
@@ -716,7 +716,7 @@ namespace wisdom::ui::qml
         ui::QmlDrawByRepetitionStatus draw_status
     ) noexcept
     {
-        setFiftyMovesDrawStatus (static_cast<DrawStatus> (draw_status));
+        setFiftyMovesDrawStatus (ui::mapDrawByRepetitionStatus (draw_status));
     }
 
     void

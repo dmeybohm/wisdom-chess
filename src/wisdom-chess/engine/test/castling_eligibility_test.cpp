@@ -14,7 +14,7 @@ TEST_CASE( "CastlingEligibility - Default construction" )
     {
         CHECK( !eligibility.isSet (CastlingRights::Kingside) );
         CHECK( !eligibility.isSet (CastlingRights::Queenside) );
-        CHECK( !static_cast<bool> (eligibility) );
+        CHECK_FALSE( to_bool (eligibility) );
     }
 
     SUBCASE( "toInt returns 0 for default" )
@@ -31,7 +31,7 @@ TEST_CASE( "CastlingEligibility - Construction from flags" )
         CastlingEligibility eligibility{ 1 };
         CHECK( eligibility.isSet (CastlingRights::Kingside) );
         CHECK( !eligibility.isSet (CastlingRights::Queenside) );
-        CHECK( static_cast<bool> (eligibility) );
+        CHECK( to_bool (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 1 );
     }
 
@@ -40,7 +40,7 @@ TEST_CASE( "CastlingEligibility - Construction from flags" )
         CastlingEligibility eligibility{ 2 };
         CHECK( !eligibility.isSet (CastlingRights::Kingside) );
         CHECK( eligibility.isSet (CastlingRights::Queenside) );
-        CHECK( static_cast<bool> (eligibility) );
+        CHECK( to_bool (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 2 );
     }
 
@@ -49,7 +49,7 @@ TEST_CASE( "CastlingEligibility - Construction from flags" )
         CastlingEligibility eligibility { 3 };
         CHECK( eligibility.isSet (CastlingRights::Kingside) );
         CHECK( eligibility.isSet (CastlingRights::Queenside) );
-        CHECK( static_cast<bool> (eligibility) );
+        CHECK( to_bool (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 3 );
     }
 }
@@ -216,14 +216,14 @@ TEST_CASE( "CastlingEligibility - bool conversion" )
     SUBCASE( "Empty eligibility is false" )
     {
         CastlingEligibility empty {};
-        CHECK( !static_cast<bool> (empty) );
+        CHECK_FALSE( to_bool (empty) );
     }
 
     SUBCASE( "Non-empty eligibility is true" )
     {
-        CHECK( static_cast<bool> (CastlingRights::Kingside) );
-        CHECK( static_cast<bool> (CastlingRights::Queenside) );
-        CHECK( static_cast<bool> (CastlingRights::Kingside | CastlingRights::Queenside) );
+        CHECK( to_bool (CastlingRights::Kingside) );
+        CHECK( to_bool (CastlingRights::Queenside) );
+        CHECK( to_bool (CastlingRights::Kingside | CastlingRights::Queenside) );
     }
 }
 
@@ -249,13 +249,13 @@ TEST_CASE( "Global constants" )
     SUBCASE( "CastlingEligibility::Both_Sides" )
     {
         CHECK( CastlingEligibility::Both_Sides.toInt<uint8_t>() == 3 );
-        CHECK( static_cast<bool> (CastlingEligibility::Both_Sides) );
+        CHECK( to_bool (CastlingEligibility::Both_Sides) );
     }
 
     SUBCASE( "CastlingEligibility::Neither_Side" )
     {
         CHECK( CastlingEligibility::Neither_Side.toInt<uint8_t>() == 0 );
-        CHECK( !static_cast<bool> (CastlingEligibility::Neither_Side) );
+        CHECK_FALSE( to_bool (CastlingEligibility::Neither_Side) );
         CHECK( !CastlingEligibility::Neither_Side.isSet (CastlingRights::Kingside) );
         CHECK( !CastlingEligibility::Neither_Side.isSet (CastlingRights::Queenside) );
     }
@@ -340,7 +340,7 @@ TEST_CASE( "toInt template function" )
         using flags_type = uint8_t;
         static_assert (std::is_unsigned_v<flags_type>);
 
-        auto max_flags = static_cast<flags_type>(~flags_type{0});  // What ableToCastle uses
+        auto max_flags = std::numeric_limits<flags_type>::max();  // What ableToCastle uses
         CHECK( max_flags == 255 );
         CHECK( (castle_bits & max_flags) == castle_bits );  // 3 & 255 == 3
         CHECK( (castle_bits & max_flags) != max_flags );    // 3 != 255, so equality fails

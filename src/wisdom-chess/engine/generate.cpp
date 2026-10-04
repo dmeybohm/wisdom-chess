@@ -514,7 +514,7 @@ namespace wisdom
             auto squares = to_unsigned_debug<uint64_t> (
                 move.getSrc().index() * Num_Squares + move.getDst().index()
             );
-            return (static_cast<uint64_t> (kind) << Sort_Key_Kind_Shift)
+            return (to_underlying (kind) << Sort_Key_Kind_Shift)
                 | (score << Sort_Key_Score_Shift)
                 | (promotionRank (move) << Sort_Key_Promotion_Shift)
                 | squares;

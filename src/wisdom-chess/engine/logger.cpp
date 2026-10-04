@@ -113,7 +113,7 @@ namespace wisdom
         std::memcpy (&length, header + sizeof level_byte, sizeof length);
 
         return Record {
-            static_cast<Logger::LogLevel> (level_byte),
+            to_enum_debug<Logger::LogLevel> (level_byte),
             length
         };
     }
@@ -152,7 +152,7 @@ namespace wisdom
         while (my_count > 0 && my_used + record_size > my_storage.size())
             popFront();
 
-        auto level_byte = narrow<uint8_t> (static_cast<int> (level));
+        auto level_byte = narrow<uint8_t> (to_underlying (level));
         auto length = narrow<uint32_t> (text.size());
         char header[Record_Overhead];
         std::memcpy (header, &level_byte, sizeof level_byte);

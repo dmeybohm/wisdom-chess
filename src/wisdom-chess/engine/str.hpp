@@ -46,14 +46,14 @@ namespace wisdom
     toLower (char ch) noexcept
         -> char
     {
-        return isUpper (ch) ? static_cast<char> (ch + ('a' - 'A')) : ch;
+        return isUpper (ch) ? narrow_debug<char> (ch + ('a' - 'A')) : ch;
     }
 
     [[nodiscard]] constexpr auto
     toUpper (char ch) noexcept
         -> char
     {
-        return isLower (ch) ? static_cast<char> (ch - ('a' - 'A')) : ch;
+        return isLower (ch) ? narrow_debug<char> (ch - ('a' - 'A')) : ch;
     }
 
     // "Chomp" the last newline of a string.

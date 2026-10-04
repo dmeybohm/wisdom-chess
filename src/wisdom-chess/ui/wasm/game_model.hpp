@@ -31,8 +31,8 @@ namespace wisdom
         // Send new settings to the worker.
         void sendSettings() const
         {
-            int white_player = static_cast<int> (my_game_settings.whitePlayer);
-            int black_player = static_cast<int> (my_game_settings.blackPlayer);
+            int white_player = to_underlying (my_game_settings.whitePlayer);
+            int black_player = to_underlying (my_game_settings.blackPlayer);
 
             emscripten_wasm_worker_post_function_sig (
                 engine_thread,
@@ -42,7 +42,7 @@ namespace wisdom
                 black_player,
                 my_game_settings.thinkingTime,
                 my_game_settings.searchDepth,
-                static_cast<int> (my_game_settings.debugLogging)
+                widen<int> (my_game_settings.debugLogging)
             );
         }
 

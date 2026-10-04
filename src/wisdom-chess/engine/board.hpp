@@ -134,7 +134,7 @@ namespace wisdom
             // Asking about no side at all is never satisfied: check for
             // every bit, which no state has.
             auto check_bits = castle_types == CastlingEligibility::Neither_Side
-                ? static_cast<uint8_t> (~uint8_t { 0 })
+                ? std::numeric_limits<uint8_t>::max()
                 : toInt<uint8_t> (castle_types);
 
             bool has_rights = (castle_bits & check_bits) == check_bits;

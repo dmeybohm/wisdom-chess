@@ -129,4 +129,75 @@ namespace wisdom
 
         return static_cast<Target> (value);
     }
+
+    // Converts an enum to its underlying type, as C++23's std::to_underlying.
+    template <typename Enum>
+    [[nodiscard]] constexpr auto
+    to_underlying (Enum value) noexcept
+        -> std::underlying_type_t<Enum>
+    {
+        static_assert (std::is_enum_v<Enum>);
+
+        return static_cast<std::underlying_type_t<Enum>> (value);
+    }
+
+    // Converts an integer to an enum. Aborts, naming the caller, when the
+    // value does not fit in the enum's underlying type. Whether the value
+    // names an enumerator is up to the caller.
+    template <typename Enum, typename Source>
+    [[nodiscard]] constexpr auto
+    to_enum (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Enum
+    {
+        static_assert (std::is_enum_v<Enum>);
+        static_assert (std::is_integral_v<Source>);
+
+        if (!isLosslessConversion<std::underlying_type_t<Enum>> (value)) [[unlikely]]
+            terminateOnCheckFailure ("Precondition", "to_enum: the value fits in the underlying type", location);
+
+        return static_cast<Enum> (value);
+    }
+
+    // Like to_enum(), but checked only when Debugging is on or in a
+    // constant expression, as ASSERT() is. Release and RelWithDebInfo builds
+    // do a plain static_cast.
+    template <typename Enum, typename Source>
+    [[nodiscard]] constexpr auto
+    to_enum_debug (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Enum
+    {
+        static_assert (std::is_enum_v<Enum>);
+        static_assert (std::is_integral_v<Source>);
+
+        if (Debugging || std::is_constant_evaluated())
+        {
+            if (!isLosslessConversion<std::underlying_type_t<Enum>> (value)) [[unlikely]]
+                terminateOnCheckFailure ("Precondition", "to_enum_debug: the value fits in the underlying type", location);
+        }
+
+        return static_cast<Enum> (value);
+    }
+
+    // Converts a number to double. Not checked: an integer beyond 2^53 is
+    // rounded.
+    template <typename Source>
+    [[nodiscard]] constexpr auto
+    to_double (Source value) noexcept
+        -> double
+    {
+        static_assert (std::is_arithmetic_v<Source>);
+
+        return static_cast<double> (value);
+    }
+
+    // Converts a value to bool, including through an explicit operator bool.
+    // A conversion that can throw does not compile.
+    template <typename Source>
+        requires std::is_nothrow_constructible_v<bool, const Source&>
+    [[nodiscard]] constexpr auto
+    to_bool (const Source& value) noexcept
+        -> bool
+    {
+        return static_cast<bool> (value);
+    }
 }

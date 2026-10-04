@@ -111,9 +111,9 @@ namespace wisdom::worker
                         EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
-                        static_cast<int> (mapDrawByRepetitionType (proposed_draw_type)),
-                        static_cast<int> (mapColor (player)),
-                        static_cast<int> (accepted)
+                        to_underlying (mapDrawByRepetitionType (proposed_draw_type)),
+                        to_underlying (mapColor (player)),
+                        widen<int> (accepted)
                     );
                 }
             );
@@ -209,8 +209,8 @@ workerReceiveSettings (
     state->restart_requested.store (false);
     state->updateSettings (
         GameSettings {
-            static_cast<WebPlayer> (white_player),
-            static_cast<WebPlayer> (black_player),
+            to_enum<WebPlayer> (white_player),
+            to_enum<WebPlayer> (black_player),
             thinking_time,
             search_depth,
             debug_logging != 0

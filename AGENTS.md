@@ -29,7 +29,7 @@ committing C++. The conventions below are about what the code does.
 
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
-- Integer conversions go through `engine/numeric_cast.hpp`. A conversion
+- Conversions go through `engine/cast.hpp`. A conversion
   that can lose a value has two forms: a checked form that terminates,
   and a `_debug` form that terminates but checks only when `Debugging` is
   on, like `ASSERT`, so not in Release or RelWithDebInfo:
@@ -40,6 +40,13 @@ committing C++. The conventions below are about what the code does.
   - `widen` for a wider type that holds every value of the source, which
     cannot fail: a signed source needs a signed target.
   - `truncate` discards an unsigned value's high bits on purpose.
+  - `to_underlying` converts an enum to its underlying type, as C++23's
+    `std::to_underlying` does.
+  - `to_enum` and `to_enum_debug` convert an integer to an enum, checking
+    that it fits the enum's underlying type.
+  - `to_double` converts a number to `double`, unchecked.
+  - `to_bool` converts to `bool`, including through an explicit
+    `operator bool`, which must be `noexcept`.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,

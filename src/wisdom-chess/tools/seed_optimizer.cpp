@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -27,6 +28,8 @@ using wisdom::nonnull;
 using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
+using wisdom::to_double;
+using wisdom::to_unsigned;
 using wisdom::Total_Metadata_Bits;
 using wisdom::Zobrist_Table_Size;
 using wisdom::zobristPieceIndex;
@@ -58,7 +61,7 @@ namespace
                 continue;
 
             auto piece_index = zobristPieceIndex (piece.color(), piece.type());
-            auto table_index = static_cast<std::size_t> (piece_index * Num_Squares + coord.index());
+            auto table_index = to_unsigned<std::size_t> (piece_index * Num_Squares + coord.index());
             hash ^= table[table_index] << Total_Metadata_Bits;
         }
 
@@ -137,16 +140,16 @@ namespace
         auto [min_it, max_it] = std::minmax_element (buckets.begin(), buckets.end());
         stats.min_bucket = *min_it;
         stats.max_bucket = *max_it;
-        stats.avg_bucket = static_cast<double> (hashes.size()) / static_cast<double> (table_size);
-        stats.max_avg_ratio = static_cast<double> (stats.max_bucket) / stats.avg_bucket;
+        stats.avg_bucket = to_double (hashes.size()) / to_double (table_size);
+        stats.max_avg_ratio = to_double (stats.max_bucket) / stats.avg_bucket;
 
         double sum_sq_diff = 0.0;
         for (auto count : buckets)
         {
-            double diff = static_cast<double> (count) - stats.avg_bucket;
+            double diff = to_double (count) - stats.avg_bucket;
             sum_sq_diff += diff * diff;
         }
-        stats.std_dev = std::sqrt (sum_sq_diff / static_cast<double> (table_size));
+        stats.std_dev = std::sqrt (sum_sq_diff / to_double (table_size));
 
         return stats;
     }
@@ -189,14 +192,14 @@ namespace
             result.worst_ratio = std::max (result.worst_ratio, result.stats_per_size[i].max_avg_ratio);
             total_std_dev += result.stats_per_size[i].std_dev;
         }
-        result.avg_std_dev = total_std_dev / static_cast<double> (Table_Sizes.size());
+        result.avg_std_dev = total_std_dev / to_double (Table_Sizes.size());
 
         return result;
     }
 
     void printStats (const DistributionStats& stats)
     {
-        int log2_size = static_cast<int> (std::log2 (static_cast<double> (stats.table_size)));
+        auto log2_size = std::bit_width (stats.table_size) - 1;
         std::cout << "  2^" << log2_size << ": max/avg=" << std::fixed << std::setprecision (2)
                   << stats.max_avg_ratio << ", std=" << stats.std_dev
                   << " (max=" << stats.max_bucket << ", avg=" << stats.avg_bucket << ")"

@@ -195,7 +195,7 @@ TEST_CASE( "LogRingBuffer" )
 
         for (int i = 0; i < 500; i++)
         {
-            auto text = string (1 + (i * 7) % 20, static_cast<char> ('a' + i % 26));
+            auto text = string (1 + (i * 7) % 20, narrow<char> ('a' + i % 26));
             pushed.push_back (text);
             buffer.push (Logger::LogLevel_Info, text);
         }

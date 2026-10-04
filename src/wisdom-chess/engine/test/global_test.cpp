@@ -69,6 +69,83 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
 }
 
+TEST_CASE( "to_underlying gives the enum's underlying type" )
+{
+    enum class Small : int8_t
+    {
+        Value = -3
+    };
+    enum class Default
+    {
+        Value = 7
+    };
+
+    static_assert (std::is_same_v<decltype (to_underlying (Small::Value)), int8_t>);
+    static_assert (std::is_same_v<decltype (to_underlying (Default::Value)), int>);
+    static_assert (to_underlying (Small::Value) == -3);
+    static_assert (to_underlying (Default::Value) == 7);
+}
+
+TEST_CASE( "to_enum converts a value that fits the underlying type" )
+{
+    enum class Small : int8_t
+    {
+        Value = -3
+    };
+
+    static_assert (to_enum<Small> (-3) == Small::Value);
+    static_assert (to_enum_debug<Small> (int64_t { -3 }) == Small::Value);
+
+    int runtime_value = -3;
+    CHECK( to_enum<Small> (runtime_value) == Small::Value );
+    CHECK( to_enum_debug<Small> (runtime_value) == Small::Value );
+}
+
+TEST_CASE( "to_double converts a number" )
+{
+    static_assert (to_double (3) == 3.0);
+    static_assert (to_double (uint64_t { 1 } << 53) == 9007199254740992.0);
+    static_assert (to_double (1.5f) == 1.5);
+}
+
+namespace
+{
+    template <typename T>
+    concept ConvertsToBool = requires (const T& value) { to_bool (value); };
+
+    struct MayThrowFlag
+    {
+        explicit operator bool() const
+        {
+            return true;
+        }
+    };
+}
+
+TEST_CASE( "to_bool rejects a conversion that can throw" )
+{
+    static_assert (ConvertsToBool<int>);
+    static_assert (!ConvertsToBool<MayThrowFlag>);
+}
+
+TEST_CASE( "to_bool converts through an explicit operator bool" )
+{
+    struct Flag
+    {
+        bool set;
+
+        constexpr explicit operator bool() const noexcept
+        {
+            return set;
+        }
+    };
+
+    static_assert (to_bool (Flag { true }));
+    static_assert (!to_bool (Flag { false }));
+    static_assert (to_bool (2));
+    static_assert (!to_bool (0));
+}
+
 TEST_CASE( "to_unsigned converts a nonnegative value" )
 {
     static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);

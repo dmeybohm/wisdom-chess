@@ -46,10 +46,10 @@ namespace wisdom::ui
     // meta-object, so this mirror supplies the keys with the same values.
     enum class QmlDrawByRepetitionStatus
     {
-        NotReached = static_cast<int> (DrawByRepetitionStatus::NotReached),
-        Proposed = static_cast<int> (DrawByRepetitionStatus::Proposed),
-        Accepted = static_cast<int> (DrawByRepetitionStatus::Accepted),
-        Declined = static_cast<int> (DrawByRepetitionStatus::Declined),
+        NotReached = to_underlying (DrawByRepetitionStatus::NotReached),
+        Proposed = to_underlying (DrawByRepetitionStatus::Proposed),
+        Accepted = to_underlying (DrawByRepetitionStatus::Accepted),
+        Declined = to_underlying (DrawByRepetitionStatus::Declined),
     };
 
     Q_ENUM_NS (QmlDrawByRepetitionStatus)
@@ -167,6 +167,45 @@ namespace wisdom::ui
                 return PieceType::King;
             default:
                 PRECONDITION_FAILED( "a piece type" );
+        }
+    }
+    [[nodiscard]] constexpr auto
+    mapDrawByRepetitionStatus (DrawByRepetitionStatus status)
+        -> QmlDrawByRepetitionStatus
+    {
+        using enum DrawByRepetitionStatus;
+        switch (status)
+        {
+            case NotReached:
+                return QmlDrawByRepetitionStatus::NotReached;
+            case Proposed:
+                return QmlDrawByRepetitionStatus::Proposed;
+            case Accepted:
+                return QmlDrawByRepetitionStatus::Accepted;
+            case Declined:
+                return QmlDrawByRepetitionStatus::Declined;
+            default:
+                PRECONDITION_FAILED( "a draw by repetition status" );
+        }
+    }
+
+    [[nodiscard]] constexpr auto
+    mapDrawByRepetitionStatus (QmlDrawByRepetitionStatus status)
+        -> DrawByRepetitionStatus
+    {
+        using enum QmlDrawByRepetitionStatus;
+        switch (status)
+        {
+            case NotReached:
+                return DrawByRepetitionStatus::NotReached;
+            case Proposed:
+                return DrawByRepetitionStatus::Proposed;
+            case Accepted:
+                return DrawByRepetitionStatus::Accepted;
+            case Declined:
+                return DrawByRepetitionStatus::Declined;
+            default:
+                PRECONDITION_FAILED( "a draw by repetition status" );
         }
     }
 }

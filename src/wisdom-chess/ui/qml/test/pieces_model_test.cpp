@@ -117,7 +117,7 @@ namespace
             -> bool
         {
             auto shown = squaresOf (model);
-            return shown.size() == static_cast<std::size_t> (model.rowCount ({}))
+            return shown.size() == wisdom::to_unsigned<std::size_t> (model.rowCount ({}))
                 && shown == squaresOf (*game);
         }
 

@@ -88,7 +88,7 @@ namespace
                     occupied++;
             }
 
-            CHECK( static_cast<int> (ids.size()) == list.length );
+            CHECK( narrow<int> (ids.size()) == list.length );
             CHECK( list.length == occupied );
         }
     };

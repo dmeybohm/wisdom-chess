@@ -34,7 +34,7 @@ namespace wisdom
     mapColor (int color)
         -> wisdom::Color
     {
-        return mapColor (static_cast<WebColor> (color));
+        return mapColor (to_enum<WebColor> (color));
     }
 
     [[nodiscard]] inline auto
@@ -95,7 +95,7 @@ namespace wisdom
     mapPiece (int piece)
         -> wisdom::Piece
     {
-        return mapPiece (static_cast<WebPiece> (piece));
+        return mapPiece (to_enum<WebPiece> (piece));
     }
 
     [[nodiscard]] inline auto
@@ -149,7 +149,7 @@ namespace wisdom
     mapPlayer (int player)
         -> wisdom::Player
     {
-        return mapPlayer (static_cast<WebPlayer> (player));
+        return mapPlayer (to_enum<WebPlayer> (player));
     }
 
     [[nodiscard]] inline auto
@@ -217,7 +217,7 @@ namespace wisdom
     mapGameStatus (int status)
         -> wisdom::GameStatus
     {
-        return mapGameStatus (static_cast<WebGameStatus> (status));
+        return mapGameStatus (to_enum<WebGameStatus> (status));
     }
 
     [[nodiscard]] inline auto
@@ -373,7 +373,7 @@ namespace wisdom
     mapDrawByRepetitionType (int type)
         -> wisdom::ProposedDrawType
     {
-        return mapDrawByRepetitionType (static_cast<WebDrawByRepetitionType> (type));
+        return mapDrawByRepetitionType (to_enum<WebDrawByRepetitionType> (type));
     }
 
     [[nodiscard]] inline auto

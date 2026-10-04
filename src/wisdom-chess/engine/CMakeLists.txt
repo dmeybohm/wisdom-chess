@@ -54,6 +54,7 @@ add_library(wisdom-chess-core STATIC
         board_builder.hpp
         board_code.hpp
         board.hpp
+        cast.hpp
         castling.hpp
         coord.hpp
         error.hpp
@@ -72,7 +73,6 @@ add_library(wisdom-chess-core STATIC
         move_list.hpp
         move_ordering.hpp
         move_timer.hpp
-        numeric_cast.hpp
         piece.hpp
         position.hpp
         ptr.hpp

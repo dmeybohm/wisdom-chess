@@ -85,10 +85,10 @@ if (WISDOM_CHESS_FAST_TESTS)
 
     wisdom_chess_add_fatal_tests(wisdom-chess-fatal-tests
         fatal_board_test.cpp
+        fatal_cast_test.cpp
         fatal_contract_test.cpp
         fatal_game_test.cpp
         fatal_move_list_test.cpp
-        fatal_numeric_cast_test.cpp
         fatal_parse_test.cpp
         fatal_transposition_table_test.cpp
         fatal_uncaught_test.cpp)

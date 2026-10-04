@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
@@ -23,6 +24,7 @@ using wisdom::colorInvert;
 using wisdom::generateAllPotentialMoves;
 using wisdom::isLegalPositionAfterMove;
 using wisdom::nonnull;
+using wisdom::to_double;
 
 namespace
 {
@@ -237,16 +239,16 @@ namespace
         );
         stats.min_bucket_count = *min_it;
         stats.max_bucket_count = *max_it;
-        stats.avg_bucket_count = static_cast<double> (hashes.size())
-            / static_cast<double> (table_size);
+        stats.avg_bucket_count = to_double (hashes.size())
+            / to_double (table_size);
 
         double sum_squared_diff = 0.0;
         for (auto count : bucket_counts)
         {
-            double diff = static_cast<double> (count) - stats.avg_bucket_count;
+            double diff = to_double (count) - stats.avg_bucket_count;
             sum_squared_diff += diff * diff;
         }
-        stats.std_deviation = std::sqrt (sum_squared_diff / static_cast<double> (table_size));
+        stats.std_deviation = std::sqrt (sum_squared_diff / to_double (table_size));
 
         return stats;
     }
@@ -281,12 +283,12 @@ TEST_CASE( "Transposition table index distribution" )
     {
         auto stats = analyzeIndexDistribution (hashes, table_size);
 
-        double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
+        double max_to_avg_ratio = to_double (stats.max_bucket_count)
             / stats.avg_bucket_count;
 
         MESSAGE( "" );
         MESSAGE( "Table size: " << table_size << " (2^"
-            << static_cast<int> (std::log2 (static_cast<double> (table_size))) << ")" );
+            << std::bit_width (table_size) - 1 << ")" );
         MESSAGE( "  Min bucket count: " << stats.min_bucket_count );
         MESSAGE( "  Max bucket count: " << stats.max_bucket_count );
         MESSAGE( "  Avg bucket count: " << stats.avg_bucket_count );
