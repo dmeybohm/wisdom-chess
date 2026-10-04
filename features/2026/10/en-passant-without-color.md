@@ -30,5 +30,3 @@ color, and the check rejected a move that had parsed correctly.
   fatal case stays.
 - Added a note to `AGENTS.md`: run the tests that cover a change, and
   the full suite only for a large functional change, leaving it to CI.
-- Ran the move parsing doctest cases and the `move-parse` fatal cases in
-  a Debug build.
