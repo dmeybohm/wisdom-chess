@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bit>
+
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/move.hpp"
@@ -37,14 +39,65 @@ namespace wisdom
         UpperBound
     };
 
+    // A depth and a score packed into 32 bits: the depth in the low bits,
+    // unsigned, and the score in the rest, signed.
+    class DepthAndScoreBits
+    {
+    public:
+        static constexpr int Depth_Bits = 7;
+        static constexpr int Score_Bits = 32 - Depth_Bits;
+        static constexpr int Max_Depth = (1 << Depth_Bits) - 1;
+        static constexpr int Max_Score = (1 << (Score_Bits - 1)) - 1;
+        static constexpr int Min_Score = -Max_Score - 1;
+
+        static_assert (Max_Search_Depth <= Max_Depth);
+        static_assert (Checkmate_Score <= Max_Score);
+
+        constexpr DepthAndScoreBits() noexcept = default;
+
+        [[nodiscard]] static constexpr auto
+        make (int depth, int score) noexcept
+            -> DepthAndScoreBits
+        {
+            EXPECTS( depth >= 0 && depth <= Max_Depth );
+            EXPECTS( score >= Min_Score && score <= Max_Score );
+
+            return DepthAndScoreBits {
+                (std::bit_cast<uint32_t> (score) << Depth_Bits) | to_unsigned<uint32_t> (depth)
+            };
+        }
+
+        [[nodiscard]] constexpr auto
+        getDepth() const noexcept
+            -> int
+        {
+            return narrow<int> (my_bits & Max_Depth);
+        }
+
+        [[nodiscard]] constexpr auto
+        getScore() const noexcept
+            -> int
+        {
+            return std::bit_cast<int32_t> (my_bits) >> Depth_Bits;
+        }
+
+    private:
+        constexpr explicit DepthAndScoreBits (uint32_t bits) noexcept
+            : my_bits { bits }
+        {
+        }
+
+        uint32_t my_bits = 0;
+    };
+
     struct TranspositionEntry
     {
         BoardHashCode hash_code = 0;
+        DepthAndScoreBits depth_and_score {};
         Move best_move {};
-        int score = 0;
-        int16_t depth = 0;
         BoundType bound_type = BoundType::Empty;
     };
+    static_assert (sizeof (TranspositionEntry) == 16);
 
     class TranspositionTable
     {

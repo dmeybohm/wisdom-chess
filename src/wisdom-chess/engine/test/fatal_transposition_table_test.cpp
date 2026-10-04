@@ -39,4 +39,22 @@ namespace
         auto table = TranspositionTable::fromEntries (2);
         table.store (1, 0, 1, BoundType::Empty, Move::make (0, 0, 1, 1), 0);
     }
+
+    FATAL_CASE(
+        "depth-and-score-bits-depth-too-large",
+        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: depth >= 0 && depth <= Max_Depth"
+    )
+    {
+        int volatile depth = DepthAndScoreBits::Max_Depth + 1;
+        [[maybe_unused]] auto bits = DepthAndScoreBits::make (depth, 0);
+    }
+
+    FATAL_CASE(
+        "depth-and-score-bits-score-too-large",
+        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: score >= Min_Score && score <= Max_Score"
+    )
+    {
+        int volatile score = DepthAndScoreBits::Max_Score + 1;
+        [[maybe_unused]] auto bits = DepthAndScoreBits::make (1, score);
+    }
 }

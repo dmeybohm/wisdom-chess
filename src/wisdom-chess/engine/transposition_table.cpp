@@ -96,10 +96,10 @@ namespace wisdom
         if (entry.hash_code != hash)
             return nullopt;
 
-        if (entry.depth < depth)
+        if (entry.depth_and_score.getDepth() < depth)
             return nullopt;
 
-        int adjusted_score = scoreFromTT (entry.score, ply);
+        int adjusted_score = scoreFromTT (entry.depth_and_score.getScore(), ply);
 
         switch (entry.bound_type)
         {
@@ -161,15 +161,14 @@ namespace wisdom
         auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
 
-        if (entry.hash_code == hash && entry.depth > depth)
+        if (entry.hash_code == hash && entry.depth_and_score.getDepth() > depth)
             return;
 
         if (entry.bound_type == BoundType::Empty)
             my_stored_entries++;
 
         entry.hash_code = hash;
-        entry.score = scoreToTT (score, ply);
-        entry.depth = narrow<int16_t> (depth);
+        entry.depth_and_score = DepthAndScoreBits::make (depth, scoreToTT (score, ply));
         entry.bound_type = bound_type;
         entry.best_move = best_move;
     }

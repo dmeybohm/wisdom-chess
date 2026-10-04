@@ -271,6 +271,57 @@ TEST_CASE( "Transposition table" )
     }
 }
 
+TEST_CASE( "Depth and score bits" )
+{
+    SUBCASE( "default is depth zero and score zero" )
+    {
+        DepthAndScoreBits bits {};
+        CHECK( bits.getDepth() == 0 );
+        CHECK( bits.getScore() == 0 );
+    }
+
+    SUBCASE( "round trips the limits of each field" )
+    {
+        for (int depth : { 0, 1, Max_Search_Depth, DepthAndScoreBits::Max_Depth })
+        {
+            for (int score : {
+                     0, 1, -1,
+                     Checkmate_Score, -Checkmate_Score,
+                     DepthAndScoreBits::Max_Score, DepthAndScoreBits::Min_Score
+                 })
+            {
+                CAPTURE( depth );
+                CAPTURE( score );
+                auto bits = DepthAndScoreBits::make (depth, score);
+                CHECK( bits.getDepth() == depth );
+                CHECK( bits.getScore() == score );
+            }
+        }
+    }
+
+    SUBCASE( "keeps mate scores at a distance from the root" )
+    {
+        TranspositionTable tt = TranspositionTable::fromEntries (2);
+        BoardHashCode hash = 12345678ULL;
+        int mate_score = checkmateScoreInMoves (5);
+
+        tt.store (hash, mate_score, 3, BoundType::Exact, Move::make (0, 0, 1, 1), 2);
+        auto from_same_ply = tt.probe (hash, 3, -Initial_Alpha, Initial_Alpha, 2);
+        auto from_deeper_ply = tt.probe (hash, 3, -Initial_Alpha, Initial_Alpha, 4);
+
+        REQUIRE( from_same_ply.has_value() );
+        REQUIRE( from_deeper_ply.has_value() );
+        CHECK( *from_same_ply == mate_score );
+        CHECK( *from_deeper_ply == mate_score - 2 );
+
+        tt.store (hash, -mate_score, 4, BoundType::Exact, Move::make (0, 0, 1, 1), 2);
+        auto losing = tt.probe (hash, 4, -Initial_Alpha, Initial_Alpha, 4);
+
+        REQUIRE( losing.has_value() );
+        CHECK( *losing == -mate_score + 2 );
+    }
+}
+
 TEST_CASE( "Transposition table sizing" )
 {
     SUBCASE( "Smallest allowed size is a non-empty power of two" )
