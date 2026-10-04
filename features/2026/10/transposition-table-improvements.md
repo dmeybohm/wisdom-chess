@@ -411,3 +411,29 @@ both have 65,536 entries and only the buckets and ageing differ:
   horizon node now pays for a hash, a probe into a 16 MB table, which is
   likely a cache miss, and a store, where about half of these nodes
   would otherwise stop at the stand-pat test. Not kept as it stands.
+
+### Session #7
+
+- Prefetching each child's bucket in `search()`, before its legality
+  test (`76516928`), measured over five alternating depth-7 rounds:
+  step 2 8.10 s, step 2 with the prefetch 8.03 s (−0.9%, within the
+  noise), step 3 9.10 s (+12.4%), step 3 with the prefetch 8.48 s
+  (+4.7%). The prefetch hides about half of what the horizon probes
+  cost, not all of it.
+- Step 3 and the prefetch are kept on the local branch
+  `tt-horizon-probe` and reverted here, so this branch is step 2 again.
+- Checked whether a weak hash explains low table occupancy, with
+  counters in scratch copies of `main` and step 2:
+  - At depth 7 the filled entries match random placement to within
+    0.1% (0.8% on `main`), and step 2's buckets holding 0 to 4 entries
+    match the Poisson counts. The hash spreads positions evenly.
+  - Only interior nodes store: 3 to 9% of the nodes visited at depth 7.
+  - A 200-ply game from the start position, every position searched at
+    depth 6 with the table kept: the 16 MB table of `main` is 56% full
+    after 20 plies and 95% after 80. Stores skipped for a draw below
+    are under 0.4% of all stores, and insufficient material caused 2
+    draw nodes in the game.
+  - So occupancy follows how many interior nodes each move's search
+    visits. Move ordering (item 1) made each depth up to 4.9 times
+    cheaper, so a search that stops at a fixed depth stores far fewer
+    positions than it did.

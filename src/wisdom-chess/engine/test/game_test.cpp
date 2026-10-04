@@ -133,33 +133,6 @@ TEST_CASE( "findBestMove searches with the caller's transposition table" )
     }
 }
 
-TEST_CASE( "findBestMove stores the positions at the search's horizon" )
-{
-    auto game = Game::createStandardGame();
-    game.setMaxDepth (1);
-    game.setSearchTimeout (chrono::seconds { 30 });
-
-    auto logger = makeNullLogger();
-    TranspositionTable table = TranspositionTable::fromMegabytes (1);
-
-    auto move = game.findBestMove (logger, &table);
-    REQUIRE( move.has_value() );
-
-    // The root, and the position after each of White's 20 first moves.
-    CHECK( table.getStats().stored_entries == 21 );
-
-    SUBCASE( "and answers a second search from them" )
-    {
-        auto stats_before = table.getStats();
-        auto move_again = game.findBestMove (logger, &table);
-        auto stats_after = table.getStats();
-
-        REQUIRE( move_again.has_value() );
-        CHECK( *move_again == *move );
-        CHECK( stats_after.hits - stats_before.hits == 20 );
-    }
-}
-
 TEST_CASE( "A draw-derived score is not reused for a position with a different clock" )
 {
     //
