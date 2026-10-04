@@ -46,10 +46,10 @@ namespace wisdom::ui
     // meta-object, so this mirror supplies the keys with the same values.
     enum class QmlDrawByRepetitionStatus
     {
-        NotReached = static_cast<int> (DrawByRepetitionStatus::NotReached),
-        Proposed = static_cast<int> (DrawByRepetitionStatus::Proposed),
-        Accepted = static_cast<int> (DrawByRepetitionStatus::Accepted),
-        Declined = static_cast<int> (DrawByRepetitionStatus::Declined),
+        NotReached = to_underlying (DrawByRepetitionStatus::NotReached),
+        Proposed = to_underlying (DrawByRepetitionStatus::Proposed),
+        Accepted = to_underlying (DrawByRepetitionStatus::Accepted),
+        Declined = to_underlying (DrawByRepetitionStatus::Declined),
     };
 
     Q_ENUM_NS (QmlDrawByRepetitionStatus)

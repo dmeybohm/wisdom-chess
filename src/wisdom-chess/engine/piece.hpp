@@ -16,7 +16,7 @@ namespace wisdom
     };
 
     inline constexpr std::size_t Num_Piece_Types =
-        static_cast<std::size_t> (Piece::King) + 1;
+        to_unsigned<std::size_t> (to_underlying (Piece::King)) + 1;
 
     enum class Color : int8_t
     {
@@ -70,28 +70,28 @@ namespace wisdom
     toInt8 (Piece piece) noexcept
         -> int8_t
     {
-        return static_cast<int8_t> (piece);
+        return to_underlying (piece);
     }
 
     [[nodiscard]] constexpr auto
     toInt (Piece piece) noexcept
         -> int
     {
-        return static_cast<int> (piece);
+        return widen<int> (to_underlying (piece));
     }
 
     [[nodiscard]] constexpr auto
     toInt (Color color) noexcept
         -> int
     {
-        return static_cast<int> (color);
+        return widen<int> (to_underlying (color));
     }
 
     [[nodiscard]] constexpr auto
     toInt8 (Color color) noexcept
         -> int8_t
     {
-        return static_cast<int8_t> (color);
+        return to_underlying (color);
     }
 
     [[nodiscard]] constexpr auto
@@ -122,7 +122,7 @@ namespace wisdom
     pieceIndex (Piece piece) noexcept
         -> int
     {
-        auto piece_as_int = static_cast<int8_t> (piece);
+        auto piece_as_int = to_underlying (piece);
         ASSERT( piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King) );
         return piece_as_int;
     }

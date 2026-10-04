@@ -142,9 +142,9 @@ private slots:
     // The QML promotion dialog passes these numbers.
     void pieceTypeValues()
     {
-        static_assert (static_cast<int> (ui::PieceType::None) == 0);
-        static_assert (static_cast<int> (ui::PieceType::Queen) == 5);
-        static_assert (static_cast<int> (ui::PieceType::King) == 6);
+        static_assert (wisdom::to_underlying (ui::PieceType::None) == 0);
+        static_assert (wisdom::to_underlying (ui::PieceType::Queen) == 5);
+        static_assert (wisdom::to_underlying (ui::PieceType::King) == 6);
     }
 
     // QML resolves DrawByRepetitionStatus.Proposed by looking the key up in
@@ -155,10 +155,10 @@ private slots:
         QTest::addColumn<QString> ("key");
         QTest::addColumn<int> ("value");
 
-        QTest::newRow ("NotReached") << "NotReached" << static_cast<int> (ui::DrawByRepetitionStatus::NotReached);
-        QTest::newRow ("Proposed") << "Proposed" << static_cast<int> (ui::DrawByRepetitionStatus::Proposed);
-        QTest::newRow ("Accepted") << "Accepted" << static_cast<int> (ui::DrawByRepetitionStatus::Accepted);
-        QTest::newRow ("Declined") << "Declined" << static_cast<int> (ui::DrawByRepetitionStatus::Declined);
+        QTest::newRow ("NotReached") << "NotReached" << wisdom::to_underlying (ui::DrawByRepetitionStatus::NotReached);
+        QTest::newRow ("Proposed") << "Proposed" << wisdom::to_underlying (ui::DrawByRepetitionStatus::Proposed);
+        QTest::newRow ("Accepted") << "Accepted" << wisdom::to_underlying (ui::DrawByRepetitionStatus::Accepted);
+        QTest::newRow ("Declined") << "Declined" << wisdom::to_underlying (ui::DrawByRepetitionStatus::Declined);
     }
 
     void theDrawStatusKeysAreVisibleToQml()
@@ -192,7 +192,7 @@ private slots:
         QVERIFY( meta_object.indexOfEnumerator ("PieceType") >= 0 );
 
         auto piece_type = meta_object.enumerator (meta_object.indexOfEnumerator ("PieceType"));
-        QCOMPARE( piece_type.keyToValue ("Queen"), static_cast<int> (ui::PieceType::Queen) );
+        QCOMPARE( piece_type.keyToValue ("Queen"), wisdom::to_underlying (ui::PieceType::Queen) );
     }
 };
 
