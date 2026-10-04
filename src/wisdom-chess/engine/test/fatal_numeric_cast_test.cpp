@@ -33,6 +33,19 @@ namespace
         [[maybe_unused]] auto converted = to_unsigned<std::size_t> (negative);
     }
 
+    FATAL_CASE(
+        "to-enum-overflow",
+        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_enum: the value fits"
+    )
+    {
+        enum class Small : int8_t
+        {
+            Value
+        };
+        int volatile too_big = 300;
+        [[maybe_unused]] auto converted = to_enum<Small> (too_big);
+    }
+
     // The _debug conversions only check when Debugging is on.
     FATAL_CASE(
         "narrow-debug-overflow",
@@ -52,5 +65,19 @@ namespace
     {
         int volatile negative = -1;
         [[maybe_unused]] auto converted = to_unsigned_debug<std::size_t> (negative);
+    }
+
+    FATAL_CASE(
+        "to-enum-debug-overflow",
+        "Precondition failed at .*fatal_numeric_cast_test\\.cpp:[0-9]+: to_enum_debug: the value fits",
+        Debugging
+    )
+    {
+        enum class Small : int8_t
+        {
+            Value
+        };
+        int volatile too_big = 300;
+        [[maybe_unused]] auto converted = to_enum_debug<Small> (too_big);
     }
 }

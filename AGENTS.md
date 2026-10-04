@@ -41,7 +41,10 @@ committing C++. The conventions below are about what the code does.
     cannot fail: a signed source needs a signed target.
   - `truncate` discards an unsigned value's high bits on purpose.
   - `to_underlying` converts an enum to its underlying type, as C++23's
-    `std::to_underlying` does. Integer to enum stays a `static_cast`.
+    `std::to_underlying` does.
+  - `to_enum` and `to_enum_debug` convert an integer to an enum, checking
+    that it fits the enum's underlying type.
+  - `to_double` converts a number to `double`, unchecked.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,

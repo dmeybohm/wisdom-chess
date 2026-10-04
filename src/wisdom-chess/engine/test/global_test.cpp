@@ -86,6 +86,28 @@ TEST_CASE( "to_underlying gives the enum's underlying type" )
     static_assert (to_underlying (Default::Value) == 7);
 }
 
+TEST_CASE( "to_enum converts a value that fits the underlying type" )
+{
+    enum class Small : int8_t
+    {
+        Value = -3
+    };
+
+    static_assert (to_enum<Small> (-3) == Small::Value);
+    static_assert (to_enum_debug<Small> (int64_t { -3 }) == Small::Value);
+
+    int runtime_value = -3;
+    CHECK( to_enum<Small> (runtime_value) == Small::Value );
+    CHECK( to_enum_debug<Small> (runtime_value) == Small::Value );
+}
+
+TEST_CASE( "to_double converts a number" )
+{
+    static_assert (to_double (3) == 3.0);
+    static_assert (to_double (uint64_t { 1 } << 53) == 9007199254740992.0);
+    static_assert (to_double (1.5f) == 1.5);
+}
+
 TEST_CASE( "to_unsigned converts a nonnegative value" )
 {
     static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);
