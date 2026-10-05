@@ -71,6 +71,7 @@ namespace wisdom
         getDepth() const noexcept
             -> int
         {
+            // The mask leaves 0..Max_Depth, so converting to signed won't fail.
             return narrow_debug<int> (my_bits & Max_Depth);
         }
 
@@ -78,7 +79,8 @@ namespace wisdom
         getScore() const noexcept
             -> int
         {
-            return std::bit_cast<int32_t> (my_bits) >> Depth_Bits;
+            // Reinterpret as signed so the arithmetic shift sign-extends the 25-bit score.
+            return widen<int> (std::bit_cast<int32_t> (my_bits) >> Depth_Bits);
         }
 
     private:
