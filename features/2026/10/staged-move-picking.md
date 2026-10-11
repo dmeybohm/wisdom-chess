@@ -105,3 +105,43 @@ and the quiet generation take. The next step is a build that picks the
 lowest key on each `next()` instead of sorting the list, which keeps
 the order and the node counts, and to time it against the baseline in
 alternating rounds.
+
+### Session #2
+
+- Timed lazy selection against `origin/main` at `d2b65aa9`, in builds
+  from copies of the source outside the repository, without the probe.
+  The prototype adds a `KeyedMoveList` to `generate.hpp`: it holds each
+  move with its `sortKey()`, and `next()` swaps the lowest key of the
+  rest to the front and returns it. `search()` and `quiesce()` take
+  moves from it in a `while` loop in place of the range-for over a
+  sorted `MoveList`. Generation and the keys are unchanged; only the
+  sort is deferred.
+- After a set number of moves taken lazily, `next()` sorts the rest
+  once, since selection costs O(n²) at a node that takes every move.
+  Three builds: 1 move, 3 moves, and every move taken lazily.
+- A first version assigned the list in `quiesce()` to a variable declared
+  earlier, which copied the whole 4 KB array, where a `MoveList` copies
+  only its moves. At depth 7 it was 2 to 5% slower than the baseline.
+  Generating once, after the stand-pat test, removed the copy.
+- `--search-report 8`, seven alternating rounds, pinned to one core,
+  medians, all depths of each position summed. Every build gave the same
+  move, score, node and quiescence node counts in every round.
+
+| Build | Total | starting | kiwipete | italian | position3 | position4 | middlegame |
+|---|---|---|---|---|---|---|---|
+| baseline | 58.39s | 1.485 | 9.096 | 11.991 | 0.245 | 3.348 | 31.666 |
+| 1 lazy, then sort | 54.25s (−7.1%) | 1.408 | 8.390 | 11.272 | 0.239 | 3.231 | 29.858 |
+| 3 lazy, then sort | 55.06s (−5.7%) | 1.395 | 8.562 | 11.245 | 0.240 | 3.289 | 30.046 |
+| all lazy | 55.49s (−5.0%) | 1.424 | 8.715 | 11.291 | 0.241 | 3.364 | 29.706 |
+
+- The baseline's rounds ranged from 57.51 to 60.24s, and the lazy
+  builds' from 53.66 to 57.44s: all 21 lazy runs were faster than every
+  baseline run. The three lazy builds overlap, and their order is not
+  settled by seven rounds.
+- Deferring the sort is worth 5 to 7%. The sort is therefore a small
+  part of the search; most of the cost of a move list is elsewhere,
+  in generating the moves and computing their keys, which the prototype
+  still does for every move. What a staged picker saves beyond this is
+  the quiet moves' generation and keys at the 69 to 83% of lists that
+  cut off before them (Session #1), which this prototype does not
+  measure.
