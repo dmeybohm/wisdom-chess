@@ -413,6 +413,8 @@ namespace wisdom
         optional<Coord> dst = parseCoord (dst_coord);
         if (!dst.has_value())
             return nullopt;
+        if (*src == *dst)
+            return nullopt;
 
         string rest { tmp.substr (offset) };
         Move move = Move::make (*src, *dst);
