@@ -10,6 +10,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/move_picking_probe.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
@@ -171,6 +172,51 @@ namespace wisdom::bench
         }
     }
 
+    namespace
+    {
+        auto percent (int64_t part, int64_t whole) -> double
+        {
+            return whole == 0 ? 0.0 : 100.0 * to_double (part) / to_double (whole);
+        }
+
+        auto ratio (int64_t part, int64_t whole) -> double
+        {
+            return whole == 0 ? 0.0 : to_double (part) / to_double (whole);
+        }
+
+        void printProbe (czstring label, const MovePickingProbe::Counts& counts)
+        {
+            using Probe = MovePickingProbe;
+
+            std::cout << std::fixed << std::setprecision (2)
+                << "  " << label << ": " << counts.nodes << " lists, "
+                << ratio (counts.moves_generated, counts.nodes) << " moves each ("
+                << ratio (counts.tactical_generated, counts.nodes) << " captures or promotions), "
+                << ratio (counts.moves_tried, counts.nodes) << " taken\n"
+                << "    cutoffs: " << percent (counts.cutoffs, counts.nodes) << "% of lists, at move "
+                << ratio (counts.cutoff_index_sum, counts.cutoffs) << " on average\n"
+                << "    cutoff at move 1 / 2 / 3 / 4-8 / 9+: "
+                << percent (counts.cutoff_index[0], counts.cutoffs) << " / "
+                << percent (counts.cutoff_index[1], counts.cutoffs) << " / "
+                << percent (counts.cutoff_index[2], counts.cutoffs) << " / "
+                << percent (counts.cutoff_index[3], counts.cutoffs) << " / "
+                << percent (counts.cutoff_index[4], counts.cutoffs) << " %\n"
+                << "    cutoff by table / capture / promotion / killer / quiet: "
+                << percent (counts.cutoff_stage[Probe::Table], counts.cutoffs) << " / "
+                << percent (counts.cutoff_stage[Probe::Capture], counts.cutoffs) << " / "
+                << percent (counts.cutoff_stage[Probe::Promotion], counts.cutoffs) << " / "
+                << percent (counts.cutoff_stage[Probe::Killer], counts.cutoffs) << " / "
+                << percent (counts.cutoff_stage[Probe::Quiet], counts.cutoffs) << " %\n"
+                << "    quiet cutoffs: " << counts.quiet_tried_at_quiet_cutoff << " of "
+                << counts.quiet_generated_at_quiet_cutoff << " quiet moves taken ("
+                << percent (counts.quiet_tried_at_quiet_cutoff, counts.quiet_generated_at_quiet_cutoff)
+                << "%)\n"
+                << "    table move in list: " << counts.table_move_in_list << " of "
+                << counts.table_move_given << "; killers in list: " << counts.killers_in_list
+                << " of " << counts.killers_given << "\n";
+        }
+    }
+
     void runSearchBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         struct Scenario
@@ -278,6 +324,10 @@ namespace wisdom::bench
                           << std::setw (10) << std::fixed << std::setprecision (3)
                           << seconds << "\n";
             }
+
+            printProbe ("search", move_picking_probe.search);
+            printProbe ("quiescence", move_picking_probe.quiescence);
+            move_picking_probe = MovePickingProbe {};
         }
     }
 }
