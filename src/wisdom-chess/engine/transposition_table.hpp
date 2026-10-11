@@ -96,7 +96,7 @@ namespace wisdom
     {
         BoardHashCode hash_code = 0;
         DepthAndScoreBits depth_and_score {};
-        Move best_move {};
+        optional<Move> best_move {};
         BoundType bound_type = BoundType::Empty;
 
         // The search that last stored or found this entry. Also fills the
@@ -159,7 +159,7 @@ namespace wisdom
             int score,
             int depth,
             BoundType bound_type,
-            Move best_move,
+            optional<Move> best_move,
             int ply
         ) noexcept;
 

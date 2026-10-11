@@ -171,6 +171,18 @@ TEST_CASE( "Transposition table" )
         CHECK( result->getDst() == move.getDst() );
     }
 
+    SUBCASE( "getBestMove returns empty when no move was stored" )
+    {
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
+
+        BoardHashCode hash = 12345678ULL;
+
+        tt.store (hash, 100, 5, BoundType::Exact, nullopt, 0);
+
+        CHECK( tt.probe (hash, 5, -Initial_Alpha, Initial_Alpha, 0).has_value() );
+        CHECK( !tt.getBestMove (hash).has_value() );
+    }
+
     SUBCASE( "getBestMove returns empty for different hash" )
     {
         TranspositionTable tt = TranspositionTable::fromMegabytes (1);

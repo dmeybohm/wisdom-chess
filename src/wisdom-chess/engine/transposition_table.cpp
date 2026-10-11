@@ -193,11 +193,7 @@ namespace wisdom
         if (!found)
             return nullopt;
 
-        auto best_move = found.value()->best_move;
-        if (best_move.isNullMove())
-            return nullopt;
-
-        return best_move;
+        return found.value()->best_move;
     }
 
     void
@@ -206,7 +202,7 @@ namespace wisdom
         int score,
         int depth,
         BoundType bound_type,
-        Move best_move,
+        optional<Move> best_move,
         int ply
     ) noexcept
     {

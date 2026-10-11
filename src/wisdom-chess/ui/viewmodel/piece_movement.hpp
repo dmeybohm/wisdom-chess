@@ -21,7 +21,7 @@ namespace wisdom::ui
     {
         PieceStep mover;
         std::optional<PieceStep> castling_rook;
-        std::optional<Coord> captured;
+        optional<Coord> captured;
 
         // Piece::None unless the mover is promoted.
         Piece promoted_piece;

@@ -28,6 +28,24 @@ namespace wisdom
     {
         int8_t row_and_col;
 
+        // A coordinate is 0-63, so -1 marks an empty optional<Coord>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> Coord
+            {
+                return Coord { .row_and_col = -1 };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Coord coord) noexcept
+                -> bool
+            {
+                return coord.row_and_col == -1;
+            }
+        };
+
         // Make a coordinate from an index from 0-63.
         [[nodiscard]] static constexpr auto
         fromIndex (int index) noexcept
@@ -74,6 +92,7 @@ namespace wisdom
         }
     };
     static_assert (std::is_trivial_v<Coord>);
+    static_assert (sizeof (optional<Coord>) == sizeof (Coord));
 
     template <typename IntegerType>
     [[nodiscard]] constexpr auto

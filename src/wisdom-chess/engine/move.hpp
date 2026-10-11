@@ -83,6 +83,25 @@ namespace wisdom
         // Packed layout: src(6) | dst(6) | combined(4) = 16 bits
         uint16_t data;
 
+        // Every move has different squares, so a8 to a8 marks an empty
+        // optional<Move>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> Move
+            {
+                return Move { .data = 0 };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Move move) noexcept
+                -> bool
+            {
+                return move.data == 0;
+            }
+        };
+
     private:
         static constexpr int Src_Bits = 6;
         static constexpr int Dst_Bits = 6;
@@ -326,16 +345,10 @@ namespace wisdom
         {
             return isCastling() && getDst().column() == Kingside_Castled_King_Column;
         }
-
-        [[nodiscard]] constexpr auto
-        isNullMove() const noexcept
-            -> bool
-        {
-            return data == 0;
-        }
     };
 
     static_assert (sizeof (Move) == 2);
+    static_assert (sizeof (optional<Move>) == sizeof (Move));
     static_assert (std::is_trivial_v<Move>);
 
     template <class IntegerType = int8_t>

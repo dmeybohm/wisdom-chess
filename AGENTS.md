@@ -115,6 +115,12 @@ committing C++. The conventions below are about what the code does.
 - Use `nonnull<Type>` in preference to a mutable `Type&` reference, for
   both functions and member variables. Use `const Type&` for const
   references.
+- `optional` is `wisdom::optional` (`engine/optional.hpp`), not
+  `std::optional`: a type that nests a public `NullRepresentation`
+  (`Move`, `Coord`) gets one without a flag, and pins it with
+  `static_assert (sizeof (optional<T>) == sizeof (T))`. Spell it
+  `wisdom::optional` outside the namespace. See
+  `features/2026/10/compact-optional.md`.
 
 ## Building and testing
 
