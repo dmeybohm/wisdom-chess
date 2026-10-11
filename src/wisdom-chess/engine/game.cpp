@@ -218,12 +218,11 @@ namespace wisdom
 
     auto Game::findBestMove (
         shared_ptr<Logger> logger,
-        nonnull<TranspositionTable> transposition_table,
-        optional<Color> whom
+        nonnull<TranspositionTable> transposition_table
     ) const
         -> optional<Move>
     {
-        Color who = whom.value_or (getCurrentTurn());
+        Color who = getCurrentTurn();
 
         IterativeSearch iterative_search = IterativeSearch::create (
             my_pimpl->current_board,
