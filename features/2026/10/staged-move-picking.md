@@ -145,3 +145,40 @@ alternating rounds.
   the quiet moves' generation and keys at the 69 to 83% of lists that
   cut off before them (Session #1), which this prototype does not
   measure.
+
+### Session #3
+
+- A captures-only list walks the same squares as a full one:
+  `captures_only` is a filter in `appendMove()`, and only castling is
+  skipped before the walk. A capture stage saves the quiet moves'
+  `transformMove()`, append and sort key, not the walk, and a node that
+  reaches the quiet moves walks the board a second time. Only the table
+  move stage skips the walk.
+- To bound what any picker can save, two ceiling builds from copies of
+  `origin/main` at `d2b65aa9` call the generator a second time at each of
+  its three call sites in the search, and discard the result behind an
+  empty `asm volatile` with a memory clobber. No LTO is configured, so
+  the call stays. **Full** repeats the same call: generation, keys and
+  sort. **Walk** calls a new `generateUnsortedMoves()`: generation and
+  append, no keys, no sort. `hasLegalMove()` is not repeated.
+- `--search-report 8`, seven alternating rounds, pinned to one core,
+  medians. Every run matched the baseline's counts.
+
+| Build | Total | starting | kiwipete | italian | position3 | position4 | middlegame |
+|---|---|---|---|---|---|---|---|
+| baseline | 58.39s | 1.361 | 9.079 | 12.030 | 0.242 | 3.395 | 31.960 |
+| full, twice | 79.42s (+36%) | 1.869 | 11.779 | 16.234 | 0.304 | 4.314 | 43.557 |
+| walk, twice | 76.41s (+31%) | 1.843 | 11.162 | 15.583 | 0.293 | 4.314 | 43.336 |
+
+- Producing the move lists is about a third of the search: 21s of 58s,
+  of which 18s is the walk and the appends, and 3s the keys and the
+  sort. Session #2's lazy selection saved 4s, about what this puts on
+  the keys and sort; the two are from different runs, so the
+  difference is within the noise.
+- The cost is per list, and the walk costs about the same whether it
+  keeps every move or only the captures. Quiescence has 2 to 8 times as
+  many lists as the main search (Session #1), so most of the 18s is
+  likely quiescence's capture generation, where a staged picker has no
+  table move to try first. The split between the two was not measured.
+- The walk starts with `Board::allCoords()`, testing all 64 squares for
+  a piece of the side to move, before generating anything.
