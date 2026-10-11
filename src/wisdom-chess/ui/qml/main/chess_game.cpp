@@ -9,7 +9,6 @@
 
 using std::atomic;
 using std::make_unique;
-using std::optional;
 using std::pair;
 using std::string;
 using std::unique_ptr;

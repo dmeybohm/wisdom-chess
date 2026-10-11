@@ -328,7 +328,7 @@ namespace wisdom::ui::qml
             int src_column,
             int dst_row,
             int dst_column,
-            std::optional<wisdom::Piece> piece
+            optional<Piece> piece
         );
 
         // Returns the color of the next turn:
@@ -431,7 +431,7 @@ namespace wisdom::ui::qml
         QElapsedTimer my_animating_since;
         int my_animation_duration = 0;
 
-        std::optional<HeldMove> my_held_move {};
+        optional<HeldMove> my_held_move {};
         QTimer my_hold_timer;
 
         int my_animation_delay = Default_Animation_Delay;

@@ -79,3 +79,13 @@ QML `ChessGame` header was the one case.
   covers storing no move.
 - The Debug build with QML passes `ctest` (331 tests) and `lint`; the
   WASM frontend builds.
+
+### Session #2
+
+- The viewmodel, QML frontend, bench and tests spell `optional` and
+  `nullopt` through `wisdom` instead of `std::`. The QML sources'
+  global `using std::optional;` lines are removed: next to
+  `using namespace wisdom;` they would make `optional` ambiguous.
+- The style linter (`scripts/linter`) keeps `std::optional`; it is not
+  part of the `wisdom` namespace. So does `optional_test.cpp`, which
+  compares the two on purpose.

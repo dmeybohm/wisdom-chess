@@ -357,7 +357,7 @@ TEST_CASE( "Can avoid stalemate" )
     IterativeSearch search = helper.build (game.getBoard(), 6, 5);
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE( result.move != std::nullopt );
+    REQUIRE( result.move != nullopt );
 
     game.move (*result.move);
 

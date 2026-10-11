@@ -4,7 +4,7 @@ namespace wisdom::ui
 {
     auto
     getFirstHumanPlayerColor (const Players& players)
-        -> std::optional<Color>
+        -> optional<Color>
     {
         if (players[0] == Player::Human)
         {
