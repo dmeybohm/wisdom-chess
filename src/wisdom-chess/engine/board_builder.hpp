@@ -10,7 +10,8 @@ namespace wisdom
     emptySquares() noexcept
         -> array<optional<ColoredPiece>, Num_Squares>
     {
-        // Not value-initialized with {}: GCC 13 then rejects reading an
+        // Each square's default constructor makes it empty. Not
+        // value-initialized with {}: GCC 13 then rejects reading an
         // element whose empty value is all zero bits in a constant
         // expression.
         array<optional<ColoredPiece>, Num_Squares> result;
