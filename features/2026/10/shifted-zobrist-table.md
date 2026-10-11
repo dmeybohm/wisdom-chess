@@ -26,3 +26,14 @@ The keys are the same as before, so the tuned seed still applies.
 - The bit distribution test checks bits 16 to 63, where the keys now
   live, and a board code test checks that no key touches the metadata
   bits.
+
+### Session #2
+
+- `Num_Piece_Types` is an `int`, like `Num_Players` and `Num_Squares`.
+  As a `size_t` it made `zobristPieceIndex()` compute in unsigned and
+  convert back to `int` without a check. `Zobrist_Table_Size` stays a
+  `size_t` and converts through `to_unsigned`.
+- Not changed: `Num_Piece_Types` counts `Piece::None`, so two of the
+  table's fourteen piece slots, 128 of its 896 entries, are never used.
+  Sizing the table for six piece types would change which random value
+  each key gets, so the seed would need checking again.

@@ -13,7 +13,8 @@ namespace wisdom
     class Board;
     class BoardBuilder;
 
-    inline constexpr std::size_t Zobrist_Table_Size = Num_Players * Num_Piece_Types * Num_Squares;
+    inline constexpr std::size_t Zobrist_Table_Size =
+        to_unsigned<std::size_t> (Num_Players * Num_Piece_Types * Num_Squares);
 
     using BoardCodeArray = array<uint64_t, Zobrist_Table_Size>;
 
