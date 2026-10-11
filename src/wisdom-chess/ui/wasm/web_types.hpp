@@ -19,14 +19,12 @@ namespace wisdom
     {
         switch (color)
         {
-            case WebColor::NoColor:
-                return Color::None;
             case WebColor::White:
                 return Color::White;
             case WebColor::Black:
                 return Color::Black;
             default:
-                PRECONDITION_FAILED( "a valid color" );
+                PRECONDITION_FAILED( "a White or Black color" );
         }
     }
 
@@ -44,8 +42,6 @@ namespace wisdom
         using enum Color;
         switch (color)
         {
-            case None:
-                return WebColor::NoColor;
             case White:
                 return WebColor::White;
             case Black:

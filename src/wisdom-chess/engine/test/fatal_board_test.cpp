@@ -32,7 +32,7 @@ namespace
         "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)"
     )
     {
-        Color volatile color = Color::None;
+        Color volatile color = Color {};
         [[maybe_unused]] bool promote = needPawnPromotion (0, color);
     }
 

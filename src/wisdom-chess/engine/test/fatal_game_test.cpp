@@ -15,7 +15,7 @@ namespace
     )
     {
         auto game = Game::createStandardGame();
-        Color volatile color = Color::None;
+        Color volatile color = Color {};
         [[maybe_unused]] Player player = game.getPlayer (color);
     }
 
@@ -25,7 +25,7 @@ namespace
     )
     {
         auto game = Game::createStandardGame();
-        Color volatile color = Color::None;
+        Color volatile color = Color {};
         [[maybe_unused]] bool wants_draw = game.computerWantsDraw (color);
     }
 
@@ -35,7 +35,7 @@ namespace
     )
     {
         auto game = Game::createStandardGame();
-        Color volatile color = Color::None;
+        Color volatile color = Color {};
         game.setCurrentTurn (color);
     }
 
@@ -45,7 +45,7 @@ namespace
     )
     {
         auto game = Game::createStandardGame();
-        Color volatile color = Color::None;
+        Color volatile color = Color {};
         game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, color, true);
     }
 

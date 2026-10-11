@@ -334,17 +334,15 @@ namespace wisdom
     namespace
     {
         auto
-        parseCastlingMove (const string& str, Color who)
+        parseCastlingMove (const string& str, optional<Color> who)
             -> optional<Move>
         {
             int src_row, dst_col;
 
-            if (who == Color::White)
-                src_row = Last_Row;
-            else if (who == Color::Black)
-                src_row = First_Row;
-            else
+            if (!who)
                 return nullopt;
+
+            src_row = *who == Color::White ? Last_Row : First_Row;
 
             string transformed { str };
             std::transform (
@@ -366,7 +364,7 @@ namespace wisdom
     }
 
     auto
-    parseMove (const string& str, Color who)
+    parseMove (const string& str, optional<Color> who)
         -> optional<Move>
     {
         bool en_passant = false;
@@ -460,7 +458,7 @@ namespace wisdom
     }
 
     auto
-    toMove (const string& str, Color color)
+    toMove (const string& str, optional<Color> color)
         -> Move
     {
         auto optional_result = parseMove (str, color);

@@ -94,7 +94,7 @@ namespace wisdom
         [[nodiscard]] auto findBestMove (
             shared_ptr<Logger> logger,
             nonnull<TranspositionTable> transposition_table,
-            Color whom = Color::None
+            optional<Color> whom = nullopt
         ) const
             -> optional<Move>;
 

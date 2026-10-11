@@ -12,8 +12,6 @@ namespace wisdom
                 return "White";
             case Color::Black:
                 return "Black";
-            case Color::None:
-                return "None";
         }
         std::terminate();
     }

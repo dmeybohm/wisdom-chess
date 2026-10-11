@@ -39,6 +39,7 @@ static_assert (std::is_same_v<optional<Move>, compact_optional<Move>>);
 static_assert (std::is_same_v<optional<Coord>, compact_optional<Coord>>);
 static_assert (std::is_same_v<optional<ColoredPiece>, compact_optional<ColoredPiece>>);
 static_assert (std::is_same_v<optional<Piece>, compact_optional<Piece>>);
+static_assert (std::is_same_v<optional<Color>, compact_optional<Color>>);
 static_assert (std::is_same_v<optional<int>, std::optional<int>>);
 static_assert (std::is_same_v<
     optional<WithoutNullRepresentation>,

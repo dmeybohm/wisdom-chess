@@ -26,12 +26,20 @@ namespace wisdom
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
 
+    // Starts at one, so an empty optional<Color> is zero.
     enum class Color : int8_t
     {
-        None = 0,
         White = 1,
         Black = 2,
     };
+
+    [[nodiscard]] constexpr auto
+    nullRepresentation (std::type_identity<Color>) noexcept
+        -> Color
+    {
+        return Color {};
+    }
+    static_assert (sizeof (optional<Color>) == sizeof (Color));
 
     inline constexpr int Color_Index_White = 0;
     inline constexpr int Color_Index_Black = 1;
@@ -57,7 +65,7 @@ namespace wisdom
     colorFromInt8 (int8_t integer) noexcept
         -> Color
     {
-        ASSERT( integer >= to_int (Color::None) && integer <= to_int (Color::Black) );
+        ASSERT( integer >= to_int (Color::White) && integer <= to_int (Color::Black) );
         return to_enum_debug<Color> (integer);
     }
 

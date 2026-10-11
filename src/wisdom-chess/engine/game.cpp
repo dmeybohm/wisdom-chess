@@ -219,12 +219,11 @@ namespace wisdom
     auto Game::findBestMove (
         shared_ptr<Logger> logger,
         nonnull<TranspositionTable> transposition_table,
-        Color whom
+        optional<Color> whom
     ) const
         -> optional<Move>
     {
-        if (whom == Color::None)
-            whom = getCurrentTurn();
+        Color who = whom.value_or (getCurrentTurn());
 
         IterativeSearch iterative_search = IterativeSearch::create (
             my_pimpl->current_board,
@@ -235,7 +234,7 @@ namespace wisdom
             transposition_table,
             getDrawLimits()
         );
-        SearchResult result = iterative_search.iterativelyDeepen (whom);
+        SearchResult result = iterative_search.iterativelyDeepen (who);
 
         // If user cancelled the search, discard the results.
         if (iterative_search.isCancelled())
