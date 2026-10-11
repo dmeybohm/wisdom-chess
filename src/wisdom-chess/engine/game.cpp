@@ -1,5 +1,7 @@
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/game_impl.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/game_status.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
@@ -10,44 +12,95 @@
 
 namespace wisdom
 {
-    // Main constructor that maintains all invariants
-    Game::Impl::Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
-        : current_board { builder }
-        , players { players }
+    namespace
     {
-        current_board = current_board.withCurrentTurn (current_turn);
-        history = History::fromInitialBoard (current_board);
+        auto
+        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
+             -> DrawStatus
+        {
+            ASSERT( bothPlayersReplied (draw_desires) );
+
+            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
+            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
+
+            bool accepted = white_wants_draw || black_wants_draw;
+            return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
+        }
     }
 
-    Game::Impl::Impl()
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
+    class Game::Impl
     {
-    }
+    public:
+        // Main constructor that maintains all invariants
+        explicit Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
+            : current_board { builder }
+            , players { players }
+        {
+            current_board = current_board.withCurrentTurn (current_turn);
+            history = History::fromInitialBoard (current_board);
+        }
 
-    Game::Impl::Impl (const Players& players)
-        : Impl { BoardBuilder::fromDefaultPosition(), players, Color::White }
-    {
-    }
+        Impl()
+            : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
+        {
+        }
 
-    Game::Impl::Impl (Player white_player, Player black_player)
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { white_player, black_player }, Color::White }
-    {
-    }
+        explicit Impl (const Players& players)
+            : Impl { BoardBuilder::fromDefaultPosition(), players, Color::White }
+        {
+        }
 
-    Game::Impl::Impl (Color current_turn)
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, current_turn }
-    {
-    }
+        explicit Impl (Player white_player, Player black_player)
+            : Impl { BoardBuilder::fromDefaultPosition(), Players { white_player, black_player }, Color::White }
+        {
+        }
 
-    Game::Impl::Impl (const BoardBuilder& builder)
-        : Impl { builder, Players { Player::Human, Player::ChessEngine }, builder.getCurrentTurn() }
-    {
-    }
+        explicit Impl (Color current_turn)
+            : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, current_turn }
+        {
+        }
 
-    Game::Impl::Impl (const BoardBuilder& builder, const Players& players)
-        : Impl { builder, players, builder.getCurrentTurn() }
-    {
-    }
+        explicit Impl (const BoardBuilder& builder)
+            : Impl { builder, Players { Player::Human, Player::ChessEngine }, builder.getCurrentTurn() }
+        {
+        }
+
+        explicit Impl (const BoardBuilder& builder, const Players& players)
+            : Impl { builder, players, builder.getCurrentTurn() }
+        {
+        }
+
+        Board current_board {};
+        History history;
+        MoveTimer move_timer { Default_Max_Search_Seconds };
+        int max_depth { Default_Max_Depth };
+
+        Players players = { Player::Human, Player::ChessEngine };
+
+        // Set when the caller arbitrates the draws.
+        optional<DrawLimits> external_draw_limits {};
+
+        BothPlayersDrawStatus third_repetition_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
+        BothPlayersDrawStatus fifty_moves_without_progress_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
+
+        void updateThreefoldRepetitionDrawStatus() noexcept
+        {
+            auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
+            history.setThreefoldRepetitionStatus (status);
+        }
+
+        void updateFiftyMovesWithoutProgressDrawStatus() noexcept
+        {
+            auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
+            history.setFiftyMovesWithoutProgressStatus (status);
+        }
+    };
 
     Game::Game (unique_ptr<Impl> impl) noexcept
         : my_pimpl { std::move (impl) }
@@ -250,34 +303,6 @@ namespace wisdom
         EXPECTS( isColorValid (who) );
         int score = evaluate (my_pimpl->current_board, who, 1);
         return score <= Min_Draw_Score;
-    }
-
-    namespace
-    {
-        auto
-        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
-             -> DrawStatus
-        {
-            ASSERT( bothPlayersReplied (draw_desires) );
-
-            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
-            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
-
-            bool accepted = white_wants_draw || black_wants_draw;
-            return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
-        }
-    }
-
-    void Game::Impl::updateThreefoldRepetitionDrawStatus() noexcept
-    {
-        auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
-        history.setThreefoldRepetitionStatus (status);
-    }
-
-    void Game::Impl::updateFiftyMovesWithoutProgressDrawStatus() noexcept
-    {
-        auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
-        history.setFiftyMovesWithoutProgressStatus (status);
     }
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
