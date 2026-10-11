@@ -24,6 +24,20 @@ namespace wisdom
         return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
     }
 
+    inline constexpr int Total_Metadata_Bits = 16;
+
+    // The low Total_Metadata_Bits hold the turn, castling and en passant
+    // state; the Zobrist hash of the pieces occupies the bits above.
+    inline constexpr std::uint64_t Metadata_Mask = (std::uint64_t { 1 } << Total_Metadata_Bits) - 1;
+    inline constexpr std::uint64_t Piece_Hash_Mask = ~Metadata_Mask;
+
+    [[nodiscard]] constexpr auto
+    zobristKey (nonnull<CompileTimeRandom> random) noexcept
+        -> std::uint64_t
+    {
+        return getCompileTimeRandom48 (random) << Total_Metadata_Bits;
+    }
+
     [[nodiscard]] consteval auto
     initializeBoardCodes() noexcept
         -> BoardCodeArray
@@ -38,7 +52,7 @@ namespace wisdom
             {
                 auto piece_index = zobristPieceIndex (color, piece);
                 for (auto square = 0; square < Num_Squares; square++)
-                    code_array[piece_index * Num_Squares + square] = getCompileTimeRandom48 (&random);
+                    code_array[piece_index * Num_Squares + square] = zobristKey (&random);
             }
         }
 
@@ -47,13 +61,6 @@ namespace wisdom
 
     inline constexpr BoardCodeArray Hash_Code_Table = initializeBoardCodes();
 
-    inline constexpr int Total_Metadata_Bits = 16;
-
-    // The low Total_Metadata_Bits hold the turn, castling and en passant
-    // state; the Zobrist hash of the pieces occupies the bits above.
-    inline constexpr std::uint64_t Metadata_Mask = (std::uint64_t { 1 } << Total_Metadata_Bits) - 1;
-    inline constexpr std::uint64_t Piece_Hash_Mask = ~Metadata_Mask;
-
     [[nodiscard]] constexpr auto
     boardCodeHash (Coord coord, ColoredPiece piece) noexcept
         -> std::uint64_t
@@ -61,7 +68,7 @@ namespace wisdom
         auto coord_index = coord.index();
         auto piece_index = zobristPieceIndex (piece.color(), piece.type());
 
-        return Hash_Code_Table[piece_index * Num_Squares + coord_index] << Total_Metadata_Bits;
+        return Hash_Code_Table[piece_index * Num_Squares + coord_index];
     }
 
     class BoardCode final
