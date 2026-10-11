@@ -28,15 +28,6 @@ namespace
     }
 
     FATAL_CASE(
-        "need-pawn-promotion-bad-color",
-        "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)"
-    )
-    {
-        Color volatile color = Color {};
-        [[maybe_unused]] bool promote = needPawnPromotion (0, color);
-    }
-
-    FATAL_CASE(
         "board-builder-invalid-coordinate",
         "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
     )

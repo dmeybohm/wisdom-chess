@@ -70,13 +70,6 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt (int integer) noexcept
-        -> Color
-    {
-        return to_enum_debug<Color> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
     colorFromColorIndex (ColorIndex index) noexcept
         -> Color
     {
@@ -85,17 +78,9 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    isColorValid (Color who) noexcept
-        -> bool
-    {
-        return (who == Color::White || who == Color::Black);
-    }
-
-    [[nodiscard]] constexpr auto
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
-        ASSERT( who == Color::White || who == Color::Black );
         return narrow_debug<int8_t> (to_int (who) - 1);
     }
 
@@ -103,7 +88,6 @@ namespace wisdom
     colorInvert (Color who) noexcept
         -> Color
     {
-        ASSERT( isColorValid (who) );
         uint8_t inverted = !colorIndex (who);
         return colorFromColorIndex (narrow_debug<int8_t> (inverted));
     }
@@ -160,7 +144,6 @@ namespace wisdom
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
-            ASSERT( isColorValid (color) );
             ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
             auto color_as_int = to_int (color);
             auto piece_as_int = to_int (piece_type);

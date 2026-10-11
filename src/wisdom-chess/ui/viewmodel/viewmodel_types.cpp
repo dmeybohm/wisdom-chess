@@ -33,8 +33,6 @@ namespace wisdom::ui
         const DrawAnswerCallback& answered
     )
     {
-        EXPECTS( isColorValid (who) );
-
         for (auto player : { who, colorInvert (who) })
         {
             if (game->getPlayer (player) != Player::ChessEngine)

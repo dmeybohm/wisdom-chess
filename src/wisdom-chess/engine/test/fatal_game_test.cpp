@@ -10,46 +10,6 @@ using namespace wisdom;
 namespace
 {
     FATAL_CASE(
-        "game-get-player-without-color",
-        "Precondition failed at .*game\\.cpp:[0-9]+: isColorValid \\(color\\)"
-    )
-    {
-        auto game = Game::createStandardGame();
-        Color volatile color = Color {};
-        [[maybe_unused]] Player player = game.getPlayer (color);
-    }
-
-    FATAL_CASE(
-        "game-computer-wants-draw-without-color",
-        "Precondition failed at .*game\\.cpp:[0-9]+: isColorValid \\(who\\)"
-    )
-    {
-        auto game = Game::createStandardGame();
-        Color volatile color = Color {};
-        [[maybe_unused]] bool wants_draw = game.computerWantsDraw (color);
-    }
-
-    FATAL_CASE(
-        "game-set-current-turn-without-color",
-        "Precondition failed at .*game\\.cpp:[0-9]+: isColorValid \\(new_turn\\)"
-    )
-    {
-        auto game = Game::createStandardGame();
-        Color volatile color = Color {};
-        game.setCurrentTurn (color);
-    }
-
-    FATAL_CASE(
-        "game-proposed-draw-status-without-color",
-        "Precondition failed at .*game\\.cpp:[0-9]+: isColorValid \\(who\\)"
-    )
-    {
-        auto game = Game::createStandardGame();
-        Color volatile color = Color {};
-        game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, color, true);
-    }
-
-    FATAL_CASE(
         "game-external-draw-arbiter-without-repetitions",
         "Precondition failed at .*game\\.cpp:[0-9]+: draw_limits\\.repetitions > 0"
     )

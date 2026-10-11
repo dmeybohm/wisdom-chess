@@ -249,7 +249,6 @@ namespace wisdom
 
     void Game::setCurrentTurn (Color new_turn)
     {
-        EXPECTS( isColorValid (new_turn) );
         my_pimpl->current_board = my_pimpl->current_board.withCurrentTurn (new_turn);
         my_pimpl->history.replaceLastPosition (my_pimpl->current_board);
     }
@@ -271,14 +270,12 @@ namespace wisdom
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
-        EXPECTS( isColorValid (who) );
         int score = evaluate (my_pimpl->current_board, who, 1);
         return score <= Min_Draw_Score;
     }
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
-        EXPECTS( isColorValid (who) );
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
@@ -332,7 +329,6 @@ namespace wisdom
 
     auto Game::getPlayer (Color color) const -> Player
     {
-        EXPECTS( isColorValid (color) );
         return my_pimpl->players[colorIndex (color)];
     }
 

@@ -29,8 +29,13 @@ longer needs a case for it.
   `mapColor (WebColor)` still returns a `Color` and reports `NoColor`
   as a precondition failure, as QML's `mapColor()` does. The IDL is
   unchanged.
-- The fatal tests that pass an invalid color now use `Color {}`, a
-  value no enumerator names, so they still cover `isColorValid()`.
+- `isColorValid()` is removed. Without `None`, a `Color` written as an
+  enumerator is always valid, and an invalid one could only come from
+  an integer: `colorFromInt8()` and `colorFromColorIndex()` check their
+  range, and the frontends' `mapColor()` reject anything but White or
+  Black. Its `EXPECTS` and `ASSERT`s go with it, along with the five
+  fatal tests that needed `Color {}` to reach them, and the unused and
+  unchecked `colorFromInt()`.
 
 ## Implementation Progress
 
@@ -40,3 +45,12 @@ longer needs a case for it.
 - Debug build with QML, tools, benchmarks and slow tests: every
   non-slow test passes, and `lint` is clean. Release with the slow
   tests: all 344 tests pass. The WASM frontend builds.
+
+### Session #2
+
+- `Game::findBestMove()` loses its color parameter, which no caller
+  passed, and the QML model's `PieceInfo` loses its `piece` field,
+  which nothing read.
+- `isColorValid()` and `colorFromInt()` removed, as above. Debug: every
+  non-slow test passes (326, five fatal cases fewer), and `lint` is
+  clean.
