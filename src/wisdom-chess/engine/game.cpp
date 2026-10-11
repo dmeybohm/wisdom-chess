@@ -31,42 +31,10 @@ namespace wisdom
     class Game::Impl
     {
     public:
-        // Main constructor that maintains all invariants
-        explicit Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
+        Impl (const BoardBuilder& builder, const Players& players)
             : current_board { builder }
+            , history { History::fromInitialBoard (current_board) }
             , players { players }
-        {
-            current_board = current_board.withCurrentTurn (current_turn);
-            history = History::fromInitialBoard (current_board);
-        }
-
-        Impl()
-            : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
-        {
-        }
-
-        explicit Impl (const Players& players)
-            : Impl { BoardBuilder::fromDefaultPosition(), players, Color::White }
-        {
-        }
-
-        explicit Impl (Player white_player, Player black_player)
-            : Impl { BoardBuilder::fromDefaultPosition(), Players { white_player, black_player }, Color::White }
-        {
-        }
-
-        explicit Impl (Color current_turn)
-            : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, current_turn }
-        {
-        }
-
-        explicit Impl (const BoardBuilder& builder)
-            : Impl { builder, Players { Player::Human, Player::ChessEngine }, builder.getCurrentTurn() }
-        {
-        }
-
-        explicit Impl (const BoardBuilder& builder, const Players& players)
-            : Impl { builder, players, builder.getCurrentTurn() }
         {
         }
 
@@ -75,7 +43,7 @@ namespace wisdom
         MoveTimer move_timer { Default_Max_Search_Seconds };
         int max_depth { Default_Max_Depth };
 
-        Players players = { Player::Human, Player::ChessEngine };
+        Players players;
 
         // Set when the caller arbitrates the draws.
         optional<DrawLimits> external_draw_limits {};
@@ -136,17 +104,23 @@ namespace wisdom
 
     auto Game::createStandardGame() -> Game
     {
-        return Game { make_unique<Impl>() };
+        return Game { make_unique<Impl> (
+            BoardBuilder::fromDefaultPosition(),
+            Players { Player::Human, Player::ChessEngine }
+        ) };
     }
 
     auto Game::createGame (const Players& players) -> Game
     {
-        return Game { make_unique<Impl> (players) };
+        return Game { make_unique<Impl> (BoardBuilder::fromDefaultPosition(), players) };
     }
 
     auto Game::createGame (Player white_player, Player black_player) -> Game
     {
-        return Game { make_unique<Impl> (white_player, black_player) };
+        return Game { make_unique<Impl> (
+            BoardBuilder::fromDefaultPosition(),
+            Players { white_player, black_player }
+        ) };
     }
 
     auto Game::createGameFromFen (const string& fen) -> Game
@@ -174,7 +148,7 @@ namespace wisdom
 
     auto Game::createGameFromBoard (const BoardBuilder& builder) -> Game
     {
-        return Game { make_unique<Impl> (builder) };
+        return Game { make_unique<Impl> (builder, Players { Player::Human, Player::ChessEngine }) };
     }
 
     auto Game::createGameFromBoard (const BoardBuilder& builder, const Players& players) -> Game
