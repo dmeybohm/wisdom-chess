@@ -14,6 +14,8 @@ namespace wisdom
 {
     namespace
     {
+        constexpr Players Default_Players { Player::Human, Player::ChessEngine };
+
         auto
         drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
              -> DrawStatus
@@ -104,10 +106,7 @@ namespace wisdom
 
     auto Game::createStandardGame() -> Game
     {
-        return Game { make_unique<Impl> (
-            BoardBuilder::fromDefaultPosition(),
-            Players { Player::Human, Player::ChessEngine }
-        ) };
+        return Game { make_unique<Impl> (BoardBuilder::fromDefaultPosition(), Default_Players) };
     }
 
     auto Game::createGame (const Players& players) -> Game
@@ -148,7 +147,7 @@ namespace wisdom
 
     auto Game::createGameFromBoard (const BoardBuilder& builder) -> Game
     {
-        return Game { make_unique<Impl> (builder, Players { Player::Human, Player::ChessEngine }) };
+        return Game { make_unique<Impl> (builder, Default_Players) };
     }
 
     auto Game::createGameFromBoard (const BoardBuilder& builder, const Players& players) -> Game
