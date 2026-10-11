@@ -116,7 +116,7 @@ namespace wisdom::ui
         }
 
         auto piece = game->getBoard().pieceAt (row, col);
-        return piece != Piece_And_Color_None && pieceColor (piece) == game->getCurrentTurn();
+        return piece && pieceColor (*piece) == game->getCurrentTurn();
     }
 
     auto

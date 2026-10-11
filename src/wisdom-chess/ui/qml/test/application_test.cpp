@@ -168,7 +168,7 @@ private slots:
 
         QCOMPARE( my_app->game_model.qmlMoveStatus(), QStringLiteral ("Illegal move") );
         QCOMPARE( my_app->pieceAt ("e2"), pawn );
-        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::nullopt );
         QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
     }
 
@@ -241,7 +241,7 @@ private slots:
         my_app->finishDrag ("e4");
 
         QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
-        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::nullopt );
         QVERIFY( drawnOn (*my_app, pawn, "e2") );
     }
 
@@ -254,7 +254,7 @@ private slots:
         my_app->finishDrag ("e5");
 
         QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
-        QVERIFY( my_app->boardPieceAt ("e5") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->boardPieceAt ("e5") == wisdom::nullopt );
         QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
 
         my_app->drag ("e2", "e4");
@@ -328,7 +328,7 @@ private slots:
 
         my_app->touchDrag ("e2", "e4");
 
-        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::nullopt );
         QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
         QVERIFY( drawnOn (*my_app, pawn, "e2") );
 
@@ -501,7 +501,7 @@ private slots:
         my_app->click ("g5");
 
         QVERIFY( my_app->boardPieceAt ("g8") == ColoredPiece::make (Color::White, Piece::Knight) );
-        QVERIFY( my_app->boardPieceAt ("h7") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->boardPieceAt ("h7") == wisdom::nullopt );
         QCOMPARE( my_app->pieceAt ("g8"), pawn );
         QVERIFY( pawn->property ("source").toUrl() != pawn_image );
         QVERIFY( pawn->property ("source").toUrl().toString().endsWith (QStringLiteral ("Chess_nlt45.svg")) );

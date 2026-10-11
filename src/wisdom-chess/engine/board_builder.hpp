@@ -8,21 +8,19 @@ namespace wisdom
 {
     [[nodiscard]] consteval auto
     emptySquares() noexcept
-        -> array<ColoredPiece, Num_Squares>
+        -> array<optional<ColoredPiece>, Num_Squares>
     {
-        array<ColoredPiece, Num_Squares> result {};
-        std::fill (
-            std::begin (result),
-            std::end (result),
-            Piece_And_Color_None
-        );
+        // Not value-initialized with {}: GCC 13 then rejects reading an
+        // element whose empty value is all zero bits in a constant
+        // expression.
+        array<optional<ColoredPiece>, Num_Squares> result;
         return result;
     }
 
     class BoardBuilder
     {
     public:
-        using PieceRow = array<Piece, Num_Columns>;
+        using PieceRow = array<optional<Piece>, Num_Columns>;
 
         struct CoordAndPiece
         {
@@ -70,14 +68,12 @@ namespace wisdom
             EXPECTS( isValidRow (row) );
             EXPECTS( isValidColumn (col) );
 
-            if (piece_type == Piece::None)
-                return;
-
             auto coord = Coord::make (row, col);
 
             // Replacing a king would leave its recorded position pointing
             // at another piece.
-            EXPECTS( pieceType (my_squares[coord.index()]) != Piece::King );
+            auto existing = my_squares[coord.index()];
+            EXPECTS( !existing || pieceType (*existing) != Piece::King );
 
             my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
@@ -119,7 +115,10 @@ namespace wisdom
         addRowOfSameColor (int row, Color who, const PieceRow& piece_types)
         {
             for (auto col = 0; col < Num_Columns; col++)
-                addPiece (row, col, who, piece_types[col]);
+            {
+                if (piece_types[col])
+                    addPiece (row, col, who, *piece_types[col]);
+            }
         }
 
         constexpr void
@@ -132,7 +131,10 @@ namespace wisdom
             Coord coord = toCoord (coord_str);
 
             for (auto col = 0; col < Num_Columns; col++)
-                addPiece (coord.row(), col, who, piece_types[col]);
+            {
+                if (piece_types[col])
+                    addPiece (coord.row(), col, who, *piece_types[col]);
+            }
         }
 
         constexpr void
@@ -175,7 +177,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         getSquares() const& noexcept
-                -> const array<ColoredPiece, Num_Squares>&
+                -> const array<optional<ColoredPiece>, Num_Squares>&
         {
             return my_squares;
         }
@@ -183,7 +185,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         pieceAt (Coord coord) const noexcept
-            -> ColoredPiece
+            -> optional<ColoredPiece>
         {
             ASSERT( coord.index() < Num_Squares );
             return my_squares[coord.index()];
@@ -261,19 +263,15 @@ namespace wisdom
             int8_t king_col = King_Column;
 
             CastlingEligibility state = CastlingEligibility::Neither_Side;
-            ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
-            ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
-            ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
+            auto king = ColoredPiece::make (who, Piece::King);
+            auto rook = ColoredPiece::make (who, Piece::Rook);
+            bool has_king = pieceAt (makeCoord (row, king_col)) == king;
 
-            if (pieceType (prospective_king) == Piece::King && pieceColor (prospective_king) == who
-                && pieceType (prospective_queen_rook) == Piece::Rook
-                && pieceColor (prospective_queen_rook) == who)
+            if (has_king && pieceAt (makeCoord (row, 0)) == rook)
             {
                 state |= CastlingRights::Queenside;
             }
-            if (pieceType (prospective_king) == Piece::King && pieceColor (prospective_king) == who
-                && pieceType (prospective_king_rook) == Piece::Rook
-                && pieceColor (prospective_king_rook) == who)
+            if (has_king && pieceAt (makeCoord (row, 7)) == rook)
             {
                 state |= CastlingRights::Kingside;
             }
@@ -282,7 +280,7 @@ namespace wisdom
         }
 
     private:
-        array<ColoredPiece, Num_Squares> my_squares;
+        array<optional<ColoredPiece>, Num_Squares> my_squares;
 
         int my_half_moves_clock = 0;
         int my_full_moves = 1;

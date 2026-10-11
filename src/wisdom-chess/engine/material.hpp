@@ -21,7 +21,6 @@ namespace wisdom
             // clang-format off
             switch (piece)
             {
-                case Piece::None: return Weight_None;
                 case Piece::King: return Weight_King;
                 case Piece::Queen: return Weight_Queen;
                 case Piece::Rook: return Weight_Rook;

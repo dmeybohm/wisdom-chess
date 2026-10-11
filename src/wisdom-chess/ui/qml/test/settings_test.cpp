@@ -127,13 +127,14 @@ private slots:
     void piecesRoundTrip()
     {
         auto pieces = {
-            wisdom::Piece::None, wisdom::Piece::Pawn, wisdom::Piece::Knight,
-            wisdom::Piece::Bishop, wisdom::Piece::Rook, wisdom::Piece::Queen,
-            wisdom::Piece::King,
+            wisdom::Piece::Pawn, wisdom::Piece::Knight, wisdom::Piece::Bishop,
+            wisdom::Piece::Rook, wisdom::Piece::Queen, wisdom::Piece::King,
         };
 
         for (auto piece : pieces)
             QVERIFY( ui::mapPiece (ui::mapPiece (piece)) == piece );
+
+        QVERIFY( !ui::mapPiece (ui::PieceType::None).has_value() );
 
         static_assert (ui::mapPiece (wisdom::Piece::Queen) == ui::PieceType::Queen);
         static_assert (ui::mapPiece (ui::PieceType::Knight) == wisdom::Piece::Knight);

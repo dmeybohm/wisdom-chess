@@ -15,7 +15,7 @@ TEST_CASE( "pieceMovement" )
         CHECK( movement.mover.dst == toCoord ("e4") );
         CHECK( !movement.captured.has_value() );
         CHECK( !movement.castling_rook.has_value() );
-        CHECK( movement.promoted_piece == Piece::None );
+        CHECK( movement.promoted_piece == nullopt );
     }
 
     SUBCASE( "A capture removes the piece on the destination" )

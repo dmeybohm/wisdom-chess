@@ -34,8 +34,6 @@ namespace wisdom
                 return "Knight";
             case Piece::Pawn:
                 return "Pawn";
-            case Piece::None:
-                return "None";
         }
         std::terminate();
     }

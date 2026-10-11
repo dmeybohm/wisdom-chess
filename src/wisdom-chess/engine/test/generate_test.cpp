@@ -78,8 +78,9 @@ namespace
     {
         if (move.isEnPassant())
             return 0;
-        return Material::weight (pieceType (board.pieceAt (move.getDst())))
-            - Material::weight (pieceType (board.pieceAt (move.getSrc())));
+        auto dst_piece = board.pieceAt (move.getDst());
+        int dst_weight = dst_piece ? Material::weight (pieceType (*dst_piece)) : 0;
+        return dst_weight - Material::weight (pieceType (*board.pieceAt (move.getSrc())));
     }
 
     // Whether the ordering must put `a` before `b`, by its rules stated one

@@ -74,7 +74,7 @@ namespace wisdom
             case 1: return Piece::Rook;
             case 2: return Piece::Knight;
             case 3: return Piece::Bishop;
-            default: return Piece::None;
+            default: PRECONDITION_FAILED( "a promotion offset" );
         }
     }
 
@@ -259,7 +259,6 @@ namespace wisdom
         withPromotion (Piece piece_type) const noexcept
             -> Move
         {
-            ASSERT( piece_type != Piece::None );
             Move result = *this;
             bool is_capture = (result.getCombined() == Combined_Normal_Capture);
             auto base = is_capture ? Combined_Promote_Capture_Base : Combined_Promote_Base;
@@ -309,9 +308,8 @@ namespace wisdom
         getPromotedPiece() const noexcept
             -> Piece
         {
+            ASSERT( isPromoting() );
             auto c = getCombined();
-            if (c < Combined_Promote_Base)
-                return Piece::None;
             int8_t offset = (c >= Combined_Promote_Capture_Base)
                 ? narrow_debug<int8_t> (c - Combined_Promote_Capture_Base)
                 : narrow_debug<int8_t> (c - Combined_Promote_Base);

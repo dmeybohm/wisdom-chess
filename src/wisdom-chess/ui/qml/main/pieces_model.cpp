@@ -76,9 +76,9 @@ namespace wisdom::ui::qml
             for (int column = 0; column < wisdom::Num_Columns; column++)
             {
                 auto piece = board.pieceAt (row, column);
-                if (piece != Piece_And_Color_None)
+                if (piece)
                 {
-                    PieceInfo new_piece { row, column, piece, my_piece_to_image_path[to_int (piece)] };
+                    PieceInfo new_piece { row, column, *piece, my_piece_to_image_path[to_int (*piece)] };
                     auto last_row = my_pieces.count();
                     beginInsertRows (QModelIndex {}, wisdom::narrow<int> (last_row),
                                      wisdom::narrow<int> (last_row));
@@ -208,9 +208,9 @@ namespace wisdom::ui::qml
 
             QVector<int> roles_changed { RowRole, ColumnRole };
 
-            if (movement.promoted_piece != Piece::None)
+            if (movement.promoted_piece)
             {
-                auto promoted_piece = ColoredPiece::make (who, movement.promoted_piece);
+                auto promoted_piece = ColoredPiece::make (who, *movement.promoted_piece);
                 piece_model.piece_image = my_piece_to_image_path[to_int (promoted_piece)];
                 roles_changed.append (PieceImageRole);
             }

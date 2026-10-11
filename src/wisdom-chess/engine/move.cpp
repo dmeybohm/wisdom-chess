@@ -44,7 +44,7 @@ namespace wisdom
     }
 
     void
-    Board::setPiece (Coord coord, ColoredPiece piece) noexcept
+    Board::setPiece (Coord coord, optional<ColoredPiece> piece) noexcept
     {
         my_squares[coord.index()] = piece;
     }
@@ -65,12 +65,9 @@ namespace wisdom
         -> ColoredPiece
     {
         Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
-        [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
+        ASSERT( pieceAt (taken_pawn_pos) == ColoredPiece::make (colorInvert (who), Piece::Pawn) );
 
-        ASSERT( pieceType (taken_piece) == Piece::Pawn );
-        ASSERT( pieceColor (taken_piece) == colorInvert (who) );
-
-        setPiece (taken_pawn_pos, Piece_And_Color_None);
+        setPiece (taken_pawn_pos, nullopt);
 
         return ColoredPiece::make (colorInvert (who), Piece::Pawn);
     }
@@ -84,21 +81,19 @@ namespace wisdom
     {
         Move rook_move = castlingRookMove (king_move);
 
-        ASSERT( pieceType (pieceAt (src)) == Piece::King );
+        ASSERT( pieceAt (src) && pieceType (*pieceAt (src)) == Piece::King );
         ASSERT( abs (src.column() - dst.column()) == 2 );
 
         auto rook_src = rook_move.getSrc();
         auto rook_dst = rook_move.getDst();
 
-        ASSERT( pieceType (pieceAt (rook_src)) == Piece::Rook );
-
-        auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
+        ASSERT( pieceAt (rook_src) && pieceType (*pieceAt (rook_src)) == Piece::Rook );
 
         auto rook = pieceAt (rook_src);
 
         // do the rook move
         setPiece (rook_dst, rook);
-        setPiece (rook_src, empty_piece);
+        setPiece (rook_src, nullopt);
     }
 
     void
@@ -262,17 +257,17 @@ namespace wisdom
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
-        auto src_piece = pieceAt (src);
+        ASSERT( pieceAt (src).has_value() );
+        ColoredPiece src_piece = *pieceAt (src);
         auto orig_src_piece = src_piece;
         auto dst_piece = pieceAt (dst);
 
-        ASSERT( pieceType (src_piece) != Piece::None );
         ASSERT( pieceColor (src_piece) == who );
-        if (pieceType (dst_piece) != Piece::None)
+        if (dst_piece)
             ASSERT( move.isNormalCapturing() );
 
-        if (pieceType (dst_piece) != Piece::None)
-            ASSERT( pieceColor (src_piece) != pieceColor (dst_piece) );
+        if (dst_piece)
+            ASSERT( pieceColor (src_piece) != pieceColor (*dst_piece) );
 
         if (move.isPromoting())
         {
@@ -284,12 +279,12 @@ namespace wisdom
         switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
-                ASSERT( pieceType (dst_piece) == Piece::None );
+                ASSERT( !dst_piece );
                 break;
 
             case MoveCategory::NormalCapturing:
                 ASSERT( move.isNormalCapturing() );
-                ASSERT( pieceColor (src_piece) != pieceColor (dst_piece) );
+                ASSERT( dst_piece && pieceColor (src_piece) != pieceColor (*dst_piece) );
                 break;
 
             case MoveCategory::EnPassant:
@@ -303,7 +298,7 @@ namespace wisdom
 
         my_code.applyMove (*this, move);
 
-        setPiece (src, Piece_And_Color_None);
+        setPiece (src, nullopt);
         setPiece (dst, src_piece);
 
         if (pieceType (src_piece) == Piece::King)
@@ -315,16 +310,16 @@ namespace wisdom
             updateAfterRookMove (who, orig_src_piece, src);
         }
 
-        if (pieceType (dst_piece) != Piece::None)
+        if (dst_piece)
         {
             // update material estimate
-            my_material.remove (dst_piece);
+            my_material.remove (*dst_piece);
 
-            auto captured_piece_type = pieceType (dst_piece);
+            auto captured_piece_type = pieceType (*dst_piece);
 
             // update castle state if somebody takes the rook
             if (captured_piece_type == Piece::Rook)
-                updateAfterRookCapture (colorInvert (who), dst_piece, src, dst);
+                updateAfterRookCapture (colorInvert (who), *dst_piece, src, dst);
         }
 
         my_position.applyMove (who, orig_src_piece, move, dst_piece);
@@ -427,7 +422,7 @@ namespace wisdom
         }
 
         // grab extra identifiers describing the move
-        Piece promoted = Piece::None;
+        optional<Piece> promoted;
         if (rest == "EP")
         {
             en_passant = true;
@@ -449,9 +444,9 @@ namespace wisdom
             promoted = Piece::Rook;
         }
 
-        if (promoted != Piece::None)
+        if (promoted)
         {
-            move = move.withPromotion (promoted);
+            move = move.withPromotion (*promoted);
         }
 
         if (en_passant)
@@ -527,22 +522,22 @@ namespace wisdom
     ) noexcept
         -> optional<Move>
     {
-        ColoredPiece src_piece = board.pieceAt (src);
-        ColoredPiece dst_piece = board.pieceAt (dst);
+        auto src_piece = board.pieceAt (src);
+        auto dst_piece = board.pieceAt (dst);
 
-        if (src_piece == Piece_And_Color_None)
+        if (!src_piece)
             return {};
 
-        if (pieceColor (src_piece) != who)
+        if (pieceColor (*src_piece) != who)
             return {};
 
         // make capturing if dst piece is not none
         Move move = Move::make (src, dst);
-        if (dst_piece != Piece_And_Color_None)
+        if (dst_piece)
             move = move.withCapture();
 
         // check for pawn special moves.
-        switch (pieceType (src_piece))
+        switch (pieceType (*src_piece))
         {
             case Piece::Pawn:
             {

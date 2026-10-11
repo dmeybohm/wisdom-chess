@@ -235,7 +235,7 @@ namespace wisdom::ui::test
             {
                 for (int column = 0; column < wisdom::Num_Columns; column++)
                 {
-                    if (board().pieceAt (row, column) != wisdom::Piece_And_Color_None)
+                    if (board().pieceAt (row, column))
                         on_board++;
                 }
             }
@@ -248,7 +248,7 @@ namespace wisdom::ui::test
             {
                 auto row = piece->property ("row").toInt();
                 auto column = piece->property ("column").toInt();
-                if (board().pieceAt (row, column) == wisdom::Piece_And_Color_None)
+                if (!board().pieceAt (row, column))
                     return false;
             }
             return true;
@@ -411,7 +411,7 @@ namespace wisdom::ui::test
 
         [[nodiscard]] auto
         boardPieceAt (czstring coord_text) const
-            -> ColoredPiece
+            -> wisdom::optional<ColoredPiece>
         {
             return board().pieceAt (wisdom::toCoord (coord_text));
         }

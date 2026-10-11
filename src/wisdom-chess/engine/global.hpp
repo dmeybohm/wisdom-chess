@@ -32,7 +32,6 @@
 
 namespace wisdom
 {
-    inline constexpr int Weight_None = 0;
     inline constexpr int Weight_King = 1500;
     inline constexpr int Weight_Queen = 1000;
     inline constexpr int Weight_Rook = 500;

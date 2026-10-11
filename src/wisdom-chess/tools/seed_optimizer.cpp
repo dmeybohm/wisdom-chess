@@ -57,10 +57,10 @@ namespace
         for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
-            if (piece == wisdom::Piece_And_Color_None)
+            if (!piece)
                 continue;
 
-            auto piece_index = zobristPieceIndex (piece.color(), piece.type());
+            auto piece_index = zobristPieceIndex (piece->color(), piece->type());
             auto table_index = to_unsigned<std::size_t> (piece_index * Num_Squares + coord.index());
             hash ^= table[table_index] << Total_Metadata_Bits;
         }

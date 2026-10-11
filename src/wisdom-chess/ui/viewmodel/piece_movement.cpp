@@ -13,7 +13,9 @@ namespace wisdom::ui
             .mover = { src, dst },
             .castling_rook = nullopt,
             .captured = nullopt,
-            .promoted_piece = move.getPromotedPiece(),
+            .promoted_piece = move.isPromoting()
+                ? optional<Piece> { move.getPromotedPiece() }
+                : nullopt,
         };
 
         if (move.isCastling())
