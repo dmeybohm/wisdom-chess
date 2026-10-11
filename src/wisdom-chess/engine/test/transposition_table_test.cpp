@@ -648,14 +648,14 @@ TEST_CASE( "Hash collision analysis" )
 
     SUBCASE( "Zobrist table has good bit distribution" )
     {
-        std::array<int, 48> bit_counts {};
+        std::array<int, 64> bit_counts {};
 
         for (const auto& hash_value : Hash_Code_Table)
         {
             if (hash_value == 0)
                 continue;
 
-            for (int bit = 0; bit < 48; ++bit)
+            for (int bit = Total_Metadata_Bits; bit < 64; ++bit)
             {
                 if ((hash_value >> bit) & 1)
                     bit_counts[bit]++;
@@ -669,7 +669,7 @@ TEST_CASE( "Hash collision analysis" )
                 non_zero_entries++;
         }
 
-        for (int bit = 0; bit < 48; ++bit)
+        for (int bit = Total_Metadata_Bits; bit < 64; ++bit)
         {
             double ratio = to_double (bit_counts[bit]) / non_zero_entries;
             CHECK_MESSAGE( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );

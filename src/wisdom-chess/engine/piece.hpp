@@ -15,8 +15,7 @@ namespace wisdom
         King
     };
 
-    inline constexpr std::size_t Num_Piece_Types =
-        to_unsigned<std::size_t> (to_underlying (Piece::King)) + 1;
+    inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
 
     enum class Color : int8_t
     {

@@ -582,6 +582,7 @@ TEST_CASE( "Zobrist piece index mapping" )
                 {
                     auto hash_value = Hash_Code_Table[piece_index * Num_Squares + square];
                     CHECK( hash_value != 0 );
+                    CHECK( (hash_value & Metadata_Mask) == 0 );
                 }
             }
         }
