@@ -11,8 +11,8 @@ namespace wisdom::ui
 
         PieceMovement result {
             .mover = { src, dst },
-            .castling_rook = std::nullopt,
-            .captured = std::nullopt,
+            .castling_rook = nullopt,
+            .captured = nullopt,
             .promoted_piece = move.getPromotedPiece(),
         };
 

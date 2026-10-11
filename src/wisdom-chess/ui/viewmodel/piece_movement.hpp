@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
@@ -20,8 +19,8 @@ namespace wisdom::ui
     struct PieceMovement
     {
         PieceStep mover;
-        std::optional<PieceStep> castling_rook;
-        std::optional<Coord> captured;
+        optional<PieceStep> castling_rook;
+        optional<Coord> captured;
 
         // Piece::None unless the mover is promoted.
         Piece promoted_piece;

@@ -250,7 +250,7 @@ namespace wisdom
         auto diff = narrow<int> (result - coord_begin);
 
         return (result != coord_end)
-            ? std::make_optional<Coord> (Coord::fromIndex (diff))
+            ? optional<Coord> { Coord::fromIndex (diff) }
             : nullopt;
     }
 

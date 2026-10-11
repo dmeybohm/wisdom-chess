@@ -10,7 +10,6 @@
 
 using namespace wisdom;
 namespace ui = wisdom::ui;
-using std::optional;
 using std::shared_ptr;
 using wisdom::GameStatus;
 using wisdom::ProposedDrawType;

@@ -10,6 +10,8 @@ using wisdom::Color;
 using wisdom::czstring;
 using wisdom::toMove;
 using wisdom::nonnull;
+using wisdom::nullopt;
+using wisdom::optional;
 using wisdom::Piece;
 using wisdom::Player;
 
@@ -196,7 +198,7 @@ private slots:
         auto dst = wisdom::toCoord ("e4");
 
         auto [move, who] = game->moveFromCoordinates (
-            src.row<int>(), src.column<int>(), dst.row<int>(), dst.column<int>(), std::nullopt
+            src.row<int>(), src.column<int>(), dst.row<int>(), dst.column<int>(), nullopt
         );
 
         QVERIFY( who == Color::White );
@@ -207,7 +209,7 @@ private slots:
     void moveFromCoordinatesRecognizesSpecialMoves()
     {
         auto map = [] (const ChessGame& game, czstring src_text, czstring dst_text,
-                       std::optional<Piece> promoted = std::nullopt)
+                       optional<Piece> promoted = nullopt)
         {
             auto src = wisdom::toCoord (src_text);
             auto dst = wisdom::toCoord (dst_text);

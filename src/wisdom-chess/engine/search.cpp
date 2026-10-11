@@ -313,7 +313,7 @@ namespace wisdom
                 best_score,
                 depth,
                 bound_type,
-                best_move.value_or (Move {}),
+                best_move,
                 ply
             );
         }
