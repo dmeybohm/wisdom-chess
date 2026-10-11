@@ -84,7 +84,7 @@ namespace
             }
             for (auto coord : Board::allCoords())
             {
-                if (board.pieceAt (coord) != Piece_And_Color_None)
+                if (board.pieceAt (coord))
                     occupied++;
             }
 

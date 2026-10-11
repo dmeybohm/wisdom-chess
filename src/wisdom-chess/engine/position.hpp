@@ -27,7 +27,7 @@ namespace wisdom
             -> int;
 
         // Apply the move to the position.
-        void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece) noexcept;
+        void applyMove (Color who, ColoredPiece src_piece, Move move, optional<ColoredPiece> dst_piece) noexcept;
 
         [[nodiscard]] friend auto
         operator== (const Position& first, const Position& second) noexcept

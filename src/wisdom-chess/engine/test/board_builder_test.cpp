@@ -33,20 +33,10 @@ TEST_CASE( "board_builder" )
 
         auto board = Board { builder };
 
-        ColoredPiece pawn = board.pieceAt (1, 0);
-        ColoredPiece white_king = board.pieceAt (0, 6);
-        ColoredPiece black_king = board.pieceAt (7, 0);
-        ColoredPiece center = board.pieceAt (4, 5);
-
-        CHECK( pieceColor (pawn) == Color::White );
-        CHECK( pieceColor (white_king) == Color::White );
-        CHECK( pieceColor (black_king) == Color::Black );
-        CHECK( pieceColor (center) == Color::None );
-
-        CHECK( pieceType (pawn) == Piece::Pawn );
-        CHECK( pieceType (white_king) == Piece::King );
-        CHECK( pieceType (black_king) == Piece::King );
-        CHECK( pieceType (center) == Piece::None );
+        CHECK( board.pieceAt (1, 0) == ColoredPiece::make (Color::White, Piece::Pawn) );
+        CHECK( board.pieceAt (0, 6) == ColoredPiece::make (Color::White, Piece::King) );
+        CHECK( board.pieceAt (7, 0) == ColoredPiece::make (Color::Black, Piece::King) );
+        CHECK( board.pieceAt (4, 5) == nullopt );
     }
 }
 

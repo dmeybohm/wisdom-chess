@@ -9,8 +9,8 @@ namespace wisdom
         for (auto&& coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
-            if (piece != Piece_And_Color_None)
-                add (board.pieceAt (coord));
+            if (piece)
+                add (*piece);
         }
     }
 

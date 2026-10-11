@@ -67,7 +67,7 @@ namespace
 
     FATAL_CASE(
         "board-builder-replace-king",
-        "Precondition failed at .*board_builder\\.hpp:[0-9]+: pieceType \\(my_squares"
+        "Precondition failed at .*board_builder\\.hpp:[0-9]+: !existing \\|\\| pieceType"
     )
     {
         BoardBuilder builder;

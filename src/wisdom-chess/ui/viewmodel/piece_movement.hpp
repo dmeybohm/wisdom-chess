@@ -22,8 +22,7 @@ namespace wisdom::ui
         optional<PieceStep> castling_rook;
         optional<Coord> captured;
 
-        // Piece::None unless the mover is promoted.
-        Piece promoted_piece;
+        optional<Piece> promoted_piece;
     };
 
     [[nodiscard]] auto

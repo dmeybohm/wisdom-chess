@@ -117,10 +117,14 @@ committing C++. The conventions below are about what the code does.
   references.
 - `optional` is `wisdom::optional` (`engine/optional.hpp`), not
   `std::optional`: a type that nests a public `NullRepresentation`
-  (`Move`, `Coord`) gets one without a flag, and pins it with
-  `static_assert (sizeof (optional<T>) == sizeof (T))`. Spell it
-  `wisdom::optional` outside the namespace. See
+  (`Move`, `Coord`, `ColoredPiece`), or an enum with a
+  `nullRepresentation()` function (`Piece`), gets one without a flag,
+  and pins it with `static_assert (sizeof (optional<T>) == sizeof (T))`.
+  Spell it `wisdom::optional` outside the namespace. See
   `features/2026/10/compact-optional.md`.
+- An empty square is an empty `optional<ColoredPiece>` from
+  `Board::pieceAt()`; there is no "none" piece. See
+  `features/2026/10/optional-colored-piece.md`.
 
 ## Building and testing
 

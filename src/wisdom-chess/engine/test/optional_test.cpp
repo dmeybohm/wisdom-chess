@@ -1,6 +1,7 @@
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/optional.hpp"
+#include "wisdom-chess/engine/piece.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -36,6 +37,8 @@ namespace
 
 static_assert (std::is_same_v<optional<Move>, compact_optional<Move>>);
 static_assert (std::is_same_v<optional<Coord>, compact_optional<Coord>>);
+static_assert (std::is_same_v<optional<ColoredPiece>, compact_optional<ColoredPiece>>);
+static_assert (std::is_same_v<optional<Piece>, compact_optional<Piece>>);
 static_assert (std::is_same_v<optional<int>, std::optional<int>>);
 static_assert (std::is_same_v<
     optional<WithoutNullRepresentation>,
@@ -101,5 +104,15 @@ TEST_CASE( "A compact optional" )
         optional<Coord> holder = a8;
         REQUIRE( holder.has_value() );
         CHECK( *holder == a8 );
+    }
+
+    SUBCASE( "of an enum uses its nullRepresentation() function" )
+    {
+        optional<Piece> empty;
+        CHECK( !empty.has_value() );
+
+        optional<Piece> pawn = Piece::Pawn;
+        REQUIRE( pawn.has_value() );
+        CHECK( *pawn == Piece::Pawn );
     }
 }

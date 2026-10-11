@@ -114,9 +114,6 @@ namespace wisdom
 
         void addPiece (Coord coord, ColoredPiece piece) noexcept
         {
-            if (piece == Piece_And_Color_None)
-                return;
-
             auto hash = boardCodeHash (coord, piece);
             my_code ^= hash;
         }

@@ -68,12 +68,12 @@ namespace wisdom
 
     [[nodiscard]] inline auto
     mapPiece (WebPiece piece)
-        -> wisdom::Piece
+        -> optional<wisdom::Piece>
     {
         switch (piece)
         {
             case WebPiece::NoPiece:
-                return Piece::None;
+                return nullopt;
             case WebPiece::Pawn:
                 return Piece::Pawn;
             case WebPiece::Knight:
@@ -93,7 +93,7 @@ namespace wisdom
 
     [[nodiscard]] inline auto
     mapPiece (int piece)
-        -> wisdom::Piece
+        -> optional<wisdom::Piece>
     {
         return mapPiece (to_enum<WebPiece> (piece));
     }
@@ -105,8 +105,6 @@ namespace wisdom
         using enum Piece;
         switch (piece)
         {
-            case None:
-                return WebPiece::NoPiece;
             case Pawn:
                 return WebPiece::Pawn;
             case Knight:
@@ -280,7 +278,7 @@ namespace wisdom
     {
         auto mapped_color = mapColor (colored_piece.color);
         auto mapped_type = mapPiece (colored_piece.piece);
-        return ColoredPiece::make (mapped_color, mapped_type);
+        return ColoredPiece::make (mapped_color, mapped_type.value());
     }
 
     struct WebColoredPieceList

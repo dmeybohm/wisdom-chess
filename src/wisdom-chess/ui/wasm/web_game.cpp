@@ -26,10 +26,10 @@ namespace wisdom
         {
             auto coord = Coord::fromIndex (i);
             auto piece = board.pieceAt (coord);
-            if (piece != Piece_And_Color_None)
+            if (piece)
             {
                 WebColoredPiece new_piece
-                    = WebColoredPiece { id, mapColor (piece.color()), mapPiece (piece.type()),
+                    = WebColoredPiece { id, mapColor (piece->color()), mapPiece (piece->type()),
                                         widen<int> (coord.row()),
                                         widen<int> (coord.column()) };
                 my_pieces.addPiece (new_piece);
@@ -157,8 +157,8 @@ namespace wisdom
         };
 
         auto& mover = relocate (movement.mover);
-        if (movement.promoted_piece != Piece::None)
-            mover.piece = mapPiece (movement.promoted_piece);
+        if (movement.promoted_piece)
+            mover.piece = mapPiece (*movement.promoted_piece);
 
         if (movement.castling_rook.has_value())
             relocate (*movement.castling_rook);
@@ -176,7 +176,7 @@ namespace wisdom
         for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
-            if (piece == Piece_And_Color_None)
+            if (!piece)
                 continue;
 
             pieces_on_board++;
@@ -186,7 +186,7 @@ namespace wisdom
                 return false;
 
             const auto& displayed = my_pieces.pieces[index];
-            if (displayed.color != mapColor (piece.color()) || displayed.piece != mapPiece (piece.type()))
+            if (displayed.color != mapColor (piece->color()) || displayed.piece != mapPiece (piece->type()))
                 return false;
         }
 

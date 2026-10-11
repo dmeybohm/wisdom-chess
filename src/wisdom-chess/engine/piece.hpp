@@ -4,16 +4,25 @@
 
 namespace wisdom
 {
+    // Starts at one, so an empty optional<Piece> or optional<ColoredPiece>
+    // is zero.
     enum class Piece : int8_t
     {
-        None = 0,
-        Pawn,
+        Pawn = 1,
         Knight,
         Bishop,
         Rook,
         Queen,
         King
     };
+
+    [[nodiscard]] constexpr auto
+    nullRepresentation (std::type_identity<Piece>) noexcept
+        -> Piece
+    {
+        return Piece {};
+    }
+    static_assert (sizeof (optional<Piece>) == sizeof (Piece));
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
 
@@ -33,7 +42,7 @@ namespace wisdom
     pieceFromInt8 (int8_t integer) noexcept
         -> Piece
     {
-        ASSERT( integer >= to_int (Piece::None) && integer <= to_int (Piece::King) );
+        ASSERT( integer >= to_int (Piece::Pawn) && integer <= to_int (Piece::King) );
         return to_enum_debug<Piece> (integer);
     }
 
@@ -96,7 +105,7 @@ namespace wisdom
         -> int
     {
         auto piece_as_int = to_underlying (piece);
-        ASSERT( piece_as_int >= to_int (Piece::None) && piece_as_int <= to_int (Piece::King) );
+        ASSERT( piece_as_int >= to_int (Piece::Pawn) && piece_as_int <= to_int (Piece::King) );
         return piece_as_int;
     }
 
@@ -111,6 +120,25 @@ namespace wisdom
     {
         int8_t piece_type_and_color;
 
+        // Every piece has a color and type, so zero marks an empty
+        // optional<ColoredPiece>, such as an empty square.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> ColoredPiece
+            {
+                return ColoredPiece { .piece_type_and_color = 0 };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (ColoredPiece piece) noexcept
+                -> bool
+            {
+                return piece.piece_type_and_color == 0;
+            }
+        };
+
         // The packed type and color, for to_int(). Explicit so the packed
         // value does not leak into arithmetic or a bool conversion.
         template <std::signed_integral Target>
@@ -124,8 +152,8 @@ namespace wisdom
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
-            ASSERT( (piece_type == Piece::None && color == Color::None) ||
-                (piece_type != Piece::None && color != Color::None) );
+            ASSERT( isColorValid (color) );
+            ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
             auto color_as_int = to_int (color);
             auto piece_as_int = to_int (piece_type);
             auto result = narrow_debug<int8_t>(
@@ -171,6 +199,7 @@ namespace wisdom
         }
     };
     static_assert (std::is_trivial_v<ColoredPiece>);
+    static_assert (sizeof (optional<ColoredPiece>) == sizeof (ColoredPiece));
 
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
@@ -194,11 +223,6 @@ namespace wisdom
     {
         return piece.color();
     }
-
-    inline constexpr ColoredPiece Piece_And_Color_None = ColoredPiece::make (
-        Color::None,
-        Piece::None
-    );
 
     [[nodiscard]] constexpr auto
     pieceFromChar (char p)

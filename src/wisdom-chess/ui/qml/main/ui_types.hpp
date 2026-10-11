@@ -120,13 +120,13 @@ namespace wisdom::ui
 
     [[nodiscard]] constexpr auto
     mapPiece (ui::PieceType piece)
-        -> wisdom::Piece
+        -> wisdom::optional<wisdom::Piece>
     {
         using enum PieceType;
         switch (piece)
         {
             case None:
-                return wisdom::Piece::None;
+                return wisdom::nullopt;
             case Pawn:
                 return wisdom::Piece::Pawn;
             case Knight:
@@ -151,8 +151,6 @@ namespace wisdom::ui
         using enum wisdom::Piece;
         switch (piece)
         {
-            case None:
-                return PieceType::None;
             case Pawn:
                 return PieceType::Pawn;
             case Knight:
