@@ -32,6 +32,8 @@ TEST_CASE( "toMove" )
     SUBCASE( "Invalid moves are rejected" )
     {
         CHECK( !parseMove ("invalid", Color::White).has_value() );
+        CHECK( !parseMove ("a8a8", Color::White).has_value() );
+        CHECK( !parseMove ("e2e2", Color::White).has_value() );
     }
 
     SUBCASE( "Empty and whitespace-only input" )
