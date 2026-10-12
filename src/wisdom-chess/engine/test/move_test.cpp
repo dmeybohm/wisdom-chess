@@ -36,7 +36,7 @@ TEST_CASE( "Only a castling move needs a color to parse" )
     CHECK( toMove ("e5 d6 ep") == toMove ("e5 d6 ep", Color::White) );
     CHECK( toMove ("d7 d8 (Q)") == toMove ("d7 d8 (Q)", Color::White) );
     CHECK( toMove ("e2 d1 (N)") == toMove ("e2 d1 (N)", Color::Black) );
-    CHECK_FALSE( parseMove ("o-o", Color::None).has_value() );
+    CHECK_FALSE( parseMove ("o-o", nullopt).has_value() );
 }
 
 TEST_CASE( "Parsing a promoting move" )

@@ -27,6 +27,16 @@ namespace
         };
         return ChessGame::fromFen (Fifty_Moves_Reached, config);
     }
+
+    // QVariant::value() default-constructs its result, which Color does not
+    // allow.
+    auto
+    colorOf (const QVariant& value)
+        -> wisdom::optional<Color>
+    {
+        auto color = get_if<Color> (&value);
+        return color ? wisdom::optional<Color> { *color } : wisdom::nullopt;
+    }
 }
 
 class ChessEngineTest : public QObject
@@ -46,8 +56,8 @@ private slots:
         engine.init();
 
         QCOMPARE( answers.count(), 2 );
-        QCOMPARE( answers.at (0).at (1).value<Color>(), Color::White );
-        QCOMPARE( answers.at (1).at (1).value<Color>(), Color::Black );
+        QCOMPARE( colorOf (answers.at (0).at (1)), Color::White );
+        QCOMPARE( colorOf (answers.at (1).at (1)), Color::Black );
         QCOMPARE( answers.at (0).at (0).value<ProposedDrawType>(),
                   ProposedDrawType::FiftyMovesWithoutProgress );
 
@@ -65,7 +75,7 @@ private slots:
         engine.init();
 
         QCOMPARE( answers.count(), 1 );
-        QCOMPARE( answers.at (0).at (1).value<Color>(), Color::White );
+        QCOMPARE( colorOf (answers.at (0).at (1)), Color::White );
 
         // The human has yet to answer, so the engine waits.
         QCOMPARE( moves.count(), 0 );

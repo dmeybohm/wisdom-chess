@@ -58,12 +58,11 @@ namespace wisdom::ui
     mapColor (wisdom::Color color)
         -> wisdom::ui::Color
     {
-        using enum wisdom::Color;
         switch (color)
         {
-            case White:
+            case wisdom::Color::White:
                 return ui::Color::White;
-            case Black:
+            case wisdom::Color::Black:
                 return ui::Color::Black;
             default:
                 PRECONDITION_FAILED( "a White or Black color" );

@@ -22,7 +22,7 @@ namespace wisdom
     zobristPieceIndex (Color piece_color, Piece piece_type) noexcept
         -> int
     {
-        return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
+        return colorIndex (piece_color) * Num_Piece_Types + pieceIndex (piece_type);
     }
 
     inline constexpr int Total_Metadata_Bits = 16;
@@ -237,10 +237,7 @@ namespace wisdom
             -> Color
         {
             auto bits = getMetadataBits();
-            auto index = narrow_debug<int8_t> (
-                bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
-            );
-            return colorFromColorIndex (index);
+            return (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)) ? Color::Black : Color::White;
         }
 
         [[nodiscard]] auto

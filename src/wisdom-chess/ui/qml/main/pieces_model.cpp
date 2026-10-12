@@ -78,7 +78,7 @@ namespace wisdom::ui::qml
                 auto piece = board.pieceAt (row, column);
                 if (piece)
                 {
-                    PieceInfo new_piece { row, column, *piece, my_piece_to_image_path[to_int (*piece)] };
+                    PieceInfo new_piece { row, column, my_piece_to_image_path[to_int (*piece)] };
                     auto last_row = my_pieces.count();
                     beginInsertRows (QModelIndex {}, wisdom::narrow<int> (last_row),
                                      wisdom::narrow<int> (last_row));

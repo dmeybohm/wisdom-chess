@@ -165,11 +165,7 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     logger->debug ("Going to find best move");
     logger->debug ("Current turn: " + asString (game->getCurrentTurn()));
 
-    auto move = game->findBestMove(
-        logger,
-        &state->transposition_table,
-        game->getCurrentTurn()
-    );
+    auto move = game->findBestMove (logger, &state->transposition_table);
     if (!move.has_value())
     {
         // Could happen if game is paused:

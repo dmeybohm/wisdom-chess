@@ -1,3 +1,5 @@
+#include <bit>
+
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
@@ -27,13 +29,42 @@ namespace
         );
     }
 
+    // Only corrupt memory gives a Color neither White nor Black; a bit_cast
+    // of zero stands in for it.
+    [[nodiscard]] auto
+    corruptColor()
+        -> Color
+    {
+        int8_t volatile zero = 0;
+        int8_t value = zero;
+        return std::bit_cast<Color> (value);
+    }
+
     FATAL_CASE(
-        "need-pawn-promotion-bad-color",
-        "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)"
+        "color-index-without-color",
+        "Precondition failed at .*piece\\.hpp:[0-9]+: who == Color::White \\|\\| who == Color::Black"
     )
     {
-        Color volatile color = Color::None;
-        [[maybe_unused]] bool promote = needPawnPromotion (0, color);
+        Color color = corruptColor();
+        [[maybe_unused]] auto index = colorIndex (color);
+    }
+
+    FATAL_CASE(
+        "colored-piece-without-color",
+        "Precondition failed at .*piece\\.hpp:[0-9]+: color == Color::White \\|\\| color == Color::Black"
+    )
+    {
+        Color color = corruptColor();
+        [[maybe_unused]] auto piece = ColoredPiece::make (color, Piece::Pawn);
+    }
+
+    FATAL_CASE(
+        "pawn-direction-without-color",
+        "Precondition failed at .*coord\\.hpp:[0-9]+: color == Color::Black \\|\\| color == Color::White"
+    )
+    {
+        Color color = corruptColor();
+        [[maybe_unused]] auto direction = pawnDirection (color);
     }
 
     FATAL_CASE(

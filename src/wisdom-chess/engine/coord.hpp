@@ -311,13 +311,20 @@ namespace wisdom
     };
     static_assert (std::forward_iterator<CoordIterator>);
 
+    // Whether the square is dark. a8 and h1 are light.
+    [[nodiscard]] constexpr auto
+    isDarkSquare (Coord coord) noexcept
+        -> bool
+    {
+        return (coord.row() + coord.column()) % 2 != 0;
+    }
+
     // The color of the square.
     [[nodiscard]] constexpr auto
     coordColor (Coord coord) noexcept
         -> Color
     {
-        int parity = (coord.row() % 2 + coord.column() % 2) % 2;
-        return colorFromColorIndex (narrow_debug<int8_t> (parity));
+        return isDarkSquare (coord) ? Color::Black : Color::White;
     }
 
     // The row direction a pawn moves in: white moves up (-), black
@@ -328,7 +335,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        ASSERT( color == Color::Black || color == Color::White );
+        EXPECTS( color == Color::Black || color == Color::White );
         auto color_as_int = to_int (color);
         return narrow_debug<IntegerType> (-1 + 2 * (color_as_int - 1));
     }

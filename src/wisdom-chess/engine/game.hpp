@@ -93,8 +93,7 @@ namespace wisdom
         // decides when it is cleared or reused between searches.
         [[nodiscard]] auto findBestMove (
             shared_ptr<Logger> logger,
-            nonnull<TranspositionTable> transposition_table,
-            Color whom = Color::None
+            nonnull<TranspositionTable> transposition_table
         ) const
             -> optional<Move>;
 

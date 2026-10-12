@@ -25,8 +25,8 @@ TEST_CASE( "toMove" )
 
     SUBCASE( "Castling needs a color" )
     {
-        CHECK( !parseMove ("o-o", Color::None).has_value() );
-        CHECK( !parseMove ("o-o-o", Color::None).has_value() );
+        CHECK( !parseMove ("o-o", nullopt).has_value() );
+        CHECK( !parseMove ("o-o-o", nullopt).has_value() );
     }
 
     SUBCASE( "Invalid moves are rejected" )

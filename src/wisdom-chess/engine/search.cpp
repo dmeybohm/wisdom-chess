@@ -108,7 +108,7 @@ namespace wisdom
         int64_t my_total_alpha_beta_cutoffs = 0;
         int64_t my_quiescence_nodes_visited = 0;
         int64_t my_total_quiescence_nodes_visited = 0;
-        Color my_searching_color = Color::None;
+        optional<Color> my_searching_color;
 
         // Counts the nodes that ended in a draw score. A node compares this
         // against the value it saw before searching its children, to find out
@@ -206,7 +206,7 @@ namespace wisdom
         if (ply > 0 && isProbablyDrawingMove (parent_board, my_history, my_draw_limits))
         {
             my_draw_nodes++;
-            return drawingScore (my_searching_color, side);
+            return drawingScore (*my_searching_color, side);
         }
 
         if (depth <= 0)
@@ -337,7 +337,7 @@ namespace wisdom
             && isProbablyDrawingMove (board, my_history, my_draw_limits))
         {
             my_draw_nodes++;
-            return drawingScore (my_searching_color, side);
+            return drawingScore (*my_searching_color, side);
         }
 
         bool in_check = isKingThreatened (board, side, board.getKingPosition (side));

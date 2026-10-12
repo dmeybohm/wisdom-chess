@@ -24,19 +24,84 @@ namespace wisdom
     }
     static_assert (sizeof (optional<Piece>) == sizeof (Piece));
 
-    inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
+    inline constexpr int Num_Piece_Types = to_int (Piece::King) - to_int (Piece::Pawn) + 1;
 
-    enum class Color : int8_t
+    using ColorIndex = int8_t;
+
+    // White or Black. A class rather than an enum, so that a Color cannot
+    // be made from zero or another integer: its constructors are private,
+    // and only the White and Black constants and NullRepresentation use
+    // them. Code that stores a color as bits decodes it by choosing between
+    // the constants.
+    class Color
     {
-        None = 0,
-        White = 1,
-        Black = 2,
+    public:
+        enum class Value : int8_t
+        {
+            White = 1,
+            Black = 2,
+        };
+
+        static const Color White;
+        static const Color Black;
+
+        // For a switch, and comparisons, over the colors.
+        constexpr operator Value() const noexcept
+        {
+            return my_value;
+        }
+
+        // The value, for to_int(). Explicit so it does not leak into
+        // arithmetic.
+        template <std::signed_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
+        {
+            return widen<Target> (to_underlying (my_value));
+        }
+
+        // Zero, which neither color has, marks an empty optional<Color>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> Color
+            {
+                return Color {};
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Color color) noexcept
+                -> bool
+            {
+                return color.my_value == Value {};
+            }
+        };
+
+    private:
+        constexpr Color() noexcept
+            : my_value {}
+        {
+        }
+
+        constexpr explicit Color (Value value) noexcept
+            : my_value { value }
+        {
+        }
+
+        Value my_value;
     };
+
+    inline constexpr Color Color::White { Color::Value::White };
+    inline constexpr Color Color::Black { Color::Value::Black };
+
+    static_assert (sizeof (Color) == 1);
+    static_assert (sizeof (optional<Color>) == sizeof (Color));
+    static_assert (!std::is_default_constructible_v<Color>);
+    static_assert (!std::is_constructible_v<Color, Color::Value>);
 
     inline constexpr int Color_Index_White = 0;
     inline constexpr int Color_Index_Black = 1;
-
-    using ColorIndex = int8_t;
 
     [[nodiscard]] constexpr auto
     pieceFromInt8 (int8_t integer) noexcept
@@ -54,40 +119,10 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt8 (int8_t integer) noexcept
-        -> Color
-    {
-        ASSERT( integer >= to_int (Color::None) && integer <= to_int (Color::Black) );
-        return to_enum_debug<Color> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
-    colorFromInt (int integer) noexcept
-        -> Color
-    {
-        return to_enum_debug<Color> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
-    colorFromColorIndex (ColorIndex index) noexcept
-        -> Color
-    {
-        ASSERT( index == Color_Index_White || index == Color_Index_Black );
-        return to_enum_debug<Color> (index + 1);
-    }
-
-    [[nodiscard]] constexpr auto
-    isColorValid (Color who) noexcept
-        -> bool
-    {
-        return (who == Color::White || who == Color::Black);
-    }
-
-    [[nodiscard]] constexpr auto
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
-        ASSERT( who == Color::White || who == Color::Black );
+        EXPECTS( who == Color::White || who == Color::Black );
         return narrow_debug<int8_t> (to_int (who) - 1);
     }
 
@@ -95,9 +130,7 @@ namespace wisdom
     colorInvert (Color who) noexcept
         -> Color
     {
-        ASSERT( isColorValid (who) );
-        uint8_t inverted = !colorIndex (who);
-        return colorFromColorIndex (narrow_debug<int8_t> (inverted));
+        return who == Color::White ? Color::Black : Color::White;
     }
 
     [[nodiscard]] constexpr auto
@@ -106,15 +139,22 @@ namespace wisdom
     {
         auto piece_as_int = to_underlying (piece);
         ASSERT( piece_as_int >= to_int (Piece::Pawn) && piece_as_int <= to_int (Piece::King) );
-        return piece_as_int;
+        return piece_as_int - to_int (Piece::Pawn);
     }
 
     // 3 bits for type of piece
     inline constexpr int8_t Piece_Type_Mask = 0x08 - 1;
 
-    // 2 bits for color
-    inline constexpr int8_t Piece_Color_Mask = 0x18;
+    // 2 bits for color, above the type
     inline constexpr int8_t Piece_Color_Shift = 3;
+
+    // The bits a color occupies in a ColoredPiece.
+    [[nodiscard]] constexpr auto
+    colorBits (Color who) noexcept
+        -> int8_t
+    {
+        return narrow_debug<int8_t> (to_int (who) << Piece_Color_Shift);
+    }
 
     struct ColoredPiece
     {
@@ -152,13 +192,11 @@ namespace wisdom
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
-            ASSERT( isColorValid (color) );
+            EXPECTS( color == Color::White || color == Color::Black );
             ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
-            auto color_as_int = to_int (color);
             auto piece_as_int = to_int (piece_type);
-            auto result = narrow_debug<int8_t>(
-                (color_as_int << Piece_Color_Shift) |
-                    (piece_as_int & Piece_Type_Mask)
+            auto result = narrow_debug<int8_t> (
+                colorBits (color) | (piece_as_int & Piece_Type_Mask)
             );
             ColoredPiece piece_with_color = { .piece_type_and_color = result };
             return piece_with_color;
@@ -168,10 +206,7 @@ namespace wisdom
         color() const noexcept
             -> Color
         {
-            auto result = narrow_debug<int8_t> (
-                (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
-            );
-            return colorFromInt8 (result);
+            return (piece_type_and_color & colorBits (Color::Black)) ? Color::Black : Color::White;
         }
 
         [[nodiscard]] constexpr auto
@@ -271,9 +306,8 @@ namespace wisdom
                 return 'N';
             case Piece::Pawn:
                 return 'p';
-            default:
-                return '?';
         }
+        PRECONDITION_FAILED( "a piece type" );
     }
 
     [[nodiscard]] constexpr auto
