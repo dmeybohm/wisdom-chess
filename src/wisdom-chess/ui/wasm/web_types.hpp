@@ -39,12 +39,11 @@ namespace wisdom
     mapColor (wisdom::Color color)
         -> WebColor
     {
-        using enum Color;
         switch (color)
         {
-            case White:
+            case Color::White:
                 return WebColor::White;
-            case Black:
+            case Color::Black:
                 return WebColor::Black;
             default:
                 PRECONDITION_FAILED( "a valid color" );

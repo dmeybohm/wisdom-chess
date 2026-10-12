@@ -26,20 +26,73 @@ namespace wisdom
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
 
-    // Starts at one, so an empty optional<Color> is zero.
-    enum class Color : int8_t
+    // White or Black. A class rather than an enum, so that a Color cannot
+    // be made from zero or another integer: Color {} does not compile.
+    class Color
     {
-        White = 1,
-        Black = 2,
+    public:
+        enum class Value : int8_t
+        {
+            White = 1,
+            Black = 2,
+        };
+
+        static const Color White;
+        static const Color Black;
+
+        constexpr Color (Value value) noexcept
+            : my_value { value }
+        {
+        }
+
+        // For a switch, and comparisons, over the colors.
+        constexpr operator Value() const noexcept
+        {
+            return my_value;
+        }
+
+        // The value, for to_int(). Explicit so it does not leak into
+        // arithmetic.
+        template <std::signed_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
+        {
+            return widen<Target> (to_underlying (my_value));
+        }
+
+        // Zero, which neither color has, marks an empty optional<Color>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> Color
+            {
+                return Color {};
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Color color) noexcept
+                -> bool
+            {
+                return color.my_value == Value {};
+            }
+        };
+
+    private:
+        constexpr Color() noexcept
+            : my_value {}
+        {
+        }
+
+        Value my_value;
     };
 
-    [[nodiscard]] constexpr auto
-    nullRepresentation (std::type_identity<Color>) noexcept
-        -> Color
-    {
-        return Color {};
-    }
+    inline constexpr Color Color::White { Color::Value::White };
+    inline constexpr Color Color::Black { Color::Value::Black };
+
+    static_assert (sizeof (Color) == 1);
     static_assert (sizeof (optional<Color>) == sizeof (Color));
+    static_assert (!std::is_default_constructible_v<Color>);
 
     inline constexpr int Color_Index_White = 0;
     inline constexpr int Color_Index_Black = 1;
@@ -66,7 +119,7 @@ namespace wisdom
         -> Color
     {
         ASSERT( integer >= to_int (Color::White) && integer <= to_int (Color::Black) );
-        return to_enum_debug<Color> (integer);
+        return Color { to_enum_debug<Color::Value> (integer) };
     }
 
     [[nodiscard]] constexpr auto
@@ -74,7 +127,7 @@ namespace wisdom
         -> Color
     {
         ASSERT( index == Color_Index_White || index == Color_Index_Black );
-        return to_enum_debug<Color> (index + 1);
+        return Color { to_enum_debug<Color::Value> (index + 1) };
     }
 
     [[nodiscard]] constexpr auto

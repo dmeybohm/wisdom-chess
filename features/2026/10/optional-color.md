@@ -68,3 +68,16 @@ longer needs a case for it.
   as Black, a wrong but in-range answer, and are left as they are.
 - Debug: 329 tests pass, three new fatal cases. The WASM build passes
   its 261 tests.
+- `Color` is a class instead of an enum, so `Color {}` and `Color { 5 }`
+  no longer compile. It holds a nested `enum class Value` and converts
+  to it implicitly, so `switch (who)` with `case Color::White:` and
+  comparisons work as before; `Color::White` and `Color::Black` are
+  `Color` constants. Its default constructor is private, and its nested
+  `NullRepresentation` uses it to make the zero value of an empty
+  `optional<Color>`. An explicit conversion template serves `to_int()`.
+- The frontends' `using enum Color` switches name `Color::White` and
+  `Color::Black` instead. A QML test read `Color` signal arguments with
+  `QVariant::value()`, which default-constructs; it uses `get_if` now.
+- The three fatal tests make their invalid color with a `std::bit_cast`
+  of zero, standing in for corrupt memory, the only way left to get one.
+- Debug: 329 tests pass, and `lint` is clean.
