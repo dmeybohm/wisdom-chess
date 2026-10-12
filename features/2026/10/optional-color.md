@@ -72,9 +72,14 @@ longer needs a case for it.
   no longer compile. It holds a nested `enum class Value` and converts
   to it implicitly, so `switch (who)` with `case Color::White:` and
   comparisons work as before; `Color::White` and `Color::Black` are
-  `Color` constants. Its default constructor is private, and its nested
-  `NullRepresentation` uses it to make the zero value of an empty
-  `optional<Color>`. An explicit conversion template serves `to_int()`.
+  `Color` constants. Both constructors are private: the one from
+  `Value`, so that `Color::Value {}` or a cast cannot become a `Color`,
+  and the default one, which the nested `NullRepresentation` uses to
+  make the zero value of an empty `optional<Color>`. The only other
+  callers are `colorFromInt8()` and `colorFromColorIndex()`, as
+  friends; their inputs come from a `ColoredPiece` that `make()`
+  checked and from a one-bit index. An explicit conversion template
+  serves `to_int()`.
 - The frontends' `using enum Color` switches name `Color::White` and
   `Color::Black` instead. A QML test read `Color` signal arguments with
   `QVariant::value()`, which default-constructs; it uses `get_if` now.

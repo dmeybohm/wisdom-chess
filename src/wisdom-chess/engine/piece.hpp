@@ -26,8 +26,12 @@ namespace wisdom
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
 
+    using ColorIndex = int8_t;
+
     // White or Black. A class rather than an enum, so that a Color cannot
-    // be made from zero or another integer: Color {} does not compile.
+    // be made from zero or another integer: its constructors are private,
+    // and only the constants, the conversions below and NullRepresentation
+    // use them.
     class Color
     {
     public:
@@ -39,11 +43,6 @@ namespace wisdom
 
         static const Color White;
         static const Color Black;
-
-        constexpr Color (Value value) noexcept
-            : my_value { value }
-        {
-        }
 
         // For a switch, and comparisons, over the colors.
         constexpr operator Value() const noexcept
@@ -84,6 +83,14 @@ namespace wisdom
         {
         }
 
+        constexpr explicit Color (Value value) noexcept
+            : my_value { value }
+        {
+        }
+
+        friend constexpr auto colorFromInt8 (int8_t integer) noexcept -> Color;
+        friend constexpr auto colorFromColorIndex (ColorIndex index) noexcept -> Color;
+
         Value my_value;
     };
 
@@ -93,11 +100,10 @@ namespace wisdom
     static_assert (sizeof (Color) == 1);
     static_assert (sizeof (optional<Color>) == sizeof (Color));
     static_assert (!std::is_default_constructible_v<Color>);
+    static_assert (!std::is_constructible_v<Color, Color::Value>);
 
     inline constexpr int Color_Index_White = 0;
     inline constexpr int Color_Index_Black = 1;
-
-    using ColorIndex = int8_t;
 
     [[nodiscard]] constexpr auto
     pieceFromInt8 (int8_t integer) noexcept
