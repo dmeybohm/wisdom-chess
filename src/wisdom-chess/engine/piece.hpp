@@ -156,10 +156,11 @@ namespace wisdom
         return narrow_debug<int8_t> (to_int (who) << Piece_Color_Shift);
     }
 
-    struct ColoredPiece
+    // A piece of either color. Built only by make(), so it always holds a
+    // valid color and type, and color() and type() need no check.
+    class ColoredPiece
     {
-        int8_t piece_type_and_color;
-
+    public:
         // Every piece has a color and type, so zero marks an empty
         // optional<ColoredPiece>, such as an empty square.
         struct NullRepresentation
@@ -168,14 +169,14 @@ namespace wisdom
             make() noexcept
                 -> ColoredPiece
             {
-                return ColoredPiece { .piece_type_and_color = 0 };
+                return ColoredPiece { 0 };
             }
 
             [[nodiscard]] static constexpr auto
             isNull (ColoredPiece piece) noexcept
                 -> bool
             {
-                return piece.piece_type_and_color == 0;
+                return piece.my_piece_type_and_color == 0;
             }
         };
 
@@ -185,7 +186,7 @@ namespace wisdom
         [[nodiscard]] constexpr explicit
         operator Target() const noexcept
         {
-            return widen<Target> (piece_type_and_color);
+            return widen<Target> (my_piece_type_and_color);
         }
 
         [[nodiscard]] static constexpr auto
@@ -195,18 +196,16 @@ namespace wisdom
             EXPECTS( color == Color::White || color == Color::Black );
             ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
             auto piece_as_int = to_int (piece_type);
-            auto result = narrow_debug<int8_t> (
-                colorBits (color) | (piece_as_int & Piece_Type_Mask)
-            );
-            ColoredPiece piece_with_color = { .piece_type_and_color = result };
-            return piece_with_color;
+            return ColoredPiece {
+                narrow_debug<int8_t> (colorBits (color) | (piece_as_int & Piece_Type_Mask))
+            };
         }
 
         [[nodiscard]] constexpr auto
         color() const noexcept
             -> Color
         {
-            return (piece_type_and_color & colorBits (Color::Black)) ? Color::Black : Color::White;
+            return (my_piece_type_and_color & colorBits (Color::Black)) ? Color::Black : Color::White;
         }
 
         [[nodiscard]] constexpr auto
@@ -214,7 +213,7 @@ namespace wisdom
             -> Piece
         {
             auto result = narrow_debug<int8_t>(
-                (piece_type_and_color & Piece_Type_Mask)
+                (my_piece_type_and_color & Piece_Type_Mask)
             );
             return pieceFromInt8 (result);
         }
@@ -223,7 +222,7 @@ namespace wisdom
         operator== (ColoredPiece first, ColoredPiece second) noexcept
             -> bool
         {
-            return first.piece_type_and_color == second.piece_type_and_color;
+            return first.my_piece_type_and_color == second.my_piece_type_and_color;
         }
 
         [[nodiscard]] friend constexpr auto
@@ -232,8 +231,18 @@ namespace wisdom
         {
             return !operator== (first, second);
         }
+
+    private:
+        constexpr explicit ColoredPiece (int8_t piece_type_and_color) noexcept
+            : my_piece_type_and_color { piece_type_and_color }
+        {
+        }
+
+        int8_t my_piece_type_and_color;
     };
-    static_assert (std::is_trivial_v<ColoredPiece>);
+    static_assert (std::is_trivially_copyable_v<ColoredPiece>);
+    static_assert (!std::is_default_constructible_v<ColoredPiece>);
+    static_assert (!std::is_constructible_v<ColoredPiece, int8_t>);
     static_assert (sizeof (optional<ColoredPiece>) == sizeof (ColoredPiece));
 
     // Order here is significant - it means computer will prefer the piece at the top
