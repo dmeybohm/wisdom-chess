@@ -24,7 +24,7 @@ namespace wisdom
     }
     static_assert (sizeof (optional<Piece>) == sizeof (Piece));
 
-    inline constexpr int Num_Piece_Types = to_int (Piece::King) + 1;
+    inline constexpr int Num_Piece_Types = to_int (Piece::King) - to_int (Piece::Pawn) + 1;
 
     using ColorIndex = int8_t;
 
@@ -139,7 +139,7 @@ namespace wisdom
     {
         auto piece_as_int = to_underlying (piece);
         ASSERT( piece_as_int >= to_int (Piece::Pawn) && piece_as_int <= to_int (Piece::King) );
-        return piece_as_int;
+        return piece_as_int - to_int (Piece::Pawn);
     }
 
     // 3 bits for type of piece
@@ -306,9 +306,8 @@ namespace wisdom
                 return 'N';
             case Piece::Pawn:
                 return 'p';
-            default:
-                return '?';
         }
+        std::terminate();
     }
 
     [[nodiscard]] constexpr auto

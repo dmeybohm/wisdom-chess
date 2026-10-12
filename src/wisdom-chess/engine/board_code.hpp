@@ -22,7 +22,7 @@ namespace wisdom
     zobristPieceIndex (Color piece_color, Piece piece_type) noexcept
         -> int
     {
-        return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
+        return colorIndex (piece_color) * Num_Piece_Types + pieceIndex (piece_type);
     }
 
     inline constexpr int Total_Metadata_Bits = 16;

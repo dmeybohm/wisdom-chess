@@ -557,6 +557,15 @@ TEST_CASE( "Zobrist piece index mapping" )
         }
     }
 
+    SUBCASE( "Filling the table in order gives the engine's table" )
+    {
+        // The seed optimizer builds its trial tables this way, so it scores
+        // the keys the engine uses only when no slot is skipped.
+        CompileTimeRandom random;
+        for (std::size_t i = 0; i < Zobrist_Table_Size; i++)
+            CHECK( Hash_Code_Table[i] == zobristKey (&random) );
+    }
+
     SUBCASE( "Different colored pieces at same square have different hashes" )
     {
         Coord h3 = toCoord ("h3");

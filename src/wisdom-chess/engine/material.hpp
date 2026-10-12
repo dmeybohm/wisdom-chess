@@ -44,7 +44,7 @@ namespace wisdom
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
-            auto type_idx = to_int (type);
+            auto type_idx = pieceIndex (type);
 
             my_score[color_idx] += weight (type);
             my_piece_count[color_idx][type_idx]++;
@@ -56,7 +56,7 @@ namespace wisdom
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
-            auto type_idx = to_int (type);
+            auto type_idx = pieceIndex (type);
 
             my_score[color_idx] -= weight (type);
             my_piece_count[color_idx][type_idx]--;
@@ -86,7 +86,7 @@ namespace wisdom
             -> int
         {
             auto color_idx = colorIndex (who);
-            auto type_idx = to_int (type);
+            auto type_idx = pieceIndex (type);
 
             return my_piece_count[color_idx][type_idx];
         }
