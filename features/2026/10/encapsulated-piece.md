@@ -67,7 +67,12 @@ hold what `make()` put there.
   `nullRepresentation()` hook, so the empty value of `Move`, `Coord`,
   `ColoredPiece`, `Piece` and `Color` can only come from an empty
   optional. `optional_test.cpp` checks that for each, and a control
-  build with the members public confirmed the check can fail.
+  build with the members public confirmed the check can fail. The
+  first version also tried `make (NullRepresentationKey {})` inside the
+  concept; that expression does not depend on `T`, so Clang rejects it
+  as an error rather than an unsatisfied requirement, which broke the
+  Clang builds. That path is covered by the key not being
+  constructible instead.
 - Dereferencing an empty optional with `*` still yields the stored
   value: it asserts only in Debug, like `std::optional`'s undefined
   behavior, and a Release check there would cost a branch on every

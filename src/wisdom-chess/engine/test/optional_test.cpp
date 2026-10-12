@@ -49,13 +49,11 @@ namespace
         };
     };
 
-    // Whether code outside the optional can make a type's empty value.
+    // Whether code outside the optional can reach a type's empty value
+    // through the optional's access to it. A type's own make() needs a
+    // NullRepresentationKey, which cannot be created here either.
     template <typename T>
-    concept EmptyValueReachable = requires {
-        NullRepresentationOf<T>::make();
-    } || requires {
-        T::NullRepresentation::make (NullRepresentationKey {});
-    };
+    concept EmptyValueReachable = requires { NullRepresentationOf<T>::make(); };
 }
 
 static_assert (std::is_same_v<optional<Move>, compact_optional<Move>>);
