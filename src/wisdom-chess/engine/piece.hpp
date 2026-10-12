@@ -51,7 +51,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> Piece
             {
                 return Piece {};
@@ -133,7 +133,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> Color
             {
                 return Color {};
@@ -191,6 +191,7 @@ namespace wisdom
     pieceIndex (Piece piece) noexcept
         -> int
     {
+        ASSERT( piece >= Piece::Pawn && piece <= Piece::King );
         return to_int (piece) - to_int (Piece::Pawn);
     }
 
@@ -218,7 +219,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> ColoredPiece
             {
                 return ColoredPiece { 0 };

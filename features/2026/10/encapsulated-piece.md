@@ -53,3 +53,24 @@ hold what `make()` put there.
 - `ColoredPiece` encapsulated, then `Piece` made a class.
 - Debug build with QML, tools, benchmarks and slow tests: every
   non-slow test passes, and `lint` is clean.
+
+### Session #2
+
+- Review: `NullRepresentation::make()` was public, so
+  `Piece::NullRepresentation::make()` gave the zero `Piece` without a
+  cast, and `pieceIndex()` turned it into -1. `make()` now takes a
+  `NullRepresentationKey`, which only `compact_optional` and
+  `NullRepresentationOf` can create, and `NullRepresentationOf`'s
+  members are private to `compact_optional`. The concept still finds
+  `make()` through `std::declval`, which needs no access. Every type
+  with a null representation takes the key, as does the enum
+  `nullRepresentation()` hook, so the empty value of `Move`, `Coord`,
+  `ColoredPiece`, `Piece` and `Color` can only come from an empty
+  optional. `optional_test.cpp` checks that for each, and a control
+  build with the members public confirmed the check can fail.
+- Dereferencing an empty optional with `*` still yields the stored
+  value: it asserts only in Debug, like `std::optional`'s undefined
+  behavior, and a Release check there would cost a branch on every
+  `*board.pieceAt (...)`. `value()` is the checked form.
+- `pieceIndex()` asserts its range again, in Debug.
+- Debug: every non-slow test passes, and `lint` is clean.

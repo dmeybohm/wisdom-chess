@@ -88,7 +88,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> Move
             {
                 return Move { .data = 0 };

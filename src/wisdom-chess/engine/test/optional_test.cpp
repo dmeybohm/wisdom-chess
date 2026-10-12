@@ -18,7 +18,7 @@ namespace
     };
 
     [[nodiscard]] constexpr auto
-    nullRepresentation (std::type_identity<Shade>) noexcept
+    nullRepresentation (std::type_identity<Shade>, NullRepresentationKey) noexcept
         -> Shade
     {
         return Shade {};
@@ -34,7 +34,7 @@ namespace
         struct NullRepresentation
         {
             static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> WithPrivateNullRepresentation
             {
                 return {};
@@ -47,6 +47,14 @@ namespace
                 return true;
             }
         };
+    };
+
+    // Whether code outside the optional can make a type's empty value.
+    template <typename T>
+    concept EmptyValueReachable = requires {
+        NullRepresentationOf<T>::make();
+    } || requires {
+        T::NullRepresentation::make (NullRepresentationKey {});
     };
 }
 
@@ -63,6 +71,12 @@ static_assert (std::is_same_v<
     std::optional<WithoutNullRepresentation>
 >);
 static_assert (!HasNullRepresentation<WithPrivateNullRepresentation>);
+static_assert (!std::is_default_constructible_v<NullRepresentationKey>);
+static_assert (!EmptyValueReachable<Move>);
+static_assert (!EmptyValueReachable<Coord>);
+static_assert (!EmptyValueReachable<ColoredPiece>);
+static_assert (!EmptyValueReachable<Piece>);
+static_assert (!EmptyValueReachable<Color>);
 static_assert (std::is_trivially_copyable_v<optional<Move>>);
 static_assert (std::is_trivially_copyable_v<optional<Coord>>);
 
