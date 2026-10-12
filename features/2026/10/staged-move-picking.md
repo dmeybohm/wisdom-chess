@@ -241,3 +241,37 @@ alternating rounds.
 - Item 6 of [improvement-suggestions.md](../09/improvement-suggestions.md)
   stays open: the staged picker was not built, and Session #3 puts its
   likely gain beyond this change at a few percent.
+
+### Session #5
+
+- How the walk's cost divides between finding the side's pieces and
+  generating their moves, to decide whether a piece list is worth its
+  own item. Two ceiling builds from copies of this branch at
+  `49d012b2`, each repeating part of the work in the function that
+  fills a list. **Scan** walks the 64 squares a second time and finds
+  the side's pieces, with an empty `asm volatile` and a memory clobber
+  at each piece in place of the `generate()` call, so the loop cannot
+  be vectorized into something cheaper than the real one. **Walk**
+  generates every move a second time, scan included, into a list
+  behind the same barrier. `hasLegalMove()` and the evaluation are not
+  repeated, though both walk the board as well.
+- `--search-report 8`, seven alternating rounds pinned to one core,
+  under the same load guard as Session #4. Every run gave the same
+  counts as `main`.
+
+| Build | Total | starting | kiwipete | italian | position3 | position4 | middlegame |
+|---|---|---|---|---|---|---|---|
+| this branch | 54.63s | 1.378 | 8.223 | 11.452 | 0.225 | 3.260 | 30.126 |
+| scan, twice | 61.52s (+12.6%) | 1.545 | 8.952 | 12.752 | 0.256 | 3.595 | 34.429 |
+| walk, twice | 75.36s (+37.9%) | 1.950 | 10.586 | 15.469 | 0.285 | 4.267 | 42.759 |
+
+  The ranges did not overlap: 54.51 to 56.06s, 61.26 to 62.22s and
+  75.08 to 76.83s.
+- Of the 20.7s a second walk adds, 6.9s is finding the pieces and
+  13.8s generating their moves. A piece list could save up to about
+  12%, less what keeping it up to date in `withMove()` and copying it
+  with the board would cost. Generating the moves of the pieces found
+  is twice as much, and a piece list does not touch it.
+- A repeated call finds the board and the generator's code in the
+  cache, so both ceilings may understate the first call's cost.
+
