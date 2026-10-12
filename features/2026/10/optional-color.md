@@ -54,3 +54,17 @@ longer needs a case for it.
 - `isColorValid()` and `colorFromInt()` removed, as above. Debug: every
   non-slow test passes (326, five fatal cases fewer), and `lint` is
   clean.
+
+### Session #3
+
+- The WASM bindings still passed a color to `findBestMove()`; the call
+  spans several lines, so the search for callers missed it.
+- `colorIndex()`, `ColoredPiece::make()` and `pawnDirection()` check
+  their color with `EXPECTS`, in Release too. They are where a zero
+  color does harm: `colorIndex()` returns -1, an index below every
+  per-color array; `make()` stores a piece whose color is neither White
+  nor Black; and `pawnDirection()` returns -3, moving a pawn off the
+  board. Functions that only compare against `Color::White` treat zero
+  as Black, a wrong but in-range answer, and are left as they are.
+- Debug: 329 tests pass, three new fatal cases. The WASM build passes
+  its 261 tests.

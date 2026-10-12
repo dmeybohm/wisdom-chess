@@ -328,7 +328,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        ASSERT( color == Color::Black || color == Color::White );
+        EXPECTS( color == Color::Black || color == Color::White );
         auto color_as_int = to_int (color);
         return narrow_debug<IntegerType> (-1 + 2 * (color_as_int - 1));
     }

@@ -28,6 +28,33 @@ namespace
     }
 
     FATAL_CASE(
+        "color-index-without-color",
+        "Precondition failed at .*piece\\.hpp:[0-9]+: who == Color::White \\|\\| who == Color::Black"
+    )
+    {
+        Color volatile color = Color {};
+        [[maybe_unused]] auto index = colorIndex (color);
+    }
+
+    FATAL_CASE(
+        "colored-piece-without-color",
+        "Precondition failed at .*piece\\.hpp:[0-9]+: color == Color::White \\|\\| color == Color::Black"
+    )
+    {
+        Color volatile color = Color {};
+        [[maybe_unused]] auto piece = ColoredPiece::make (color, Piece::Pawn);
+    }
+
+    FATAL_CASE(
+        "pawn-direction-without-color",
+        "Precondition failed at .*coord\\.hpp:[0-9]+: color == Color::Black \\|\\| color == Color::White"
+    )
+    {
+        Color volatile color = Color {};
+        [[maybe_unused]] auto direction = pawnDirection (color);
+    }
+
+    FATAL_CASE(
         "board-builder-invalid-coordinate",
         "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
     )

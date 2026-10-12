@@ -81,6 +81,7 @@ namespace wisdom
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
+        EXPECTS( who == Color::White || who == Color::Black );
         return narrow_debug<int8_t> (to_int (who) - 1);
     }
 
@@ -144,6 +145,7 @@ namespace wisdom
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
+            EXPECTS( color == Color::White || color == Color::Black );
             ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
             auto color_as_int = to_int (color);
             auto piece_as_int = to_int (piece_type);
