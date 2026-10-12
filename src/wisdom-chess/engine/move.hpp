@@ -241,6 +241,18 @@ namespace wisdom
             return data;
         }
 
+        // Whether the move is one this class's own functions could make: two
+        // different squares, and a kind that names a move. Says nothing of
+        // whether it is legal.
+        [[nodiscard]] constexpr auto
+        isWellFormed() const noexcept
+            -> bool
+        {
+            auto promotion_kinds = std::ssize (All_Promotable_Piece_Types);
+            return getSrc() != getDst()
+                && getCombined() < Combined_Promote_Capture_Base + promotion_kinds;
+        }
+
         [[nodiscard]] constexpr auto
         getSrc() const noexcept
             -> Coord
@@ -388,6 +400,23 @@ namespace wisdom
         -> bool
     {
         return a.data != b.data;
+    }
+
+    // Reads a packed move from outside the program, such as a number passed
+    // through JavaScript: empty unless it is one Move::toPacked() could
+    // give. Move::fromPacked() is for the program's own.
+    [[nodiscard]] constexpr auto
+    parsePackedMove (int packed_move) noexcept
+        -> optional<Move>
+    {
+        if (packed_move < 0 || packed_move > std::numeric_limits<uint16_t>::max())
+            return nullopt;
+
+        auto move = Move::fromPacked (packed_move);
+        if (!move.isWellFormed())
+            return nullopt;
+
+        return move;
     }
 
     // Parse a move. Returns empty if the parse failed, including a castling

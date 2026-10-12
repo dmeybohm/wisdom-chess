@@ -185,8 +185,12 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
 EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
 {
     auto game = GameState::getGame();
-    auto unpacked_move = Move::fromPacked (packed_move);
-    game->move (unpacked_move);
+
+    // The main thread sends only moves it made, so a bad one is our bug,
+    // and playing it would leave the two games apart.
+    auto move = parsePackedMove (packed_move);
+    EXPECTS( move.has_value() );
+    game->move (*move);
 
     startSearch();
 }
@@ -232,8 +236,9 @@ mainThreadReceiveMove (
     if (game_id != GameModel::currentGameId())
         return;
 
-    Move unpacked_move = Move::fromPacked (packed_move);
-    std::string str = asString (unpacked_move);
+    auto move = parsePackedMove (packed_move);
+    EXPECTS( move.has_value() );
+    std::string str = asString (*move);
     receiveMoveFromWorker (game_id, str.c_str());
 }
 
