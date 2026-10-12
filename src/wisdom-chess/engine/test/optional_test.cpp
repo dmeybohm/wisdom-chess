@@ -9,6 +9,21 @@ using namespace wisdom;
 
 namespace
 {
+    // An enum, which cannot nest a NullRepresentation, opting in through
+    // the function instead.
+    enum class Shade : int8_t
+    {
+        Light = 1,
+        Dark = 2,
+    };
+
+    [[nodiscard]] constexpr auto
+    nullRepresentation (std::type_identity<Shade>) noexcept
+        -> Shade
+    {
+        return Shade {};
+    }
+
     struct WithoutNullRepresentation
     {
         int8_t value;
@@ -39,6 +54,8 @@ static_assert (std::is_same_v<optional<Move>, compact_optional<Move>>);
 static_assert (std::is_same_v<optional<Coord>, compact_optional<Coord>>);
 static_assert (std::is_same_v<optional<ColoredPiece>, compact_optional<ColoredPiece>>);
 static_assert (std::is_same_v<optional<Piece>, compact_optional<Piece>>);
+static_assert (std::is_same_v<optional<Shade>, compact_optional<Shade>>);
+static_assert (sizeof (optional<Shade>) == sizeof (Shade));
 static_assert (std::is_same_v<optional<Color>, compact_optional<Color>>);
 static_assert (std::is_same_v<optional<int>, std::optional<int>>);
 static_assert (std::is_same_v<
@@ -109,11 +126,11 @@ TEST_CASE( "A compact optional" )
 
     SUBCASE( "of an enum uses its nullRepresentation() function" )
     {
-        optional<Piece> empty;
+        optional<Shade> empty;
         CHECK( !empty.has_value() );
 
-        optional<Piece> pawn = Piece::Pawn;
-        REQUIRE( pawn.has_value() );
-        CHECK( *pawn == Piece::Pawn );
+        optional<Shade> dark = Shade::Dark;
+        REQUIRE( dark.has_value() );
+        CHECK( *dark == Shade::Dark );
     }
 }

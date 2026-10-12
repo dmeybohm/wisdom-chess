@@ -147,20 +147,19 @@ namespace wisdom::ui
     mapPiece (wisdom::Piece piece)
         -> ui::PieceType
     {
-        using enum wisdom::Piece;
         switch (piece)
         {
-            case Pawn:
+            case wisdom::Piece::Pawn:
                 return PieceType::Pawn;
-            case Knight:
+            case wisdom::Piece::Knight:
                 return PieceType::Knight;
-            case Bishop:
+            case wisdom::Piece::Bishop:
                 return PieceType::Bishop;
-            case Rook:
+            case wisdom::Piece::Rook:
                 return PieceType::Rook;
-            case Queen:
+            case wisdom::Piece::Queen:
                 return PieceType::Queen;
-            case King:
+            case wisdom::Piece::King:
                 return PieceType::King;
             default:
                 PRECONDITION_FAILED( "a piece type" );

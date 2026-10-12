@@ -4,25 +4,94 @@
 
 namespace wisdom
 {
-    // Starts at one, so an empty optional<Piece> or optional<ColoredPiece>
-    // is zero.
-    enum class Piece : int8_t
+    class ColoredPiece;
+
+    // A piece type. A class rather than an enum, like Color, so that a
+    // Piece cannot be made from zero or another integer: its constructors
+    // are private, and only the constants, NullRepresentation and
+    // ColoredPiece, which decodes its type bits, use them.
+    class Piece
     {
-        Pawn = 1,
-        Knight,
-        Bishop,
-        Rook,
-        Queen,
-        King
+    public:
+        // Starts at one, so an empty optional<Piece> or optional<ColoredPiece>
+        // is zero.
+        enum class Value : int8_t
+        {
+            Pawn = 1,
+            Knight,
+            Bishop,
+            Rook,
+            Queen,
+            King
+        };
+
+        static const Piece Pawn;
+        static const Piece Knight;
+        static const Piece Bishop;
+        static const Piece Rook;
+        static const Piece Queen;
+        static const Piece King;
+
+        // For a switch, and comparisons, over the piece types.
+        constexpr operator Value() const noexcept
+        {
+            return my_value;
+        }
+
+        // The value, for to_int(). Explicit so it does not leak into
+        // arithmetic.
+        template <std::signed_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
+        {
+            return widen<Target> (to_underlying (my_value));
+        }
+
+        // Zero, which no piece type has, marks an empty optional<Piece>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make() noexcept
+                -> Piece
+            {
+                return Piece {};
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Piece piece) noexcept
+                -> bool
+            {
+                return piece.my_value == Value {};
+            }
+        };
+
+    private:
+        constexpr Piece() noexcept
+            : my_value {}
+        {
+        }
+
+        constexpr explicit Piece (Value value) noexcept
+            : my_value { value }
+        {
+        }
+
+        friend class ColoredPiece;
+
+        Value my_value;
     };
 
-    [[nodiscard]] constexpr auto
-    nullRepresentation (std::type_identity<Piece>) noexcept
-        -> Piece
-    {
-        return Piece {};
-    }
+    inline constexpr Piece Piece::Pawn { Piece::Value::Pawn };
+    inline constexpr Piece Piece::Knight { Piece::Value::Knight };
+    inline constexpr Piece Piece::Bishop { Piece::Value::Bishop };
+    inline constexpr Piece Piece::Rook { Piece::Value::Rook };
+    inline constexpr Piece Piece::Queen { Piece::Value::Queen };
+    inline constexpr Piece Piece::King { Piece::Value::King };
+
+    static_assert (sizeof (Piece) == 1);
     static_assert (sizeof (optional<Piece>) == sizeof (Piece));
+    static_assert (!std::is_default_constructible_v<Piece>);
+    static_assert (!std::is_constructible_v<Piece, Piece::Value>);
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) - to_int (Piece::Pawn) + 1;
 
@@ -104,21 +173,6 @@ namespace wisdom
     inline constexpr int Color_Index_Black = 1;
 
     [[nodiscard]] constexpr auto
-    pieceFromInt8 (int8_t integer) noexcept
-        -> Piece
-    {
-        ASSERT( integer >= to_int (Piece::Pawn) && integer <= to_int (Piece::King) );
-        return to_enum_debug<Piece> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
-    pieceFromInt (int integer) noexcept
-        -> Piece
-    {
-        return to_enum_debug<Piece> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
@@ -137,9 +191,7 @@ namespace wisdom
     pieceIndex (Piece piece) noexcept
         -> int
     {
-        auto piece_as_int = to_underlying (piece);
-        ASSERT( piece_as_int >= to_int (Piece::Pawn) && piece_as_int <= to_int (Piece::King) );
-        return piece_as_int - to_int (Piece::Pawn);
+        return to_int (piece) - to_int (Piece::Pawn);
     }
 
     // 3 bits for type of piece
@@ -212,10 +264,8 @@ namespace wisdom
         type() const noexcept
             -> Piece
         {
-            auto result = narrow_debug<int8_t>(
-                (my_piece_type_and_color & Piece_Type_Mask)
-            );
-            return pieceFromInt8 (result);
+            auto bits = narrow_debug<int8_t> (my_piece_type_and_color & Piece_Type_Mask);
+            return Piece { to_enum_debug<Piece::Value> (bits) };
         }
 
         [[nodiscard]] friend constexpr auto
