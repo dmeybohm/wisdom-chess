@@ -49,7 +49,7 @@ namespace wisdom
             // clang-format on
         }
 
-        template <Piece sliding_piece>
+        template <Piece::Value sliding_piece>
         [[nodiscard]] constexpr auto
         checkSlidingThreats (int target_row, int target_col) const noexcept
             -> ThreatStatus
@@ -198,7 +198,7 @@ namespace wisdom
 
         // Walk one line from the king, stopping at the edge or the first
         // piece, and report a sliding piece or queen of the opponent on it.
-        template <Piece sliding_piece, int horiz_direction, int vert_direction>
+        template <Piece::Value sliding_piece, int horiz_direction, int vert_direction>
         [[nodiscard]] auto
         checkLineThreat() const noexcept
             -> bool

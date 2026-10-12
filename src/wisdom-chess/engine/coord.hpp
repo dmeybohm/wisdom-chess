@@ -32,7 +32,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> Coord
             {
                 return Coord { .row_and_col = -1 };

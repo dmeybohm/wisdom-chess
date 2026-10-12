@@ -4,25 +4,94 @@
 
 namespace wisdom
 {
-    // Starts at one, so an empty optional<Piece> or optional<ColoredPiece>
-    // is zero.
-    enum class Piece : int8_t
+    class ColoredPiece;
+
+    // A piece type. A class rather than an enum, like Color, so that a
+    // Piece cannot be made from zero or another integer: its constructors
+    // are private, and only the constants, NullRepresentation and
+    // ColoredPiece, which decodes its type bits, use them.
+    class Piece
     {
-        Pawn = 1,
-        Knight,
-        Bishop,
-        Rook,
-        Queen,
-        King
+    public:
+        // Starts at one, so an empty optional<Piece> or optional<ColoredPiece>
+        // is zero.
+        enum class Value : int8_t
+        {
+            Pawn = 1,
+            Knight,
+            Bishop,
+            Rook,
+            Queen,
+            King
+        };
+
+        static const Piece Pawn;
+        static const Piece Knight;
+        static const Piece Bishop;
+        static const Piece Rook;
+        static const Piece Queen;
+        static const Piece King;
+
+        // For a switch, and comparisons, over the piece types.
+        constexpr operator Value() const noexcept
+        {
+            return my_value;
+        }
+
+        // The value, for to_int(). Explicit so it does not leak into
+        // arithmetic.
+        template <std::signed_integral Target>
+        [[nodiscard]] constexpr explicit
+        operator Target() const noexcept
+        {
+            return widen<Target> (to_underlying (my_value));
+        }
+
+        // Zero, which no piece type has, marks an empty optional<Piece>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make (NullRepresentationKey) noexcept
+                -> Piece
+            {
+                return Piece {};
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Piece piece) noexcept
+                -> bool
+            {
+                return piece.my_value == Value {};
+            }
+        };
+
+    private:
+        constexpr Piece() noexcept
+            : my_value {}
+        {
+        }
+
+        constexpr explicit Piece (Value value) noexcept
+            : my_value { value }
+        {
+        }
+
+        friend class ColoredPiece;
+
+        Value my_value;
     };
 
-    [[nodiscard]] constexpr auto
-    nullRepresentation (std::type_identity<Piece>) noexcept
-        -> Piece
-    {
-        return Piece {};
-    }
+    inline constexpr Piece Piece::Pawn { Piece::Value::Pawn };
+    inline constexpr Piece Piece::Knight { Piece::Value::Knight };
+    inline constexpr Piece Piece::Bishop { Piece::Value::Bishop };
+    inline constexpr Piece Piece::Rook { Piece::Value::Rook };
+    inline constexpr Piece Piece::Queen { Piece::Value::Queen };
+    inline constexpr Piece Piece::King { Piece::Value::King };
+
+    static_assert (sizeof (Piece) == 1);
     static_assert (sizeof (optional<Piece>) == sizeof (Piece));
+    static_assert (!std::is_default_constructible_v<Piece>);
+    static_assert (!std::is_constructible_v<Piece, Piece::Value>);
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) - to_int (Piece::Pawn) + 1;
 
@@ -64,7 +133,7 @@ namespace wisdom
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> Color
             {
                 return Color {};
@@ -104,21 +173,6 @@ namespace wisdom
     inline constexpr int Color_Index_Black = 1;
 
     [[nodiscard]] constexpr auto
-    pieceFromInt8 (int8_t integer) noexcept
-        -> Piece
-    {
-        ASSERT( integer >= to_int (Piece::Pawn) && integer <= to_int (Piece::King) );
-        return to_enum_debug<Piece> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
-    pieceFromInt (int integer) noexcept
-        -> Piece
-    {
-        return to_enum_debug<Piece> (integer);
-    }
-
-    [[nodiscard]] constexpr auto
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
@@ -137,9 +191,8 @@ namespace wisdom
     pieceIndex (Piece piece) noexcept
         -> int
     {
-        auto piece_as_int = to_underlying (piece);
-        ASSERT( piece_as_int >= to_int (Piece::Pawn) && piece_as_int <= to_int (Piece::King) );
-        return piece_as_int - to_int (Piece::Pawn);
+        ASSERT( piece >= Piece::Pawn && piece <= Piece::King );
+        return to_int (piece) - to_int (Piece::Pawn);
     }
 
     // 3 bits for type of piece
@@ -156,26 +209,27 @@ namespace wisdom
         return narrow_debug<int8_t> (to_int (who) << Piece_Color_Shift);
     }
 
-    struct ColoredPiece
+    // A piece of either color. Built only by make(), so it always holds a
+    // valid color and type, and color() and type() need no check.
+    class ColoredPiece
     {
-        int8_t piece_type_and_color;
-
+    public:
         // Every piece has a color and type, so zero marks an empty
         // optional<ColoredPiece>, such as an empty square.
         struct NullRepresentation
         {
             [[nodiscard]] static constexpr auto
-            make() noexcept
+            make (NullRepresentationKey) noexcept
                 -> ColoredPiece
             {
-                return ColoredPiece { .piece_type_and_color = 0 };
+                return ColoredPiece { 0 };
             }
 
             [[nodiscard]] static constexpr auto
             isNull (ColoredPiece piece) noexcept
                 -> bool
             {
-                return piece.piece_type_and_color == 0;
+                return piece.my_piece_type_and_color == 0;
             }
         };
 
@@ -185,7 +239,7 @@ namespace wisdom
         [[nodiscard]] constexpr explicit
         operator Target() const noexcept
         {
-            return widen<Target> (piece_type_and_color);
+            return widen<Target> (my_piece_type_and_color);
         }
 
         [[nodiscard]] static constexpr auto
@@ -195,35 +249,31 @@ namespace wisdom
             EXPECTS( color == Color::White || color == Color::Black );
             ASSERT( piece_type >= Piece::Pawn && piece_type <= Piece::King );
             auto piece_as_int = to_int (piece_type);
-            auto result = narrow_debug<int8_t> (
-                colorBits (color) | (piece_as_int & Piece_Type_Mask)
-            );
-            ColoredPiece piece_with_color = { .piece_type_and_color = result };
-            return piece_with_color;
+            return ColoredPiece {
+                narrow_debug<int8_t> (colorBits (color) | (piece_as_int & Piece_Type_Mask))
+            };
         }
 
         [[nodiscard]] constexpr auto
         color() const noexcept
             -> Color
         {
-            return (piece_type_and_color & colorBits (Color::Black)) ? Color::Black : Color::White;
+            return (my_piece_type_and_color & colorBits (Color::Black)) ? Color::Black : Color::White;
         }
 
         [[nodiscard]] constexpr auto
         type() const noexcept
             -> Piece
         {
-            auto result = narrow_debug<int8_t>(
-                (piece_type_and_color & Piece_Type_Mask)
-            );
-            return pieceFromInt8 (result);
+            auto bits = narrow_debug<int8_t> (my_piece_type_and_color & Piece_Type_Mask);
+            return Piece { to_enum_debug<Piece::Value> (bits) };
         }
 
         [[nodiscard]] friend constexpr auto
         operator== (ColoredPiece first, ColoredPiece second) noexcept
             -> bool
         {
-            return first.piece_type_and_color == second.piece_type_and_color;
+            return first.my_piece_type_and_color == second.my_piece_type_and_color;
         }
 
         [[nodiscard]] friend constexpr auto
@@ -232,8 +282,18 @@ namespace wisdom
         {
             return !operator== (first, second);
         }
+
+    private:
+        constexpr explicit ColoredPiece (int8_t piece_type_and_color) noexcept
+            : my_piece_type_and_color { piece_type_and_color }
+        {
+        }
+
+        int8_t my_piece_type_and_color;
     };
-    static_assert (std::is_trivial_v<ColoredPiece>);
+    static_assert (std::is_trivially_copyable_v<ColoredPiece>);
+    static_assert (!std::is_default_constructible_v<ColoredPiece>);
+    static_assert (!std::is_constructible_v<ColoredPiece, int8_t>);
     static_assert (sizeof (optional<ColoredPiece>) == sizeof (ColoredPiece));
 
     // Order here is significant - it means computer will prefer the piece at the top

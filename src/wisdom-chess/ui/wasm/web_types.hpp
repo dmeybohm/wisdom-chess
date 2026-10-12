@@ -97,20 +97,19 @@ namespace wisdom
     mapPiece (wisdom::Piece piece)
         -> WebPiece
     {
-        using enum Piece;
         switch (piece)
         {
-            case Pawn:
+            case Piece::Pawn:
                 return WebPiece::Pawn;
-            case Knight:
+            case Piece::Knight:
                 return WebPiece::Knight;
-            case Bishop:
+            case Piece::Bishop:
                 return WebPiece::Bishop;
-            case Rook:
+            case Piece::Rook:
                 return WebPiece::Rook;
-            case Queen:
+            case Piece::Queen:
                 return WebPiece::Queen;
-            case King:
+            case Piece::King:
                 return WebPiece::King;
             default:
                 PRECONDITION_FAILED( "a valid piece" );

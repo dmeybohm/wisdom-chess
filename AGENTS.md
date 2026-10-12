@@ -117,14 +117,18 @@ committing C++. The conventions below are about what the code does.
   references.
 - `optional` is `wisdom::optional` (`engine/optional.hpp`), not
   `std::optional`: a type that nests a public `NullRepresentation`
-  (`Move`, `Coord`, `ColoredPiece`), or an enum with a
-  `nullRepresentation()` function (`Piece`, `Color`), gets one without a flag,
-  and pins it with `static_assert (sizeof (optional<T>) == sizeof (T))`.
+  (`Move`, `Coord`, `ColoredPiece`, `Piece`, `Color`), or an enum with a
+  `nullRepresentation()` function, gets one without a flag, and pins it
+  with `static_assert (sizeof (optional<T>) == sizeof (T))`.
   Spell it `wisdom::optional` outside the namespace. See
   `features/2026/10/compact-optional.md`.
 - An empty square is an empty `optional<ColoredPiece>` from
-  `Board::pieceAt()`; there is no "none" piece or color. See
-  `features/2026/10/optional-colored-piece.md` and `optional-color.md`.
+  `Board::pieceAt()`; there is no "none" piece or color. `Color`,
+  `Piece` and `ColoredPiece` are classes that cannot be built from an
+  integer: use their constants and `ColoredPiece::make()`. A template
+  parameter takes `Piece::Value`, since a class with private members
+  cannot be one. See `features/2026/10/optional-colored-piece.md`,
+  `optional-color.md` and `encapsulated-piece.md`.
 
 ## Building and testing
 

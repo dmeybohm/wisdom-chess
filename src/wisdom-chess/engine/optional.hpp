@@ -3,64 +3,102 @@
 #include <concepts>
 #include <optional>
 #include <type_traits>
+#include <utility>
 
 #include "wisdom-chess/engine/error.hpp"
 
 namespace wisdom
 {
+    template <typename T>
+    class compact_optional;
+
+    template <typename T>
+    struct NullRepresentationOf;
+
+    // Passed to a type's null representation, so that only the optional
+    // can make the empty value: nothing else can create a key.
+    class NullRepresentationKey
+    {
+        template <typename> friend class compact_optional;
+        template <typename> friend struct NullRepresentationOf;
+
+        constexpr NullRepresentationKey() noexcept = default;
+    };
+
     // A type opts in to a compact optional by giving a value its own API
     // never produces, which the optional uses to mean empty, so it needs no
     // flag of its own. A class nests a public NullRepresentation:
     //
     //     struct NullRepresentation
     //     {
-    //         static constexpr auto make() noexcept -> T;
+    //         static constexpr auto make (NullRepresentationKey) noexcept -> T;
     //         static constexpr auto isNull (const T& value) noexcept -> bool;
     //     };
     //
     // A type that cannot nest one, such as an enum, declares a function in
     // its namespace instead, and compares equal to its result when empty:
     //
-    //     constexpr auto nullRepresentation (std::type_identity<T>) noexcept -> T;
+    //     constexpr auto nullRepresentation (std::type_identity<T>, NullRepresentationKey)
+    //         noexcept -> T;
     //
-    // A private NullRepresentation is not found, and the optional silently
-    // falls back to std::optional. Pin the representation after the type
-    // with:
+    // The key keeps make() from being called outside the optional, so the
+    // empty value cannot pass for a real one. A private NullRepresentation
+    // is not found, and the optional silently falls back to std::optional.
+    // Pin the representation after the type with:
     //
     //     static_assert (sizeof (optional<T>) == sizeof (T));
     template <typename T>
     concept HasNestedNullRepresentation = requires (const T& value) {
-        { T::NullRepresentation::make() } noexcept -> std::same_as<T>;
+        { T::NullRepresentation::make (std::declval<NullRepresentationKey>()) } noexcept
+            -> std::same_as<T>;
         { T::NullRepresentation::isNull (value) } noexcept -> std::same_as<bool>;
     };
 
     template <typename T>
     concept HasNullRepresentationFunction = std::equality_comparable<T>
         && requires {
-            { nullRepresentation (std::type_identity<T> {}) } noexcept -> std::same_as<T>;
+            { nullRepresentation (std::type_identity<T> {}, std::declval<NullRepresentationKey>()) } noexcept
+                -> std::same_as<T>;
         };
 
     template <typename T>
     concept HasNullRepresentation =
         HasNestedNullRepresentation<T> || HasNullRepresentationFunction<T>;
 
-    template <typename T>
-    struct NullRepresentationOf;
-
+    // The empty value and the test for it, for compact_optional only.
     template <HasNestedNullRepresentation T>
-    struct NullRepresentationOf<T> : T::NullRepresentation
+    struct NullRepresentationOf<T>
     {
+    private:
+        template <typename> friend class compact_optional;
+
+        [[nodiscard]] static constexpr auto
+        make() noexcept
+            -> T
+        {
+            return T::NullRepresentation::make (NullRepresentationKey {});
+        }
+
+        [[nodiscard]] static constexpr auto
+        isNull (const T& value) noexcept
+            -> bool
+        {
+            return T::NullRepresentation::isNull (value);
+        }
     };
 
     template <HasNullRepresentationFunction T>
         requires (!HasNestedNullRepresentation<T>)
     struct NullRepresentationOf<T>
     {
+    private:
+        template <typename> friend class compact_optional;
+
         [[nodiscard]] static constexpr auto
         make() noexcept
             -> T
         {
-            return nullRepresentation (std::type_identity<T> {});
+            return nullRepresentation (std::type_identity<T> {}, NullRepresentationKey {});
         }
 
         [[nodiscard]] static constexpr auto
