@@ -153,3 +153,50 @@ TEST_CASE( "Swapping lists" )
         CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
     }
 }
+
+TEST_CASE( "Ordered move list" )
+{
+    Move e4 = toMove ("e2 e4", Color::White);
+    Move d4 = toMove ("d2 d4", Color::White);
+    Move c4 = toMove ("c2 c4", Color::White);
+    Move nf3 = toMove ("g1 f3", Color::White);
+
+    SUBCASE( "An empty list has no next move" )
+    {
+        OrderedMoveList list;
+        CHECK( !list.next().has_value() );
+    }
+
+    SUBCASE( "Moves are taken lowest key first" )
+    {
+        OrderedMoveList list;
+        list.append (30, e4);
+        list.append (10, d4);
+        list.append (40, c4);
+        list.append (20, nf3);
+
+        CHECK( list.next() == d4 );
+        CHECK( list.next() == nf3 );
+        CHECK( list.next() == e4 );
+        CHECK( list.next() == c4 );
+        CHECK( !list.next().has_value() );
+    }
+
+    SUBCASE( "Clearing starts the list over" )
+    {
+        OrderedMoveList list;
+        list.append (10, e4);
+        list.append (20, d4);
+        CHECK( list.next() == e4 );
+
+        list.clear();
+        CHECK( list.size() == 0 );
+        CHECK( !list.next().has_value() );
+
+        list.append (20, c4);
+        list.append (10, nf3);
+        CHECK( list.next() == nf3 );
+        CHECK( list.next() == c4 );
+        CHECK( !list.next().has_value() );
+    }
+}

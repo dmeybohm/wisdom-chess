@@ -25,6 +25,9 @@ namespace wisdom
     // that a search never grows the history's vector.
     static constexpr int Max_Quiescence_Line = Num_Squares;
 
+    // The plies a search can reach, the quiescence line included.
+    static constexpr int Max_Search_Ply = Max_Search_Depth + Max_Quiescence_Line;
+
     class IterativeSearchImpl
     {
     public:
@@ -100,6 +103,19 @@ namespace wisdom
         // only created on the heap.
         KillerTable my_killers;
         CutoffHistory my_cutoff_history;
+
+        // The move list of each ply, which the node at that ply borrows
+        // while it searches its children. Holding them here keeps them off
+        // the stack, where each would take 4 KB in every frame.
+        array<OrderedMoveList, Max_Search_Ply> my_move_lists;
+
+        [[nodiscard]] auto
+        moveListAt (int ply) noexcept
+            -> nonnull<OrderedMoveList>
+        {
+            EXPECTS( ply >= 0 && ply < Max_Search_Ply );
+            return &my_move_lists[to_unsigned_debug<size_t> (ply)];
+        }
 
         int my_total_depth;
         int64_t my_nodes_visited = 0;
@@ -232,10 +248,13 @@ namespace wisdom
             my_killers.getKillers (ply),
             &my_cutoff_history
         };
-        auto moves = generateAllPotentialMoves (parent_board, side, ordering);
+        auto moves = moveListAt (ply);
+        generateOrderedMoves (moves, parent_board, side, ordering);
 
-        for (auto move : moves)
+        while (auto next_move = moves->next())
         {
+            Move move = *next_move;
+
             if (my_timer.isTriggered())
             {
                 my_current_result.timed_out = true;
@@ -342,7 +361,7 @@ namespace wisdom
 
         bool in_check = isKingThreatened (board, side, board.getKingPosition (side));
         int best_score = -Initial_Alpha;
-        MoveList moves;
+        auto moves = moveListAt (ply);
 
         if (in_check)
         {
@@ -353,7 +372,7 @@ namespace wisdom
                     : evaluateWithoutLegalMoves (board, side, ply);
             }
 
-            moves = generateAllPotentialMoves (board, side);
+            generateOrderedMoves (moves, board, side, MoveOrdering {});
         }
         else
         {
@@ -366,13 +385,15 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            moves = generateCaptures (board, side);
+            generateOrderedCaptures (moves, board, side);
         }
 
         bool found_legal_move = false;
 
-        for (auto move : moves)
+        while (auto next_move = moves->next())
         {
+            Move move = *next_move;
+
             if (my_timer.isTriggered())
             {
                 my_current_result.timed_out = true;

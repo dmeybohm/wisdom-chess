@@ -18,6 +18,18 @@ namespace
             list.append (move);
     }
 
+    FATAL_CASE(
+        "ordered-append-overflow",
+        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < my_moves.size\\(\\)"
+    )
+    {
+        auto list = std::make_unique<OrderedMoveList>();
+        Move move = toMove ("e2 e4", Color::White);
+
+        for (std::ptrdiff_t i = 0; i <= Max_Move_List_Size; i++)
+            list->append (0, move);
+    }
+
     FATAL_CASE( "remove-from-empty", "Precondition failed at .*move_list\\.hpp" )
     {
         MoveList list;

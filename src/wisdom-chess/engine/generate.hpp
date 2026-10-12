@@ -19,6 +19,21 @@ namespace wisdom
     generateAllPotentialMoves (const Board& board, Color who, const MoveOrdering& ordering) noexcept
         -> MoveList;
 
+    // Generate the moves generateAllPotentialMoves() generates into `moves`,
+    // replacing what it held, to be taken in the same order.
+    void
+    generateOrderedMoves (
+        nonnull<OrderedMoveList> moves,
+        const Board& board,
+        Color who,
+        const MoveOrdering& ordering
+    ) noexcept;
+
+    // Generate the moves generateCaptures() generates into `moves`,
+    // replacing what it held, to be taken in the same order.
+    void
+    generateOrderedCaptures (nonnull<OrderedMoveList> moves, const Board& board, Color who) noexcept;
+
     // Generate the potential captures and promotions to a queen for the
     // player, including illegal moves, ordered as generateAllPotentialMoves()
     // orders them.
