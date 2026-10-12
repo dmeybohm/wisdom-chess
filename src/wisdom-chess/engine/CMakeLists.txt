@@ -72,7 +72,6 @@ add_library(wisdom-chess-core STATIC
         move.hpp
         move_list.hpp
         move_ordering.hpp
-        move_picking_probe.hpp
         move_timer.hpp
         piece.hpp
         position.hpp
@@ -100,7 +99,6 @@ add_library(wisdom-chess-core STATIC
         move.cpp
         move_list.cpp
         move_ordering.cpp
-        move_picking_probe.cpp
         move_timer.cpp
         piece.cpp
         position.cpp

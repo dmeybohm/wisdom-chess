@@ -6,7 +6,6 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/move_ordering.hpp"
-#include "wisdom-chess/engine/move_picking_probe.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/logger.hpp"
@@ -25,90 +24,6 @@ namespace wisdom
     // past Max_Quiescence_Evasion_Ply a check ends the line. Generous, so
     // that a search never grows the history's vector.
     static constexpr int Max_Quiescence_Line = Num_Squares;
-
-    namespace
-    {
-        auto
-        probeStage (Move move, const MoveOrdering& ordering) noexcept
-            -> MovePickingProbe::Stage
-        {
-            if (move == ordering.priority_move)
-                return MovePickingProbe::Table;
-            if (move.isAnyCapturing())
-                return MovePickingProbe::Capture;
-            if (move.isPromoting())
-                return MovePickingProbe::Promotion;
-            if (move == ordering.killers[0] || move == ordering.killers[1])
-                return MovePickingProbe::Killer;
-            return MovePickingProbe::Quiet;
-        }
-
-        // Count the list a node is about to search.
-        void
-        probeMoveList (
-            MovePickingProbe::Counts& counts,
-            const MoveList& moves,
-            const MoveOrdering& ordering
-        ) noexcept
-        {
-            counts.nodes++;
-            counts.moves_generated += narrow<int64_t> (moves.size());
-
-            if (ordering.priority_move.has_value())
-                counts.table_move_given++;
-            for (const auto& killer : ordering.killers)
-            {
-                if (killer.has_value())
-                    counts.killers_given++;
-            }
-
-            for (auto move : moves)
-            {
-                auto stage = probeStage (move, ordering);
-                if (move.isAnyCapturing() || move.isPromoting())
-                    counts.tactical_generated++;
-                if (stage == MovePickingProbe::Table)
-                    counts.table_move_in_list++;
-                if (move == ordering.killers[0] || move == ordering.killers[1])
-                    counts.killers_in_list++;
-            }
-        }
-
-        // Count the moves a node took from its list, and its cutoff if any.
-        void
-        probeMovesTried (
-            MovePickingProbe::Counts& counts,
-            const MoveList& moves,
-            const MoveOrdering& ordering,
-            optional<size_t> cutoff_index
-        ) noexcept
-        {
-            if (!cutoff_index.has_value())
-            {
-                counts.moves_tried += narrow<int64_t> (moves.size());
-                return;
-            }
-
-            auto index = *cutoff_index;
-            counts.moves_tried += narrow<int64_t> (index + 1);
-
-            auto cutoff_move = *(moves.begin() + narrow<ptrdiff_t> (index));
-            auto stage = probeStage (cutoff_move, ordering);
-            counts.recordCutoff (index, stage);
-
-            if (stage != MovePickingProbe::Quiet)
-                return;
-
-            for (size_t i = 0; i < moves.size(); i++)
-            {
-                if (probeStage (*(moves.begin() + narrow<ptrdiff_t> (i)), ordering) != MovePickingProbe::Quiet)
-                    continue;
-                counts.quiet_generated_at_quiet_cutoff++;
-                if (i <= index)
-                    counts.quiet_tried_at_quiet_cutoff++;
-            }
-        }
-    }
 
     class IterativeSearchImpl
     {
@@ -318,14 +233,9 @@ namespace wisdom
             &my_cutoff_history
         };
         auto moves = generateAllPotentialMoves (parent_board, side, ordering);
-        probeMoveList (move_picking_probe.search, moves, ordering);
-        size_t probe_index = 0;
-        optional<size_t> probe_cutoff;
 
         for (auto move : moves)
         {
-            probe_index++;
-
             if (my_timer.isTriggered())
             {
                 my_current_result.timed_out = true;
@@ -367,13 +277,9 @@ namespace wisdom
                 my_alpha_beta_cutoffs++;
                 my_killers.store (ply, move);
                 my_cutoff_history.store (side, move, depth);
-                probe_cutoff = probe_index - 1;
                 break;
             }
         }
-
-        if (!my_current_result.timed_out)
-            probeMovesTried (move_picking_probe.search, moves, ordering, probe_cutoff);
 
         if (!best_move.has_value())
         {
@@ -464,15 +370,9 @@ namespace wisdom
         }
 
         bool found_legal_move = false;
-        const MoveOrdering no_ordering {};
-        probeMoveList (move_picking_probe.quiescence, moves, no_ordering);
-        size_t probe_index = 0;
-        optional<size_t> probe_cutoff;
 
         for (auto move : moves)
         {
-            probe_index++;
-
             if (my_timer.isTriggered())
             {
                 my_current_result.timed_out = true;
@@ -504,14 +404,8 @@ namespace wisdom
                 alpha = best_score;
 
             if (alpha >= beta)
-            {
-                probe_cutoff = probe_index - 1;
                 break;
-            }
         }
-
-        if (!my_current_result.timed_out)
-            probeMovesTried (move_picking_probe.quiescence, moves, no_ordering, probe_cutoff);
 
         if (in_check && !found_legal_move)
             best_score = evaluateWithoutLegalMoves (board, side, ply);
