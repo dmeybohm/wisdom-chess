@@ -225,6 +225,19 @@ alternating rounds.
   ordering tests in `generate_test.cpp` now run through the list, since
   `generateAllPotentialMoves()` does. All 338 tests pass in Release with
   the slow tests on, and the fast and medium ones in Debug.
+- `--search-report 8` against `main` at `5656ed41`, seven alternating
+  rounds pinned to one core, each run started only when the one-minute
+  load was under 1.5. A first set, taken while the machine was busy
+  after a boot (load 3 to 7), was discarded. Every run gave the same
+  counts as `main`.
+
+| Build | Total | starting | kiwipete | italian | position3 | position4 | middlegame |
+|---|---|---|---|---|---|---|---|
+| `main` | 58.89s | 1.425 | 8.985 | 12.294 | 0.235 | 3.395 | 32.535 |
+| this branch | 54.23s (−7.9%) | 1.353 | 8.162 | 11.361 | 0.226 | 3.197 | 29.888 |
+
+  `main` ranged from 58.73 to 58.93s and the branch from 54.01 to
+  54.63s.
 - Item 6 of [improvement-suggestions.md](../09/improvement-suggestions.md)
   stays open: the staged picker was not built, and Session #3 puts its
   likely gain beyond this change at a few percent.
