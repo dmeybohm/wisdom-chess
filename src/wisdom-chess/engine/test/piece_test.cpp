@@ -37,6 +37,16 @@ TEST_CASE( "Color invert" )
     CHECK( colorInvert (Color::Black) == Color::White );
 }
 
+TEST_CASE( "colorBits() places each color above the piece type" )
+{
+    CHECK( colorBits (Color::White) == 0b01'000 );
+    CHECK( colorBits (Color::Black) == 0b10'000 );
+
+    CHECK( (colorBits (Color::White) & colorBits (Color::Black)) == 0 );
+    CHECK( (colorBits (Color::White) & Piece_Type_Mask) == 0 );
+    CHECK( (colorBits (Color::Black) & Piece_Type_Mask) == 0 );
+}
+
 namespace
 {
     template <typename Target, typename Source>

@@ -75,11 +75,15 @@ longer needs a case for it.
   `Color` constants. Both constructors are private: the one from
   `Value`, so that `Color::Value {}` or a cast cannot become a `Color`,
   and the default one, which the nested `NullRepresentation` uses to
-  make the zero value of an empty `optional<Color>`. The only other
-  callers are `colorFromInt8()` and `colorFromColorIndex()`, as
-  friends; their inputs come from a `ColoredPiece` that `make()`
-  checked and from a one-bit index. An explicit conversion template
-  serves `to_int()`.
+  make the zero value of an empty `optional<Color>`. There is no
+  conversion from an integer: `colorFromInt8()` and
+  `colorFromColorIndex()` were public and checked their range only in
+  Debug, so they could still make the zero value in Release. Code that
+  stores a color as bits decodes it by choosing between the constants
+  instead: `ColoredPiece::color()` tests `colorBits (Color::Black)`,
+  `BoardCode::getCurrentTurn()` its turn bit, and `coordColor()`
+  `isDarkSquare()`. Every input gives a valid color, so none needs a
+  check. An explicit conversion template serves `to_int()`.
 - The frontends' `using enum Color` switches name `Color::White` and
   `Color::Black` instead. A QML test read `Color` signal arguments with
   `QVariant::value()`, which default-constructs; it uses `get_if` now.

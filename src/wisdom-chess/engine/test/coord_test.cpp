@@ -96,6 +96,28 @@ TEST_CASE( "coordColor()" )
     CHECK( coordColor (d4) == Color::Black );
 }
 
+TEST_CASE( "isDarkSquare()" )
+{
+    CHECK( !isDarkSquare (toCoord ("a8")) );
+    CHECK( isDarkSquare (toCoord ("b8")) );
+    CHECK( isDarkSquare (toCoord ("a1")) );
+    CHECK( !isDarkSquare (toCoord ("h1")) );
+    CHECK( isDarkSquare (toCoord ("d4")) );
+    CHECK( !isDarkSquare (toCoord ("e4")) );
+
+    SUBCASE( "Neighboring squares alternate" )
+    {
+        for (auto coord : CoordIterator {})
+        {
+            if (coord.column() + 1 < Num_Columns)
+            {
+                auto right = makeCoord (coord.row(), coord.column() + 1);
+                CHECK( isDarkSquare (coord) != isDarkSquare (right) );
+            }
+        }
+    }
+}
+
 TEST_CASE( "Pawn direction is negative for white and positive for black" )
 {
     CHECK( pawnDirection (Color::White) == -1 );

@@ -237,10 +237,7 @@ namespace wisdom
             -> Color
         {
             auto bits = getMetadataBits();
-            auto index = narrow_debug<int8_t> (
-                bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
-            );
-            return colorFromColorIndex (index);
+            return (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)) ? Color::Black : Color::White;
         }
 
         [[nodiscard]] auto
