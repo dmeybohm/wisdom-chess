@@ -39,8 +39,16 @@ A number that is no move would corrupt the board in Release.
   and `Board::makeMove()` checks the source piece only in Debug, so the
   worker also checks `isLegalMove()`, a new public function in
   `generate.hpp` that looks for the move among the legal moves of the
-  player to move. `mainThreadReceiveMove()` only turns the engine's
-  move into text, so it needs no legality check. `search.cpp` and the
+  player to move.
+- The engine's move reaches the main thread's game too:
+  `mainThreadReceiveMove()` turns it into text for JavaScript, and
+  React passes that to `WebGame::makeComputerMove()`, which played it
+  through `toMove()` and `Game::move()` without a legality check. The
+  check belongs in `makeComputerMove()`, where the move meets the board
+  it is played on, rather than in `mainThreadReceiveMove()`, which runs
+  before JavaScript and has no access to that game. It is also public in
+  the IDL and takes any string. It now parses the move and requires
+  `isLegalMove()`, both with `EXPECTS`. `search.cpp` and the
   view model had their own copies of the same check; they call
   `isLegalMove()` now, the view model after its check that a human is to
   move.
@@ -62,3 +70,10 @@ A number that is no move would corrupt the board in Release.
   the new `isLegalMove (const Board&, Move)`, which has a test.
 - Debug with QML: 333 tests pass, and `lint` is clean. Clang builds,
   and the WASM frontend builds.
+
+### Session #3
+
+- `WebGame::makeComputerMove()` checks the move parses and is legal.
+  A new fatal test program, `wisdom-chess-web-fatal-tests`, covers an
+  unparseable and an illegal computer move; the existing web test
+  already plays a legal one.

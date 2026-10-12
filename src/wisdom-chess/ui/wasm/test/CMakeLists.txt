@@ -14,6 +14,13 @@ endif()
 
 doctest_discover_tests(wisdom-chess-web-tests PROPERTIES LABELS fast)
 
+if (TARGET wisdom-chess-fatal-main)
+    wisdom_chess_add_fatal_tests(wisdom-chess-web-fatal-tests
+        ../web_game.cpp
+        fatal_web_game_test.cpp)
+    target_link_libraries(wisdom-chess-web-fatal-tests PRIVATE wisdom::chess wisdom::viewmodel)
+endif()
+
 if (WISDOM_CHESS_FILC_COMPAT)
     target_compile_definitions(wisdom-chess-web-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
 endif()
