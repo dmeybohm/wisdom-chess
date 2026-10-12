@@ -307,7 +307,7 @@ namespace wisdom
             case Piece::Pawn:
                 return 'p';
         }
-        std::terminate();
+        PRECONDITION_FAILED( "a piece type" );
     }
 
     [[nodiscard]] constexpr auto
