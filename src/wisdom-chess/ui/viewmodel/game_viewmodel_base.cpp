@@ -1,4 +1,5 @@
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 
 namespace wisdom::ui
@@ -130,17 +131,7 @@ namespace wisdom::ui
             return false;
         }
 
-        auto who = game->getCurrentTurn();
-        auto legal_moves = generateLegalMoves (game->getBoard(), who);
-
-        return std::any_of (
-            legal_moves.cbegin(),
-            legal_moves.cend(),
-            [selected_move] (const auto& move)
-            {
-                return move == selected_move;
-            }
-        );
+        return wisdom::isLegalMove (game->getBoard(), selected_move);
     }
 
     auto

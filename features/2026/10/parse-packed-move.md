@@ -41,7 +41,9 @@ A number that is no move would corrupt the board in Release.
   `generate.hpp` that looks for the move among the legal moves of the
   player to move. `mainThreadReceiveMove()` only turns the engine's
   move into text, so it needs no legality check. `search.cpp` and the
-  view model each have a similar private check, left as they are.
+  view model had their own copies of the same check; they call
+  `isLegalMove()` now, the view model after its check that a human is to
+  move.
 
 ## Implementation Progress
 
