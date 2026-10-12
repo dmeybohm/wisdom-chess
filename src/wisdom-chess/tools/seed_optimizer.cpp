@@ -2,9 +2,11 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <compare>
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <set>
 #include <vector>
 
 #include "wisdom-chess/engine/board_builder.hpp"
@@ -22,16 +24,16 @@ using wisdom::colorInvert;
 using wisdom::CompileTimeRandom;
 using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
-using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
 using wisdom::nonnull;
 using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
 using wisdom::to_double;
+using wisdom::to_int;
 using wisdom::to_unsigned;
-using wisdom::Total_Metadata_Bits;
 using wisdom::Zobrist_Table_Size;
+using wisdom::zobristKey;
 using wisdom::zobristPieceIndex;
 
 namespace
@@ -45,7 +47,7 @@ namespace
         CompileTimeRandom rng { CompileTimeRandom::RandomState { randomInitialState(), seed } };
 
         for (std::size_t i = 0; i < Zobrist_Table_Size; i++)
-            table[i] = getCompileTimeRandom48 (&rng);
+            table[i] = zobristKey (&rng);
 
         return table;
     }
@@ -57,24 +59,53 @@ namespace
         for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
-            if (piece == wisdom::Piece_And_Color_None)
+            if (!piece)
                 continue;
 
-            auto piece_index = zobristPieceIndex (piece.color(), piece.type());
+            auto piece_index = zobristPieceIndex (piece->color(), piece->type());
             auto table_index = to_unsigned<std::size_t> (piece_index * Num_Squares + coord.index());
-            hash ^= table[table_index] << Total_Metadata_Bits;
+            hash ^= table[table_index];
         }
 
         hash |= board.getUnnormalizedBoardCode().getMetadataBits();
         return hash;
     }
 
+    // What a board's hash covers: the piece on each square, and the
+    // metadata. Boards with the same key always hash alike, so each counts
+    // once in the distribution.
+    struct PositionKey
+    {
+        std::array<std::int8_t, Num_Squares> squares {};
+        std::uint16_t metadata = 0;
+
+        auto operator<=> (const PositionKey&) const = default;
+    };
+
+    auto positionKey (const Board& board) -> PositionKey
+    {
+        PositionKey key;
+
+        for (auto coord : Board::allCoords())
+        {
+            auto piece = board.pieceAt (coord);
+            if (piece)
+                key.squares[coord.index<std::size_t>()] = to_int<std::int8_t> (*piece);
+        }
+
+        key.metadata = board.getUnnormalizedBoardCode().getMetadataBits();
+        return key;
+    }
+
+    // Keeps each distinct position once. A duplicate is still searched: it
+    // may be reached here in fewer moves than before, with more depth left.
     void collectPositions (
         const Board& board,
         Color side,
         int depth,
         int max_depth,
-        nonnull<std::vector<Board>> positions
+        nonnull<std::vector<Board>> positions,
+        nonnull<std::set<PositionKey>> seen
     )
     {
         if (depth >= max_depth)
@@ -89,10 +120,11 @@ namespace
             if (!isLegalPositionAfterMove (new_board, side, move))
                 continue;
 
-            positions->push_back (new_board);
+            if (seen->insert (positionKey (new_board)).second)
+                positions->push_back (new_board);
 
             collectPositions (
-                new_board, colorInvert (side), depth + 1, max_depth, positions
+                new_board, colorInvert (side), depth + 1, max_depth, positions, seen
             );
         }
     }
@@ -100,13 +132,14 @@ namespace
     auto collectAllPositions() -> std::vector<Board>
     {
         std::vector<Board> positions;
-        positions.reserve (5'500'000);
+        std::set<PositionKey> seen;
 
         Board board { BoardBuilder::fromDefaultPosition() };
         positions.push_back (board);
+        seen.insert (positionKey (board));
 
-        std::cout << "Collecting positions from depth-5 perft..." << std::endl;
-        collectPositions (board, Color::White, 0, 5, &positions);
+        std::cout << "Collecting distinct positions from depth-5 perft..." << std::endl;
+        collectPositions (board, Color::White, 0, 5, &positions, &seen);
         std::cout << "Collected " << positions.size() << " positions" << std::endl;
 
         return positions;

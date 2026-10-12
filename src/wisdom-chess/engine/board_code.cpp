@@ -15,8 +15,9 @@ namespace wisdom
     {
         for (auto coord : Board::allCoords())
         {
-            ColoredPiece piece = board.pieceAt (coord);
-            addPiece (coord, piece);
+            auto piece = board.pieceAt (coord);
+            if (piece)
+                addPiece (coord, *piece);
         }
 
         auto current_turn = board.getCurrentTurn();
@@ -45,8 +46,9 @@ namespace wisdom
 
         for (auto coord : CoordIterator {})
         {
-            ColoredPiece piece = builder.pieceAt (coord);
-            result.addPiece (coord, piece);
+            auto piece = builder.pieceAt (coord);
+            if (piece)
+                result.addPiece (coord, *piece);
         }
 
         auto current_turn = builder.getCurrentTurn();
@@ -89,7 +91,8 @@ namespace wisdom
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
-        ColoredPiece src_piece = board.pieceAt (src);
+        ASSERT( board.pieceAt (src).has_value() );
+        ColoredPiece src_piece = *board.pieceAt (src);
 
         Color src_piece_color = pieceColor (src_piece);
         Color opponent_color = colorInvert (src_piece_color);
@@ -109,8 +112,8 @@ namespace wisdom
         }
         else if (move.isNormalCapturing())
         {
-            ColoredPiece dst_piece = board.pieceAt (dst);
-            removePiece (dst, dst_piece);
+            ASSERT( board.pieceAt (dst).has_value() );
+            removePiece (dst, *board.pieceAt (dst));
         }
 
         removePiece (src, src_piece);

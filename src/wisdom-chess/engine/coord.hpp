@@ -28,6 +28,24 @@ namespace wisdom
     {
         int8_t row_and_col;
 
+        // A coordinate is 0-63, so -1 marks an empty optional<Coord>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make (NullRepresentationKey) noexcept
+                -> Coord
+            {
+                return Coord { .row_and_col = -1 };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Coord coord) noexcept
+                -> bool
+            {
+                return coord.row_and_col == -1;
+            }
+        };
+
         // Make a coordinate from an index from 0-63.
         [[nodiscard]] static constexpr auto
         fromIndex (int index) noexcept
@@ -74,6 +92,7 @@ namespace wisdom
         }
     };
     static_assert (std::is_trivial_v<Coord>);
+    static_assert (sizeof (optional<Coord>) == sizeof (Coord));
 
     template <typename IntegerType>
     [[nodiscard]] constexpr auto
@@ -292,13 +311,20 @@ namespace wisdom
     };
     static_assert (std::forward_iterator<CoordIterator>);
 
+    // Whether the square is dark. a8 and h1 are light.
+    [[nodiscard]] constexpr auto
+    isDarkSquare (Coord coord) noexcept
+        -> bool
+    {
+        return (coord.row() + coord.column()) % 2 != 0;
+    }
+
     // The color of the square.
     [[nodiscard]] constexpr auto
     coordColor (Coord coord) noexcept
         -> Color
     {
-        int parity = (coord.row() % 2 + coord.column() % 2) % 2;
-        return colorFromColorIndex (narrow_debug<int8_t> (parity));
+        return isDarkSquare (coord) ? Color::Black : Color::White;
     }
 
     // The row direction a pawn moves in: white moves up (-), black
@@ -309,7 +335,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        ASSERT( color == Color::Black || color == Color::White );
+        EXPECTS( color == Color::Black || color == Color::White );
         auto color_as_int = to_int (color);
         return narrow_debug<IntegerType> (-1 + 2 * (color_as_int - 1));
     }

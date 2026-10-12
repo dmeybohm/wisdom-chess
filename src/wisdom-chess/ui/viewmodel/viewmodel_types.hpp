@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <optional>
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_status.hpp"
@@ -26,7 +25,7 @@ namespace wisdom::ui
 
     [[nodiscard]] auto
     getFirstHumanPlayerColor (const Players& players)
-        -> std::optional<Color>;
+        -> optional<Color>;
 
     // Runs the status update for the game's current status and returns
     // that status, so a frontend can act on what the update did.

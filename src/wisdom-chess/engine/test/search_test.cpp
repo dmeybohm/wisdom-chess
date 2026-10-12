@@ -326,7 +326,8 @@ TEST_CASE( "Advanced pawn should be captured" )
     auto board = game.getBoard();
     auto target_piece = board.pieceAt (toCoord ("d6"));
     CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn) );
-    CHECK( pieceColor (target_piece) == Color::Black );
+    CHECK( target_piece.has_value() );
+    CHECK( pieceColor (*target_piece) == Color::Black );
 }
 
 TEST_CASE( "Checkmate is preferred to stalemate" )
@@ -357,7 +358,7 @@ TEST_CASE( "Can avoid stalemate" )
     IterativeSearch search = helper.build (game.getBoard(), 6, 5);
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE( result.move != std::nullopt );
+    REQUIRE( result.move != nullopt );
 
     game.move (*result.move);
 

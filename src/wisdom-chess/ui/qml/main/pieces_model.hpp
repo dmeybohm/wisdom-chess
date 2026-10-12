@@ -13,7 +13,6 @@ namespace wisdom::ui::qml
             : row { 0 }
             , column { 0 }
             , piece_image {}
-            , piece { wisdom::Piece_And_Color_None }
             , is_castling_rook { false }
             , castling_source_column { -1 }
         {
@@ -22,13 +21,11 @@ namespace wisdom::ui::qml
         PieceInfo (
             int row,
             int column,
-            wisdom::ColoredPiece piece,
             QString piece_image
         )
             : row { row }
             , column { column }
             , piece_image { std::move (piece_image) }
-            , piece { piece }
             , is_castling_rook { false }
             , castling_source_column { -1 }
         {
@@ -37,7 +34,6 @@ namespace wisdom::ui::qml
         int row;
         int column;
         QString piece_image;
-        wisdom::ColoredPiece piece;
         bool is_castling_rook;
         int castling_source_column;
     };

@@ -1,5 +1,7 @@
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/game_impl.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/game_status.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
@@ -10,44 +12,65 @@
 
 namespace wisdom
 {
-    // Main constructor that maintains all invariants
-    Game::Impl::Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
-        : current_board { builder }
-        , players { players }
+    namespace
     {
-        current_board = current_board.withCurrentTurn (current_turn);
-        history = History::fromInitialBoard (current_board);
+        constexpr Players Default_Players { Player::Human, Player::ChessEngine };
+
+        auto
+        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
+             -> DrawStatus
+        {
+            ASSERT( bothPlayersReplied (draw_desires) );
+
+            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
+            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
+
+            bool accepted = white_wants_draw || black_wants_draw;
+            return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
+        }
     }
 
-    Game::Impl::Impl()
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
+    class Game::Impl
     {
-    }
+    public:
+        Impl (const BoardBuilder& builder, const Players& players)
+            : current_board { builder }
+            , history { History::fromInitialBoard (current_board) }
+            , players { players }
+        {
+        }
 
-    Game::Impl::Impl (const Players& players)
-        : Impl { BoardBuilder::fromDefaultPosition(), players, Color::White }
-    {
-    }
+        Board current_board {};
+        History history;
+        MoveTimer move_timer { Default_Max_Search_Seconds };
+        int max_depth { Default_Max_Depth };
 
-    Game::Impl::Impl (Player white_player, Player black_player)
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { white_player, black_player }, Color::White }
-    {
-    }
+        Players players;
 
-    Game::Impl::Impl (Color current_turn)
-        : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, current_turn }
-    {
-    }
+        // Set when the caller arbitrates the draws.
+        optional<DrawLimits> external_draw_limits {};
 
-    Game::Impl::Impl (const BoardBuilder& builder)
-        : Impl { builder, Players { Player::Human, Player::ChessEngine }, builder.getCurrentTurn() }
-    {
-    }
+        BothPlayersDrawStatus third_repetition_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
+        BothPlayersDrawStatus fifty_moves_without_progress_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
 
-    Game::Impl::Impl (const BoardBuilder& builder, const Players& players)
-        : Impl { builder, players, builder.getCurrentTurn() }
-    {
-    }
+        void updateThreefoldRepetitionDrawStatus() noexcept
+        {
+            auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
+            history.setThreefoldRepetitionStatus (status);
+        }
+
+        void updateFiftyMovesWithoutProgressDrawStatus() noexcept
+        {
+            auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
+            history.setFiftyMovesWithoutProgressStatus (status);
+        }
+    };
 
     Game::Game (unique_ptr<Impl> impl) noexcept
         : my_pimpl { std::move (impl) }
@@ -83,17 +106,20 @@ namespace wisdom
 
     auto Game::createStandardGame() -> Game
     {
-        return Game { make_unique<Impl>() };
+        return Game { make_unique<Impl> (BoardBuilder::fromDefaultPosition(), Default_Players) };
     }
 
     auto Game::createGame (const Players& players) -> Game
     {
-        return Game { make_unique<Impl> (players) };
+        return Game { make_unique<Impl> (BoardBuilder::fromDefaultPosition(), players) };
     }
 
     auto Game::createGame (Player white_player, Player black_player) -> Game
     {
-        return Game { make_unique<Impl> (white_player, black_player) };
+        return Game { make_unique<Impl> (
+            BoardBuilder::fromDefaultPosition(),
+            Players { white_player, black_player }
+        ) };
     }
 
     auto Game::createGameFromFen (const string& fen) -> Game
@@ -121,7 +147,7 @@ namespace wisdom
 
     auto Game::createGameFromBoard (const BoardBuilder& builder) -> Game
     {
-        return Game { make_unique<Impl> (builder) };
+        return Game { make_unique<Impl> (builder, Default_Players) };
     }
 
     auto Game::createGameFromBoard (const BoardBuilder& builder, const Players& players) -> Game
@@ -192,13 +218,11 @@ namespace wisdom
 
     auto Game::findBestMove (
         shared_ptr<Logger> logger,
-        nonnull<TranspositionTable> transposition_table,
-        Color whom
+        nonnull<TranspositionTable> transposition_table
     ) const
         -> optional<Move>
     {
-        if (whom == Color::None)
-            whom = getCurrentTurn();
+        Color who = getCurrentTurn();
 
         IterativeSearch iterative_search = IterativeSearch::create (
             my_pimpl->current_board,
@@ -209,7 +233,7 @@ namespace wisdom
             transposition_table,
             getDrawLimits()
         );
-        SearchResult result = iterative_search.iterativelyDeepen (whom);
+        SearchResult result = iterative_search.iterativelyDeepen (who);
 
         // If user cancelled the search, discard the results.
         if (iterative_search.isCancelled())
@@ -225,7 +249,6 @@ namespace wisdom
 
     void Game::setCurrentTurn (Color new_turn)
     {
-        EXPECTS( isColorValid (new_turn) );
         my_pimpl->current_board = my_pimpl->current_board.withCurrentTurn (new_turn);
         my_pimpl->history.replaceLastPosition (my_pimpl->current_board);
     }
@@ -247,42 +270,12 @@ namespace wisdom
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
-        EXPECTS( isColorValid (who) );
         int score = evaluate (my_pimpl->current_board, who, 1);
         return score <= Min_Draw_Score;
     }
 
-    namespace
-    {
-        auto
-        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
-             -> DrawStatus
-        {
-            ASSERT( bothPlayersReplied (draw_desires) );
-
-            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
-            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
-
-            bool accepted = white_wants_draw || black_wants_draw;
-            return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
-        }
-    }
-
-    void Game::Impl::updateThreefoldRepetitionDrawStatus() noexcept
-    {
-        auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
-        history.setThreefoldRepetitionStatus (status);
-    }
-
-    void Game::Impl::updateFiftyMovesWithoutProgressDrawStatus() noexcept
-    {
-        auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
-        history.setFiftyMovesWithoutProgressStatus (status);
-    }
-
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
-        EXPECTS( isColorValid (who) );
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
@@ -336,7 +329,6 @@ namespace wisdom
 
     auto Game::getPlayer (Color color) const -> Player
     {
-        EXPECTS( isColorValid (color) );
         return my_pimpl->players[colorIndex (color)];
     }
 

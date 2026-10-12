@@ -19,14 +19,12 @@ namespace wisdom
     {
         switch (color)
         {
-            case WebColor::NoColor:
-                return Color::None;
             case WebColor::White:
                 return Color::White;
             case WebColor::Black:
                 return Color::Black;
             default:
-                PRECONDITION_FAILED( "a valid color" );
+                PRECONDITION_FAILED( "a White or Black color" );
         }
     }
 
@@ -41,14 +39,11 @@ namespace wisdom
     mapColor (wisdom::Color color)
         -> WebColor
     {
-        using enum Color;
         switch (color)
         {
-            case None:
-                return WebColor::NoColor;
-            case White:
+            case Color::White:
                 return WebColor::White;
-            case Black:
+            case Color::Black:
                 return WebColor::Black;
             default:
                 PRECONDITION_FAILED( "a valid color" );
@@ -68,12 +63,12 @@ namespace wisdom
 
     [[nodiscard]] inline auto
     mapPiece (WebPiece piece)
-        -> wisdom::Piece
+        -> optional<wisdom::Piece>
     {
         switch (piece)
         {
             case WebPiece::NoPiece:
-                return Piece::None;
+                return nullopt;
             case WebPiece::Pawn:
                 return Piece::Pawn;
             case WebPiece::Knight:
@@ -93,7 +88,7 @@ namespace wisdom
 
     [[nodiscard]] inline auto
     mapPiece (int piece)
-        -> wisdom::Piece
+        -> optional<wisdom::Piece>
     {
         return mapPiece (to_enum<WebPiece> (piece));
     }
@@ -102,22 +97,19 @@ namespace wisdom
     mapPiece (wisdom::Piece piece)
         -> WebPiece
     {
-        using enum Piece;
         switch (piece)
         {
-            case None:
-                return WebPiece::NoPiece;
-            case Pawn:
+            case Piece::Pawn:
                 return WebPiece::Pawn;
-            case Knight:
+            case Piece::Knight:
                 return WebPiece::Knight;
-            case Bishop:
+            case Piece::Bishop:
                 return WebPiece::Bishop;
-            case Rook:
+            case Piece::Rook:
                 return WebPiece::Rook;
-            case Queen:
+            case Piece::Queen:
                 return WebPiece::Queen;
-            case King:
+            case Piece::King:
                 return WebPiece::King;
             default:
                 PRECONDITION_FAILED( "a valid piece" );
@@ -280,7 +272,7 @@ namespace wisdom
     {
         auto mapped_color = mapColor (colored_piece.color);
         auto mapped_type = mapPiece (colored_piece.piece);
-        return ColoredPiece::make (mapped_color, mapped_type);
+        return ColoredPiece::make (mapped_color, mapped_type.value());
     }
 
     struct WebColoredPieceList

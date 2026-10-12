@@ -58,12 +58,11 @@ namespace wisdom::ui
     mapColor (wisdom::Color color)
         -> wisdom::ui::Color
     {
-        using enum wisdom::Color;
         switch (color)
         {
-            case White:
+            case wisdom::Color::White:
                 return ui::Color::White;
-            case Black:
+            case wisdom::Color::Black:
                 return ui::Color::Black;
             default:
                 PRECONDITION_FAILED( "a White or Black color" );
@@ -120,13 +119,13 @@ namespace wisdom::ui
 
     [[nodiscard]] constexpr auto
     mapPiece (ui::PieceType piece)
-        -> wisdom::Piece
+        -> wisdom::optional<wisdom::Piece>
     {
         using enum PieceType;
         switch (piece)
         {
             case None:
-                return wisdom::Piece::None;
+                return wisdom::nullopt;
             case Pawn:
                 return wisdom::Piece::Pawn;
             case Knight:
@@ -148,22 +147,19 @@ namespace wisdom::ui
     mapPiece (wisdom::Piece piece)
         -> ui::PieceType
     {
-        using enum wisdom::Piece;
         switch (piece)
         {
-            case None:
-                return PieceType::None;
-            case Pawn:
+            case wisdom::Piece::Pawn:
                 return PieceType::Pawn;
-            case Knight:
+            case wisdom::Piece::Knight:
                 return PieceType::Knight;
-            case Bishop:
+            case wisdom::Piece::Bishop:
                 return PieceType::Bishop;
-            case Rook:
+            case wisdom::Piece::Rook:
                 return PieceType::Rook;
-            case Queen:
+            case wisdom::Piece::Queen:
                 return PieceType::Queen;
-            case King:
+            case wisdom::Piece::King:
                 return PieceType::King;
             default:
                 PRECONDITION_FAILED( "a piece type" );

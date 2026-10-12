@@ -90,9 +90,9 @@ namespace wisdom::ui::qml
             int src_column,
             int dst_row,
             int dst_column,
-            std::optional<wisdom::Piece> promoted
+            optional<Piece> promoted
         ) const
-            -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
+            -> std::pair<optional<Move>, Color>;
 
     private:
         std::unique_ptr<wisdom::Game> my_engine;

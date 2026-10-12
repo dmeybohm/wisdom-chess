@@ -74,7 +74,7 @@ namespace wisdom
             case 1: return Piece::Rook;
             case 2: return Piece::Knight;
             case 3: return Piece::Bishop;
-            default: return Piece::None;
+            default: PRECONDITION_FAILED( "a promotion offset" );
         }
     }
 
@@ -82,6 +82,25 @@ namespace wisdom
     {
         // Packed layout: src(6) | dst(6) | combined(4) = 16 bits
         uint16_t data;
+
+        // Every move has different squares, so a8 to a8 marks an empty
+        // optional<Move>.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make (NullRepresentationKey) noexcept
+                -> Move
+            {
+                return Move { .data = 0 };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (Move move) noexcept
+                -> bool
+            {
+                return move.data == 0;
+            }
+        };
 
     private:
         static constexpr int Src_Bits = 6;
@@ -240,7 +259,6 @@ namespace wisdom
         withPromotion (Piece piece_type) const noexcept
             -> Move
         {
-            ASSERT( piece_type != Piece::None );
             Move result = *this;
             bool is_capture = (result.getCombined() == Combined_Normal_Capture);
             auto base = is_capture ? Combined_Promote_Capture_Base : Combined_Promote_Base;
@@ -290,9 +308,8 @@ namespace wisdom
         getPromotedPiece() const noexcept
             -> Piece
         {
+            ASSERT( isPromoting() );
             auto c = getCombined();
-            if (c < Combined_Promote_Base)
-                return Piece::None;
             int8_t offset = (c >= Combined_Promote_Capture_Base)
                 ? narrow_debug<int8_t> (c - Combined_Promote_Capture_Base)
                 : narrow_debug<int8_t> (c - Combined_Promote_Base);
@@ -326,16 +343,10 @@ namespace wisdom
         {
             return isCastling() && getDst().column() == Kingside_Castled_King_Column;
         }
-
-        [[nodiscard]] constexpr auto
-        isNullMove() const noexcept
-            -> bool
-        {
-            return data == 0;
-        }
     };
 
     static_assert (sizeof (Move) == 2);
+    static_assert (sizeof (optional<Move>) == sizeof (Move));
     static_assert (std::is_trivial_v<Move>);
 
     template <class IntegerType = int8_t>
@@ -382,7 +393,7 @@ namespace wisdom
     // Parse a move. Returns empty if the parse failed, including a castling
     // move without a color.
     [[nodiscard]] auto
-    parseMove (const string& str, Color who)
+    parseMove (const string& str, optional<Color> who)
         -> optional<Move>;
 
     // The coordinate for the taken pawn.
@@ -406,7 +417,7 @@ namespace wisdom
     // a castling move needs a color. Text from outside the program goes
     // through parseMove().
     [[nodiscard]] auto
-    toMove (const string& str, Color color = Color::None)
+    toMove (const string& str, optional<Color> color = nullopt)
         -> Move;
 
     // Convert the move to a string.

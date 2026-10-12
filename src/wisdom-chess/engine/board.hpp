@@ -38,7 +38,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         pieceAt (int row, int col) const noexcept
-            -> ColoredPiece
+            -> optional<ColoredPiece>
         {
             Coord coord = Coord::make (row, col);
             return my_squares[coord.index()];
@@ -46,7 +46,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         pieceAt (Coord coord) const noexcept
-            -> ColoredPiece
+            -> optional<ColoredPiece>
         {
             return my_squares[coord.index()];
         }
@@ -242,14 +242,14 @@ namespace wisdom
         ) noexcept;
 
         void setKingPosition (Color who, Coord pos) noexcept;
-        void setPiece (Coord coord, ColoredPiece piece) noexcept;
+        void setPiece (Coord coord, optional<ColoredPiece> piece) noexcept;
         void updateMoveClock (Color who, Piece orig_src_piece_type, Move move) noexcept;
         void setCurrentTurn (Color who) noexcept;
 
     private:
         // The representation of the board. This must be declared first:
         // the Position and Material constructors read it through *this.
-        array<ColoredPiece, Num_Squares> my_squares;
+        array<optional<ColoredPiece>, Num_Squares> my_squares;
 
         // Keep track of hashing information.
         BoardCode my_code;

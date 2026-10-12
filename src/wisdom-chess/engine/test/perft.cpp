@@ -75,13 +75,14 @@ namespace wisdom
         auto src = wisdom::toCoord (move_str.substr (0, 2));
         auto dst = wisdom::toCoord (move_str.substr (2, 2));
 
-        auto promoted = Piece::None;
+        optional<Piece> promoted;
         if (move_str.size() == 5)
         {
             promoted = pieceFromChar (move_str[4]);
         }
 
-        auto src_piece = board.pieceAt (src);
+        EXPECTS( board.pieceAt (src).has_value() );
+        auto src_piece = *board.pieceAt (src);
         auto dst_piece = board.pieceAt (dst);
         EXPECTS( pieceColor (src_piece) == who );
 
@@ -103,19 +104,19 @@ namespace wisdom
         if (wisdom::pieceType (src_piece) == Piece::Pawn)
         {
             if (src.row() != dst.row() && src.column() != dst.column()
-                && dst_piece == Piece_And_Color_None)
+                && !dst_piece)
             {
                 result = Move::makeEnPassant (src, dst);
             }
         }
 
         // 3. captures denoted without x
-        if (dst_piece != Piece_And_Color_None)
+        if (dst_piece)
             result = result.withCapture();
 
         // 4. Promotions are not in parentheses
-        if (promoted != Piece::None)
-            result = result.withPromotion (promoted);
+        if (promoted)
+            result = result.withPromotion (*promoted);
 
         return result;
     }

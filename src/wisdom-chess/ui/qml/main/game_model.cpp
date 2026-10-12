@@ -15,7 +15,6 @@ using namespace wisdom;
 namespace ui = wisdom::ui;
 using std::atomic;
 using std::make_shared;
-using std::optional;
 using std::pair;
 using std::shared_ptr;
 using wisdom::nonnull;

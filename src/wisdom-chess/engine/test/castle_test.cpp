@@ -51,8 +51,8 @@ TEST_CASE( "Initializing castling state" )
 TEST_CASE( "Castling state is modified and restored for rooks" )
 {
     BoardBuilder::PieceRow back_rank = {
-        Piece::Rook,   Piece::None, Piece::Bishop, Piece::Queen, Piece::King,
-        Piece::Bishop, Piece::None, Piece::Rook
+        Piece::Rook,   nullopt, Piece::Bishop, Piece::Queen, Piece::King,
+        Piece::Bishop, nullopt, Piece::Rook
     };
 
     BoardBuilder builder;
@@ -85,8 +85,8 @@ TEST_CASE( "Castling state is modified and restored for rooks" )
 TEST_CASE( "Castling state is modified and restored for kings" )
 {
     BoardBuilder::PieceRow back_rank = {
-        Piece::Rook,   Piece::None, Piece::Bishop, Piece::None, Piece::King,
-        Piece::Bishop, Piece::None, Piece::Rook
+        Piece::Rook,   nullopt, Piece::Bishop, nullopt, Piece::King,
+        Piece::Bishop, nullopt, Piece::Rook
     };
 
     BoardBuilder builder;
@@ -117,9 +117,9 @@ TEST_CASE( "Castling state is modified and restored for kings" )
 
 TEST_CASE( "Castling state is modified and restored for castling queenside" )
 {
-    array<Piece, Num_Columns> back_rank = {
-        Piece::Rook,   Piece::None, Piece::None, Piece::None, Piece::King,
-        Piece::Bishop, Piece::None, Piece::Rook
+    BoardBuilder::PieceRow back_rank = {
+        Piece::Rook,   nullopt, nullopt, nullopt, Piece::King,
+        Piece::Bishop, nullopt, Piece::Rook
     };
 
     BoardBuilder builder;
@@ -147,17 +147,15 @@ TEST_CASE( "Castling state is modified and restored for castling queenside" )
     // Check rook and king position updated:
     CHECK( coordRow (board.getKingPosition (Color::Black)) == 0 );
     CHECK( coordColumn (board.getKingPosition (Color::Black)) == 2 );
-    CHECK( pieceType (board.pieceAt (0, 2)) == Piece::King );
-    CHECK( pieceColor (board.pieceAt (0, 2)) == Color::Black );
-    CHECK( pieceType (board.pieceAt (0, 3)) == Piece::Rook );
-    CHECK( pieceColor (board.pieceAt (0, 3)) == Color::Black );
+    CHECK( board.pieceAt (0, 2) == ColoredPiece::make (Color::Black, Piece::King) );
+    CHECK( board.pieceAt (0, 3) == ColoredPiece::make (Color::Black, Piece::Rook) );
 }
 
 TEST_CASE( "Castling state is modified and restored for castling kingside" )
 {
-    array<Piece, Num_Columns> back_rank = {
-        Piece::Rook,  Piece::None, Piece::None, Piece::None, Piece::King,
-        Piece::None, Piece::None, Piece::Rook
+    BoardBuilder::PieceRow back_rank = {
+        Piece::Rook,  nullopt, nullopt, nullopt, Piece::King,
+        nullopt, nullopt, Piece::Rook
     };
 
     BoardBuilder builder;
@@ -187,10 +185,8 @@ TEST_CASE( "Castling state is modified and restored for castling kingside" )
     // Check rook and king position updated:
     CHECK( coordRow (board.getKingPosition (Color::White)) == 7 );
     CHECK( coordColumn (board.getKingPosition (Color::White)) == 6 );
-    CHECK( pieceType (board.pieceAt (7, 6)) == Piece::King );
-    CHECK( pieceColor (board.pieceAt (7, 6)) == Color::White );
-    CHECK( pieceType (board.pieceAt (7, 5)) == Piece::Rook );
-    CHECK( pieceColor (board.pieceAt (7, 5)) == Color::White );
+    CHECK( board.pieceAt (7, 6) == ColoredPiece::make (Color::White, Piece::King) );
+    CHECK( board.pieceAt (7, 5) == ColoredPiece::make (Color::White, Piece::Rook) );
 }
 
 TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
@@ -305,17 +301,17 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken (failur
     BoardBuilder builder;
 
     builder.addRowOfSameColor (0, Color::Black,
-                               { Piece::Rook, Piece::None, Piece::Queen, Piece::None, Piece::King,
+                               { Piece::Rook, nullopt, Piece::Queen, nullopt, Piece::King,
                                  Piece::Bishop, Piece::Knight, Piece::Rook });
     builder.addRowOfSameColor (1, Color::Black,
-                               { Piece::Pawn, Piece::None, Piece::Pawn, Piece::Pawn, Piece::Pawn,
+                               { Piece::Pawn, nullopt, Piece::Pawn, Piece::Pawn, Piece::Pawn,
                                  Piece::Pawn, Piece::Pawn, Piece::Pawn });
     builder.addRowOfSameColor (6, Color::White,
-                               { Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::None, Piece::None,
+                               { Piece::Pawn, Piece::Pawn, Piece::Pawn, nullopt, nullopt,
                                  Piece::Pawn, Piece::Pawn, Piece::Pawn });
     builder.addRowOfSameColor (7, Color::White,
-                               { Piece::Rook, Piece::Knight, Piece::Bishop, Piece::None,
-                                 Piece::King, Piece::None, Piece::Knight, Piece::Rook });
+                               { Piece::Rook, Piece::Knight, Piece::Bishop, nullopt,
+                                 Piece::King, nullopt, Piece::Knight, Piece::Rook });
 
     builder.addPiece ("a6", Color::Black, Piece::Pawn);
     builder.addPiece ("e5", Color::Black, Piece::Bishop);
@@ -367,17 +363,17 @@ TEST_CASE( "Castling state is modified when rook takes a piece on same column (s
     BoardBuilder builder;
 
     builder.addRowOfSameColor (0, Color::Black,
-                               { Piece::None, Piece::None, Piece::Bishop, Piece::Queen, Piece::King,
+                               { nullopt, nullopt, Piece::Bishop, Piece::Queen, Piece::King,
                                  Piece::Bishop, Piece::Knight, Piece::Rook });
     builder.addRowOfSameColor (1, Color::Black,
-                               { Piece::Pawn, Piece::None, Piece::Pawn, Piece::Pawn, Piece::Pawn,
+                               { Piece::Pawn, nullopt, Piece::Pawn, Piece::Pawn, Piece::Pawn,
                                  Piece::Pawn, Piece::Pawn, Piece::Pawn });
     builder.addRowOfSameColor (6, Color::White,
-                               { Piece::None, Piece::None, Piece::Pawn, Piece::Pawn, Piece::None,
+                               { nullopt, nullopt, Piece::Pawn, Piece::Pawn, nullopt,
                                  Piece::Pawn, Piece::Pawn, Piece::Pawn });
     builder.addRowOfSameColor (7, Color::White,
                                { Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen,
-                                 Piece::King, Piece::None, Piece::Knight, Piece::Rook });
+                                 Piece::King, nullopt, Piece::Knight, Piece::Rook });
 
     builder.addPiece ("e6", Color::White, Piece::Pawn);
 

@@ -12,8 +12,6 @@ namespace wisdom
                 return "White";
             case Color::Black:
                 return "Black";
-            case Color::None:
-                return "None";
         }
         std::terminate();
     }
@@ -34,8 +32,6 @@ namespace wisdom
                 return "Knight";
             case Piece::Pawn:
                 return "Pawn";
-            case Piece::None:
-                return "None";
         }
         std::terminate();
     }

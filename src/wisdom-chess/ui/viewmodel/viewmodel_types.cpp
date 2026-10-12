@@ -4,7 +4,7 @@ namespace wisdom::ui
 {
     auto
     getFirstHumanPlayerColor (const Players& players)
-        -> std::optional<Color>
+        -> optional<Color>
     {
         if (players[0] == Player::Human)
         {
@@ -33,8 +33,6 @@ namespace wisdom::ui
         const DrawAnswerCallback& answered
     )
     {
-        EXPECTS( isColorValid (who) );
-
         for (auto player : { who, colorInvert (who) })
         {
             if (game->getPlayer (player) != Player::ChessEngine)

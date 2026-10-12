@@ -49,14 +49,17 @@ namespace wisdom
             // clang-format on
         }
 
-        template <Piece sliding_piece>
+        template <Piece::Value sliding_piece>
         [[nodiscard]] constexpr auto
         checkSlidingThreats (int target_row, int target_col) const noexcept
             -> ThreatStatus
         {
-            ColoredPiece piece = board.pieceAt (target_row, target_col);
-            auto type = pieceType (piece);
-            auto target_color = pieceColor (piece);
+            auto piece = board.pieceAt (target_row, target_col);
+            if (!piece)
+                return ThreatStatus::None;
+
+            auto type = pieceType (*piece);
+            auto target_color = pieceColor (*piece);
 
             int is_sliding = type == sliding_piece;
             int is_queen = type == Piece::Queen;
@@ -64,11 +67,7 @@ namespace wisdom
 
             int has_threatening_piece = (is_sliding | is_queen) & is_opponent_color;
 
-            ThreatStatus result = has_threatening_piece ? ThreatStatus::Threatened :
-                type != Piece::None ? ThreatStatus::Blocked :
-                                    ThreatStatus::None;
-
-            return result;
+            return has_threatening_piece ? ThreatStatus::Threatened : ThreatStatus::Blocked;
         }
 
         // Check an entire row for any rook / queen threats.
@@ -199,7 +198,7 @@ namespace wisdom
 
         // Walk one line from the king, stopping at the edge or the first
         // piece, and report a sliding piece or queen of the opponent on it.
-        template <Piece sliding_piece, int horiz_direction, int vert_direction>
+        template <Piece::Value sliding_piece, int horiz_direction, int vert_direction>
         [[nodiscard]] auto
         checkLineThreat() const noexcept
             -> bool

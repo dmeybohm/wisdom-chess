@@ -138,7 +138,7 @@ namespace wisdom
         my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece) noexcept
+    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, optional<ColoredPiece> dst_piece) noexcept
     {
         Color opponent = colorInvert (who);
 
@@ -154,8 +154,9 @@ namespace wisdom
 
             case MoveCategory::NormalCapturing:
                 {
+                    ASSERT( dst_piece.has_value() );
                     Coord taken_piece_coord = dst;
-                    remove (opponent, taken_piece_coord, dst_piece);
+                    remove (opponent, taken_piece_coord, *dst_piece);
                 }
                 break;
 
@@ -200,8 +201,8 @@ namespace wisdom
         for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
-            if (piece != Piece_And_Color_None)
-                add (pieceColor (piece), coord, piece);
+            if (piece)
+                add (pieceColor (*piece), coord, *piece);
         }
     }
 

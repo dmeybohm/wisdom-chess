@@ -87,12 +87,12 @@ namespace wisdom
         {
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = pieceAt (row, col);
+                auto piece = pieceAt (row, col);
 
                 if (!col)
                     result += "|";
 
-                if (pieceType (piece) != Piece::None && pieceColor (piece) == Color::Black)
+                if (piece && pieceColor (*piece) == Color::Black)
                 {
                     result += "*";
                 }
@@ -101,7 +101,13 @@ namespace wisdom
                     result += " ";
                 }
 
-                switch (pieceType (piece))
+                if (!piece)
+                {
+                    result += "  |";
+                    continue;
+                }
+
+                switch (pieceType (*piece))
                 {
                     case Piece::Pawn:
                         result += "p";
@@ -120,9 +126,6 @@ namespace wisdom
                         break;
                     case Piece::King:
                         result += "K";
-                        break;
-                    case Piece::None:
-                        result += " ";
                         break;
                 }
 
@@ -179,8 +182,8 @@ namespace wisdom
 
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = pieceAt (row, col);
-                if (piece == Piece_And_Color_None)
+                auto piece = pieceAt (row, col);
+                if (!piece)
                 {
                     none_count++;
                 }
@@ -190,8 +193,8 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = toUpper (pieceToChar (piece));
-                    if (pieceColor (piece) == Color::Black)
+                    char ch = toUpper (pieceToChar (*piece));
+                    if (pieceColor (*piece) == Color::Black)
                         ch = toLower (ch);
 
                     row_string.append (1, ch);
@@ -238,9 +241,9 @@ namespace wisdom
         auto coord_begin = std::begin (my_squares);
         auto coord_end = std::end (my_squares);
 
-        auto finder = [piece_type] (const ColoredPiece& colored_piece)
+        auto finder = [piece_type] (const optional<ColoredPiece>& square)
         {
-            return colored_piece.type() == piece_type;
+            return square && square->type() == piece_type;
         };
         auto result = std::find_if (
             coord_begin + starting_at.index(),
@@ -250,7 +253,7 @@ namespace wisdom
         auto diff = narrow<int> (result - coord_begin);
 
         return (result != coord_end)
-            ? std::make_optional<Coord> (Coord::fromIndex (diff))
+            ? optional<Coord> { Coord::fromIndex (diff) }
             : nullopt;
     }
 

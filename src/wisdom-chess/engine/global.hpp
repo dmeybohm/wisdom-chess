@@ -26,12 +26,12 @@
 
 #include "wisdom-chess/engine/cast.hpp"
 #include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/engine/optional.hpp"
 #include "wisdom-chess/engine/ptr.hpp"
 #include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
 {
-    inline constexpr int Weight_None = 0;
     inline constexpr int Weight_King = 1500;
     inline constexpr int Weight_Queen = 1000;
     inline constexpr int Weight_Rook = 500;

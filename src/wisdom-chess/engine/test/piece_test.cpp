@@ -27,15 +27,24 @@ TEST_CASE( "A piece can be converted" )
             CHECK( pieceColor (combined) == color );
         }
     }
-    CHECK( Piece_And_Color_None == ColoredPiece::make (Color::None, Piece::None) );
-    CHECK( pieceType (Piece_And_Color_None) == Piece::None );
-    CHECK( pieceColor (Piece_And_Color_None) == Color::None );
+    CHECK( !optional<ColoredPiece> {}.has_value() );
+    CHECK( !optional<Piece> {}.has_value() );
 }
 
 TEST_CASE( "Color invert" )
 {
     CHECK( colorInvert (Color::White) == Color::Black );
     CHECK( colorInvert (Color::Black) == Color::White );
+}
+
+TEST_CASE( "colorBits() places each color above the piece type" )
+{
+    CHECK( colorBits (Color::White) == 0b01'000 );
+    CHECK( colorBits (Color::Black) == 0b10'000 );
+
+    CHECK( (colorBits (Color::White) & colorBits (Color::Black)) == 0 );
+    CHECK( (colorBits (Color::White) & Piece_Type_Mask) == 0 );
+    CHECK( (colorBits (Color::Black) & Piece_Type_Mask) == 0 );
 }
 
 namespace
@@ -46,7 +55,6 @@ namespace
 
 TEST_CASE( "to_int gives a colored piece's packed value" )
 {
-    CHECK( to_int (Piece_And_Color_None) == 0 );
     CHECK( to_int (ColoredPiece::make (Color::White, Piece::Pawn)) == 0b01'001 );
     CHECK( to_int (ColoredPiece::make (Color::Black, Piece::King)) == 0b10'110 );
 

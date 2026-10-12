@@ -184,7 +184,7 @@ namespace wisdom
 
         auto crossed = my_builder.pieceAt (target);
         auto origin = my_builder.pieceAt (makeCoord (nextRow (target_row, -direction), column));
-        if (crossed != Piece_And_Color_None || origin != Piece_And_Color_None)
+        if (crossed || origin)
             return parseError ("En passant target requires empty squares behind the pawn!");
 
         return {};
@@ -243,8 +243,8 @@ namespace wisdom
 
         auto has_rook_at = [&] (int col)
         {
-            auto piece = my_builder.pieceAt (makeCoord (row, col));
-            return pieceType (piece) == Piece::Rook && pieceColor (piece) == who;
+            return my_builder.pieceAt (makeCoord (row, col))
+                == ColoredPiece::make (who, Piece::Rook);
         };
 
         auto king = my_builder.pieceAt (makeCoord (row, King_Column));
