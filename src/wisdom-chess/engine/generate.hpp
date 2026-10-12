@@ -41,6 +41,11 @@ namespace wisdom
     hasLegalMove (const Board& board) noexcept
         -> bool;
 
+    // Whether the move is one of the legal moves of the player to move.
+    [[nodiscard]] auto
+    isLegalMove (const Board& board, Move move) noexcept
+        -> bool;
+
     // The same, for a caller that already knows whether the player to move
     // is in check.
     [[nodiscard]] auto

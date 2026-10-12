@@ -34,6 +34,14 @@ A number that is no move would corrupt the board in Release.
   our own code packed, so a bad one is a bug; playing it anyway would
   leave the worker's game and the main thread's apart, so it fails
   loudly instead.
+- A well-formed move can still be illegal, such as a3 to a4 from the
+  starting position, where a3 is empty. `Game::move()` trusts its move,
+  and `Board::makeMove()` checks the source piece only in Debug, so the
+  worker also checks `isLegalMove()`, a new public function in
+  `generate.hpp` that looks for the move among the legal moves of the
+  player to move. `mainThreadReceiveMove()` only turns the engine's
+  move into text, so it needs no legality check. `search.cpp` and the
+  view model each have a similar private check, left as they are.
 
 ## Implementation Progress
 
@@ -44,4 +52,11 @@ A number that is no move would corrupt the board in Release.
   castling, en passant, captures and promotions, and rejects numbers
   outside sixteen bits, moves to their own square and unused kinds.
 - Debug with QML: 332 tests pass, and `lint` is clean. Clang builds,
+  and the WASM frontend builds.
+
+### Session #2
+
+- Review: the worker checks the move is legal before playing it, with
+  the new `isLegalMove (const Board&, Move)`, which has a test.
+- Debug with QML: 333 tests pass, and `lint` is clean. Clang builds,
   and the WASM frontend builds.
