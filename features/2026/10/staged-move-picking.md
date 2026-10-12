@@ -9,7 +9,32 @@ move at a time: the table move before anything is generated, then the
 captures, then the killers, and the quiet moves only when nothing before
 them cut off.
 
-## Design
+## What this branch changes
+
+Lazy selection, the part of the design the measurements below support:
+a node takes its moves from an `OrderedMoveList` (`engine/move_list.hpp`),
+which holds each move with its `sortKey()`. The first move is found by
+selection; the rest are sorted only when a second is taken. Most nodes
+that cut off do so on their first move (Session #1), so they never sort.
+The order is the one the full sort gave, so moves, scores and node
+counts are unchanged.
+
+`generateOrderedMoves()` and `generateOrderedCaptures()` fill a list the
+caller gives them. A list's keys must outlive the node's children, and at
+4 KB a list in every frame would exhaust Emscripten's 64 KB stack, where
+a frame held a 512-byte `MoveList` before. So `IterativeSearchImpl`,
+which is only created on the heap, owns one list per ply, for
+`Max_Search_Depth` plies plus `Max_Quiescence_Line`, and `search()` and
+`quiesce()` borrow their ply's list as a `nonnull`. That is about 520 KB
+per search. `generateAllPotentialMoves()` and `generateCaptures()` drain
+a list into a `MoveList`, so every caller gets the same order.
+
+A quiescence line is at most 50 plies: 30 captures, 16 promotions to a
+queen without a capture, and 4 evasions, since a check past
+`Max_Quiescence_Evasion_Ply` ends the line. `Max_Quiescence_Line` is 64,
+and `moveListAt()` checks the ply with `EXPECTS`.
+
+## Staged picker, not built
 
 A `MovePicker` with a stage enum and a `next()` that returns
 `optional<Move>`, replacing the range-for over a `MoveList` in
@@ -35,13 +60,13 @@ stay identical: `makeSortKey()` makes the order total.
 ## Probe
 
 Counters in `search()` and `quiesce()` (`engine/move_picking_probe.hpp`),
-printed by `--search-report` after each position. They count, per move
+printed by `--search-report` after each position, removed again before
+the change was made. They count, per move
 list a node searched: the moves generated, the moves taken from the list
 (illegal ones included), where in the list the cutoff came and which
 stage the cutoff move belongs to. A stage is classified the way
 `sortKey()` ranks it. A list is counted once per node that generates
-one, so a quiescence node that stands pat is not counted. The probe is
-a measurement and will be reverted.
+one, so a quiescence node that stands pat is not counted.
 
 ## Implementation Progress
 
@@ -182,3 +207,24 @@ alternating rounds.
   table move to try first. The split between the two was not measured.
 - The walk starts with `Board::allCoords()`, testing all 64 squares for
   a piece of the side to move, before generating anything.
+
+### Session #4
+
+- Removed the probe, merged `origin/main` at `5656ed41`, and made the
+  change described under "What this branch changes". The prototype of
+  Session #2 kept its list in each frame; the lists moved to the search
+  for the WASM stack.
+- Taking one move by selection and then sorting the rest was the fastest
+  of Session #2's three builds, though not by a settled margin; it also
+  bounds the cost at a node that takes every move to one selection and
+  one sort.
+- `--search-report 7` gives the same move, score, node and quiescence
+  node counts as `main` at every depth of every position.
+- Tests: `OrderedMoveList` order and `clear()`, a list filled again for
+  another position, and a fatal case for appending past the end. The
+  ordering tests in `generate_test.cpp` now run through the list, since
+  `generateAllPotentialMoves()` does. All 338 tests pass in Release with
+  the slow tests on, and the fast and medium ones in Debug.
+- Item 6 of [improvement-suggestions.md](../09/improvement-suggestions.md)
+  stays open: the staged picker was not built, and Session #3 puts its
+  likely gain beyond this change at a few percent.
