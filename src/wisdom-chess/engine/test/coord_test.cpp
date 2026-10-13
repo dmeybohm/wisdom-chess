@@ -1,4 +1,5 @@
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/coord_set.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -57,6 +58,40 @@ TEST_CASE( "CoordIterator" )
 
         CHECK( *previous == First_Coord );
         CHECK( *iterator == makeCoord (0, 1) );
+    }
+}
+
+TEST_CASE( "CoordSet" )
+{
+    SUBCASE( "An empty set visits nothing" )
+    {
+        CoordSet empty;
+
+        CHECK( empty.size() == 0 );
+        CHECK( empty.begin() == empty.end() );
+    }
+
+    SUBCASE( "A set visits its squares in index order" )
+    {
+        auto bits = CoordSet::bit (toCoord ("h1"))
+            | CoordSet::bit (toCoord ("a8"))
+            | CoordSet::bit (toCoord ("e4"));
+        CoordSet set { bits };
+
+        vector<Coord> visited;
+        for (auto coord : set)
+            visited.push_back (coord);
+
+        CHECK( set.size() == 3 );
+        CHECK( visited == vector { toCoord ("a8"), toCoord ("e4"), toCoord ("h1") } );
+    }
+
+    SUBCASE( "contains() tests one square" )
+    {
+        CoordSet set { CoordSet::bit (toCoord ("d5")) };
+
+        CHECK( set.contains (toCoord ("d5")) );
+        CHECK( !set.contains (toCoord ("d4")) );
     }
 }
 

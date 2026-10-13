@@ -66,6 +66,20 @@ namespace
         return board.pieceAt (board.getKingPosition (who)) == ColoredPiece::make (who, Piece::King);
     }
 
+    auto
+    pieceCoordsFromSquares (const Board& board, Color who)
+        -> CoordSet
+    {
+        uint64_t bits = 0;
+        for (auto coord : Board::allCoords())
+        {
+            auto piece = board.pieceAt (coord);
+            if (piece && pieceColor (*piece) == who)
+                bits |= CoordSet::bit (coord);
+        }
+        return CoordSet { bits };
+    }
+
     // Counts the boards reached by legal moves whose incrementally updated
     // state differs from one recomputed from the squares.
     auto
@@ -84,7 +98,9 @@ namespace
                 && next.getMaterial() == Material { next }
                 && next.getPosition() == Position { next }
                 && hasKingAtKingPosition (next, Color::White)
-                && hasKingAtKingPosition (next, Color::Black);
+                && hasKingAtKingPosition (next, Color::Black)
+                && next.getPieceCoords (Color::White) == pieceCoordsFromSquares (next, Color::White)
+                && next.getPieceCoords (Color::Black) == pieceCoordsFromSquares (next, Color::Black);
             if (!consistent)
                 count++;
 

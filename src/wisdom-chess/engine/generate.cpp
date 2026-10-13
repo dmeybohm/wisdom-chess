@@ -578,15 +578,8 @@ namespace wisdom
                 board, &result, 0, 0, who, ordering, captures_only
             };
 
-            for (auto coord : Board::allCoords())
-            {
-                auto piece = board.pieceAt (coord);
-
-                if (!piece || pieceColor (*piece) != who)
-                    continue;
-
-                generation.generate (*piece, coord);
-            }
+            for (auto coord : board.getPieceCoords (who))
+                generation.generate (*board.pieceAt (coord), coord);
 
             struct KeyedMove
             {
@@ -748,10 +741,9 @@ namespace wisdom
         hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord) noexcept
             -> bool
         {
-            for (auto coord : Board::allCoords())
+            for (auto coord : board.getPieceCoords (who))
             {
-                auto piece = board.pieceAt (coord);
-                if (!piece || pieceColor (*piece) != who || sharesLine (coord, king_coord))
+                if (sharesLine (coord, king_coord))
                     continue;
 
                 for (auto move : generatePieceMoves (board, who, coord))
@@ -780,10 +772,9 @@ namespace wisdom
         if (pieceHasLegalMove (board, who, king_coord))
             return true;
 
-        for (auto coord : Board::allCoords())
+        for (auto coord : board.getPieceCoords (who))
         {
-            auto piece = board.pieceAt (coord);
-            if (!piece || pieceColor (*piece) != who || coord == king_coord)
+            if (coord == king_coord)
                 continue;
 
             if (pieceHasLegalMove (board, who, coord))

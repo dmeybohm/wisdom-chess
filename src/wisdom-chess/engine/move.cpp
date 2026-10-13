@@ -47,6 +47,12 @@ namespace wisdom
     Board::setPiece (Coord coord, optional<ColoredPiece> piece) noexcept
     {
         my_squares[coord.index()] = piece;
+
+        auto bit = CoordSet::bit (coord);
+        my_occupied[colorIndex (Color::White)] &= ~bit;
+        my_occupied[colorIndex (Color::Black)] &= ~bit;
+        if (piece)
+            my_occupied[colorIndex (pieceColor (*piece))] |= bit;
     }
 
     void
@@ -329,6 +335,7 @@ namespace wisdom
         updateEnPassantEligibility (who, src_piece, move);
 
         ASSERT( hasKingsAtKingPositions() );
+        ASSERT( occupiedMatchesSquares() );
     }
 
     namespace

@@ -4,6 +4,7 @@
 
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/coord_set.hpp"
 #include "wisdom-chess/engine/material.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/piece.hpp"
@@ -110,6 +111,14 @@ namespace wisdom
         withCurrentTurn (Color who) const noexcept
             -> Board;
 
+        // The squares of one side's pieces.
+        [[nodiscard]] auto
+        getPieceCoords (Color who) const noexcept
+            -> CoordSet
+        {
+            return CoordSet { my_occupied[colorIndex (who)] };
+        }
+
         [[nodiscard]] auto
         getKingPosition (Color who) const noexcept
             -> Coord
@@ -210,6 +219,11 @@ namespace wisdom
         hasKingsAtKingPositions() const noexcept
             -> bool;
 
+        // Whether each side's occupied squares are those its pieces are on.
+        [[nodiscard]] auto
+        occupiedMatchesSquares() const noexcept
+            -> bool;
+
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void classifyEnPassantTarget() noexcept;
@@ -268,5 +282,8 @@ namespace wisdom
 
         // positions of the kings.
         array<Coord, Num_Players> my_king_pos;
+
+        // The squares each side's pieces are on, one bit for each index.
+        array<uint64_t, Num_Players> my_occupied {};
     };
 }
