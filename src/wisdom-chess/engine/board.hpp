@@ -13,6 +13,7 @@
 namespace wisdom
 {
     class BoardBuilder;
+    class BoardPieces;
 
     class Board
     {
@@ -118,6 +119,12 @@ namespace wisdom
         {
             return CoordSet { my_occupied[colorIndex (who)] };
         }
+
+        // One side's pieces with their squares.
+        [[nodiscard]] auto
+        getPieces (Color who) const& noexcept
+            -> BoardPieces;
+        void getPieces (Color who) const&& = delete;
 
         [[nodiscard]] auto
         getKingPosition (Color who) const noexcept
@@ -286,4 +293,154 @@ namespace wisdom
         // The squares each side's pieces are on, one bit for each index.
         array<uint64_t, Num_Players> my_occupied {};
     };
+
+    // A piece and the square it is on, which reads the piece from the
+    // board.
+    class PlacedPiece
+    {
+    public:
+        constexpr
+        PlacedPiece (nonnull<const Board> board, Coord coord) noexcept
+            : my_board { board }
+            , my_coord { coord }
+        {}
+
+        [[nodiscard]] constexpr auto
+        coord() const noexcept
+            -> Coord
+        {
+            return my_coord;
+        }
+
+        [[nodiscard]] auto
+        piece() const noexcept
+            -> ColoredPiece;
+
+        template <size_t Index>
+        [[nodiscard]] auto
+        get() const noexcept
+        {
+            if constexpr (Index == 0)
+                return coord();
+            else
+                return piece();
+        }
+
+    private:
+        nonnull<const Board> my_board;
+        Coord my_coord;
+    };
+
+    // One side's pieces on a board, in square index order.
+    class BoardPieces
+    {
+    public:
+        class Iterator
+        {
+        public:
+            using difference_type = int;
+            using value_type = PlacedPiece;
+            using reference = PlacedPiece;
+            using iterator_category = std::forward_iterator_tag;
+
+            constexpr
+            Iterator (nonnull<const Board> board, CoordSet::Iterator coords) noexcept
+                : my_board { board }
+                , my_coords { coords }
+            {}
+
+            [[nodiscard]] auto
+            operator*() const noexcept
+                -> PlacedPiece
+            {
+                return PlacedPiece { my_board, *my_coords };
+            }
+
+            constexpr auto
+            operator++() noexcept
+                -> Iterator&
+            {
+                ++my_coords;
+                return *this;
+            }
+
+            constexpr auto
+            operator++ (int) noexcept
+                -> Iterator
+            {
+                auto previous = *this;
+                ++my_coords;
+                return previous;
+            }
+
+            [[nodiscard]] constexpr auto
+            operator== (const Iterator& other) const noexcept
+                -> bool
+            {
+                return my_coords == other.my_coords;
+            }
+
+        private:
+            nonnull<const Board> my_board;
+            CoordSet::Iterator my_coords;
+        };
+
+        constexpr
+        BoardPieces (nonnull<const Board> board, CoordSet coords) noexcept
+            : my_board { board }
+            , my_coords { coords }
+        {}
+
+        [[nodiscard]] constexpr auto
+        begin() const noexcept
+            -> Iterator
+        {
+            return Iterator { my_board, my_coords.begin() };
+        }
+
+        [[nodiscard]] constexpr auto
+        end() const noexcept
+            -> Iterator
+        {
+            return Iterator { my_board, my_coords.end() };
+        }
+
+    private:
+        nonnull<const Board> my_board;
+        CoordSet my_coords;
+    };
+
+    inline auto
+    PlacedPiece::piece() const noexcept
+        -> ColoredPiece
+    {
+        auto piece = my_board->pieceAt (my_coord);
+        ASSERT( piece.has_value() );
+        return *piece;
+    }
+
+    inline auto
+    Board::getPieces (Color who) const& noexcept
+        -> BoardPieces
+    {
+        return BoardPieces { this, getPieceCoords (who) };
+    }
 }
+
+template <>
+struct std::tuple_size<wisdom::PlacedPiece>
+    : std::integral_constant<size_t, 2>
+{
+};
+
+template <>
+struct std::tuple_element<0, wisdom::PlacedPiece>
+{
+    using type = wisdom::Coord;
+};
+
+template <>
+struct std::tuple_element<1, wisdom::PlacedPiece>
+{
+    using type = wisdom::ColoredPiece;
+};

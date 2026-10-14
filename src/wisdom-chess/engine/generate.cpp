@@ -578,8 +578,8 @@ namespace wisdom
                 board, &result, 0, 0, who, ordering, captures_only
             };
 
-            for (auto coord : board.getPieceCoords (who))
-                generation.generate (*board.pieceAt (coord), coord);
+            for (auto [coord, piece] : board.getPieces (who))
+                generation.generate (piece, coord);
 
             struct KeyedMove
             {

@@ -127,3 +127,30 @@ TEST_CASE( "Incrementally updated board state matches a recompute" )
         CHECK( countInconsistentBoards (board, 3) == 0 );
     }
 }
+
+TEST_CASE( "getPieces() gives each of a side's pieces with its square" )
+{
+    FenParser parser { "4k3/8/8/3p4/8/8/8/R3K2N w - - 0 1" };
+    auto board = parser.buildBoard();
+
+    vector<PlacedPiece> white;
+    for (auto placed : board.getPieces (Color::White))
+        white.push_back (placed);
+
+    REQUIRE( white.size() == 3 );
+    CHECK( white[0].coord() == toCoord ("a1") );
+    CHECK( white[0].piece() == ColoredPiece::make (Color::White, Piece::Rook) );
+    CHECK( white[1].coord() == toCoord ("e1") );
+    CHECK( white[1].piece() == ColoredPiece::make (Color::White, Piece::King) );
+    CHECK( white[2].coord() == toCoord ("h1") );
+    CHECK( white[2].piece() == ColoredPiece::make (Color::White, Piece::Knight) );
+
+    int black_count = 0;
+    for (auto [coord, piece] : board.getPieces (Color::Black))
+    {
+        CHECK( board.pieceAt (coord) == piece );
+        CHECK( pieceColor (piece) == Color::Black );
+        black_count++;
+    }
+    CHECK( black_count == 2 );
+}

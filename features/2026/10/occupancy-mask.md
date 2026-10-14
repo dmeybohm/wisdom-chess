@@ -56,3 +56,18 @@ named there: one `uint64_t` per side marking its pieces' squares.
 - All 337 tests pass in Release, the slow ones included, and the fast
   and medium ones in Debug, where `occupiedMatchesSquares()` is checked
   after every move. The slow ones were not run in Debug.
+
+### Session #2
+
+- `Board::getPieces()` gives one side's pieces with their squares, as
+  `for (auto [coord, piece] : board.getPieces (who))`, with a plain
+  `Coord` and `ColoredPiece`. The generator's loop uses it.
+- A `PlacedPiece` that was an aggregate of the two, or a `std::pair`,
+  made GCC build the two bytes in one register and read the piece back
+  out of its high byte (`mov dh,al`, `movzx esi,dh`) for every piece;
+  the depth-7 report was about 1.6% slower. Aligning each member to four
+  bytes packed them into a 64-bit register with shifts instead.
+  `PlacedPiece` is therefore a class holding the board and the square,
+  tuple-like for structured bindings, whose `get<1>()` reads the piece
+  from the board: the loop compiles to the same instructions as before
+  but a register move. Depth-7 counts match `main`.
