@@ -695,23 +695,23 @@ namespace wisdom
     namespace
     {
         auto
-        generatePieceMoves (const Board& board, Color who, Coord coord) noexcept
+        generatePieceMoves (const Board& board, Color who, ColoredPiece piece, Coord coord) noexcept
             -> MoveList
         {
             MoveList result;
             MoveGeneration generation { board, &result, 0, 0, who, MoveOrdering {} };
 
-            ASSERT( board.pieceAt (coord).has_value() );
-            generation.generate (*board.pieceAt (coord), coord);
+            ASSERT( board.pieceAt (coord) == piece );
+            generation.generate (piece, coord);
 
             return result;
         }
 
         auto
-        pieceHasLegalMove (const Board& board, Color who, Coord coord) noexcept
+        pieceHasLegalMove (const Board& board, Color who, ColoredPiece piece, Coord coord) noexcept
             -> bool
         {
-            for (auto move : generatePieceMoves (board, who, coord))
+            for (auto move : generatePieceMoves (board, who, piece, coord))
             {
                 Board new_board = board.withMove (who, move);
 
@@ -741,12 +741,12 @@ namespace wisdom
         hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord) noexcept
             -> bool
         {
-            for (auto coord : board.getPieceCoords (who))
+            for (auto [coord, piece] : board.getPieces (who))
             {
                 if (sharesLine (coord, king_coord))
                     continue;
 
-                for (auto move : generatePieceMoves (board, who, coord))
+                for (auto move : generatePieceMoves (board, who, piece, coord))
                 {
                     if (!move.isEnPassant())
                         return true;
@@ -769,15 +769,15 @@ namespace wisdom
         if (!in_check && hasMoveThatCannotExposeKing (board, who, king_coord))
             return true;
 
-        if (pieceHasLegalMove (board, who, king_coord))
+        if (pieceHasLegalMove (board, who, ColoredPiece::make (who, Piece::King), king_coord))
             return true;
 
-        for (auto coord : board.getPieceCoords (who))
+        for (auto [coord, piece] : board.getPieces (who))
         {
             if (coord == king_coord)
                 continue;
 
-            if (pieceHasLegalMove (board, who, coord))
+            if (pieceHasLegalMove (board, who, piece, coord))
                 return true;
         }
 

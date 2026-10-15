@@ -61,7 +61,9 @@ named there: one `uint64_t` per side marking its pieces' squares.
 
 - `Board::getPieces()` gives one side's pieces with their squares, as
   `for (auto [coord, piece] : board.getPieces (who))`, with a plain
-  `Coord` and `ColoredPiece`. The generator's loop uses it.
+  `Coord` and `ColoredPiece`. The generator's loop uses it, and so do
+  both walks in `hasLegalMove()`, whose helpers `generatePieceMoves()` and
+  `pieceHasLegalMove()` now take the piece instead of looking it up.
 - A `PlacedPiece` that was an aggregate of the two, or a `std::pair`,
   made GCC build the two bytes in one register and read the piece back
   out of its high byte (`mov dh,al`, `movzx esi,dh`) for every piece;
