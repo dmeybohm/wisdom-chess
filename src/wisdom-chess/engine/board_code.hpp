@@ -314,17 +314,3 @@ namespace wisdom
         std::uint64_t my_code = 0;
     };
 }
-
-namespace std
-{
-    template <>
-    struct hash<wisdom::BoardCode>
-    {
-        [[nodiscard]] auto
-        operator() (const wisdom::BoardCode& code) const noexcept
-            -> std::size_t
-        {
-            return code.getHashCode();
-        }
-    };
-}
