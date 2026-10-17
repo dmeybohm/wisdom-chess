@@ -667,7 +667,7 @@ TEST_CASE( "Hash collision analysis" )
             if (hash_value == 0)
                 continue;
 
-            for (int bit = Total_Metadata_Bits; bit < 64; ++bit)
+            for (std::size_t bit = Total_Metadata_Bits; bit < 64; ++bit)
             {
                 if ((hash_value >> bit) & 1)
                     bit_counts[bit]++;
@@ -681,7 +681,7 @@ TEST_CASE( "Hash collision analysis" )
                 non_zero_entries++;
         }
 
-        for (int bit = Total_Metadata_Bits; bit < 64; ++bit)
+        for (std::size_t bit = Total_Metadata_Bits; bit < 64; ++bit)
         {
             double ratio = to_double (bit_counts[bit]) / non_zero_entries;
             CHECK_MESSAGE( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );

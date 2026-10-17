@@ -20,7 +20,7 @@ namespace wisdom
 
     [[nodiscard]] constexpr auto
     zobristPieceIndex (Color piece_color, Piece piece_type) noexcept
-        -> int
+        -> std::size_t
     {
         return colorIndex (piece_color) * Num_Piece_Types + pieceIndex (piece_type);
     }
@@ -52,7 +52,7 @@ namespace wisdom
                                 Piece::Rook, Piece::Queen, Piece::King })
             {
                 auto piece_index = zobristPieceIndex (color, piece);
-                for (auto square = 0; square < Num_Squares; square++)
+                for (std::size_t square = 0; square < Num_Squares; square++)
                     code_array[piece_index * Num_Squares + square] = zobristKey (&random);
             }
         }
@@ -147,16 +147,14 @@ namespace wisdom
                 ? LEGAL_EN_PASSANT_TARGET_BIT
                 : ILLEGAL_EN_PASSANT_TARGET_BIT;
 
-            auto metadata = getMetadataBits();
-            metadata &= ~En_Passant_Targets_Mask;
+            auto metadata = narrow_debug<uint16_t> (getMetadataBits() & ~En_Passant_Targets_Mask);
             metadata |= narrow_debug<uint16_t> (coord_bits << target_bit_shift);
             setMetadataBits (metadata);
         }
 
         void clearEnPassantTarget() noexcept
         {
-            auto metadata = getMetadataBits();
-            metadata &= ~En_Passant_Targets_Mask;
+            auto metadata = narrow_debug<uint16_t> (getMetadataBits() & ~En_Passant_Targets_Mask);
             setMetadataBits (metadata);
         }
 
@@ -198,9 +196,7 @@ namespace wisdom
         void setCurrentTurn (Color who) noexcept
         {
             auto current_turn_bit = narrow_debug<uint16_t> (colorIndex (who) & Current_Turn_Mask);
-            auto metadata_bits = getMetadataBits();
-
-            metadata_bits &= ~Current_Turn_Mask;
+            auto metadata_bits = narrow_debug<uint16_t> (getMetadataBits() & ~Current_Turn_Mask);
             metadata_bits |= current_turn_bit;
             setMetadataBits (metadata_bits);
         }
@@ -227,8 +223,7 @@ namespace wisdom
                 : CASTLING_STATE_BLACK_BIT;
             auto mask = narrow_debug<uint16_t> (CASTLE_ONE_COLOR_MASK << bit_number);
 
-            auto metadata_bits = getMetadataBits();
-            metadata_bits &= ~mask;
+            auto metadata_bits = narrow_debug<uint16_t> (getMetadataBits() & ~mask);
             metadata_bits |= narrow_debug<uint16_t> (castling_bits << bit_number);
             setMetadataBits (metadata_bits);
         }

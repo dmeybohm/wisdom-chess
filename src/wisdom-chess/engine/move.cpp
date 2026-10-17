@@ -403,7 +403,7 @@ namespace wisdom
         optional<Coord> src = parseCoord (tmp.substr (0, 2));
         if (!src.has_value())
             return nullopt;
-        int offset = 2;
+        std::size_t offset = 2;
 
         // allow an 'x' between coordinates, which is used to indicate a capture
         if (tmp[offset] == 'X')

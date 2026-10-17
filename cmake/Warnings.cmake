@@ -2,9 +2,7 @@
 # WISDOM_CHESS_WERROR on, as in CI, a warning fails the build.
 function(wisdom_chess_enable_warnings target)
     target_compile_options(${target} PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wconversion>
-        # Clang's -Wconversion includes -Wsign-conversion; GCC's does not.
-        $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-sign-conversion>
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wconversion -Wsign-conversion>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
     )
     if(WISDOM_CHESS_WERROR)

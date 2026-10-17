@@ -283,7 +283,7 @@ namespace wisdom
         }
 
         array<WebColoredPiece, Num_Squares> pieces {};
-        int length = 0;
+        std::size_t length = 0;
 
         void addPiece (WebColoredPiece piece)
         {
@@ -291,36 +291,37 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        pieceAt (int index)
+        pieceAt (std::size_t index)
             -> WebColoredPiece
         {
             return pieces[index];
         }
 
-        // The index of the piece on the square, or -1.
+        // The index of the piece on the square, or none.
         [[nodiscard]] auto
         indexOf (Coord coord) const
-            -> int
+            -> optional<std::size_t>
         {
-            for (int i = 0; i < length; i++)
+            for (std::size_t i = 0; i < length; i++)
             {
                 if (pieces[i].row == coord.row<int>() && pieces[i].col == coord.column<int>())
                     return i;
             }
-            return -1;
+            return nullopt;
         }
 
         // Removes the piece at the index, keeping the others in order.
-        void removeAt (int index)
+        void removeAt (std::size_t index)
         {
-            for (int i = index; i < length - 1; i++)
+            EXPECTS( index < length );
+            for (auto i = index; i < length - 1; i++)
                 pieces[i] = pieces[i + 1];
             pieces[--length] = WebColoredPiece {};
         }
 
         void clear()
         {
-            for (int i = 0; i < Num_Squares; i++)
+            for (std::size_t i = 0; i < Num_Squares; i++)
             {
                 pieces[i].id = 0;
                 pieces[i].color = WebColor::NoColor;

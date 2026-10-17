@@ -96,9 +96,9 @@ namespace wisdom
 
             std::random_device random_device;
             std::mt19937 rng { random_device() };
-            std::uniform_int_distribution<std::size_t> pick { 0, moves.size() - 1 };
+            std::uniform_int_distribution<std::ptrdiff_t> pick { 0, moves.size() - 1 };
 
-            return *(moves.begin() + narrow<std::ptrdiff_t> (pick (rng)));
+            return *(moves.begin() + pick (rng));
         }
 
         class UciLogger : public Logger

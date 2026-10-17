@@ -143,7 +143,7 @@ namespace wisdom
             -> Move
         {
             Move m;
-            m.data = pack (src.index(), dst.index(), Combined_Default);
+            m.data = pack (src.index<int>(), dst.index<int>(), Combined_Default);
             return m;
         }
 

@@ -21,7 +21,8 @@ namespace wisdom
         else if (my_next == 1)
             std::sort (rest, end, by_key);
 
-        return my_moves[my_next++].move;
+        ++my_next;
+        return rest->move;
     }
 
     auto

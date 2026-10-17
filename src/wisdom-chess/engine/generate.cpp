@@ -507,7 +507,7 @@ namespace wisdom
         makeSortKey (SortKind kind, uint64_t score, Move move) noexcept
             -> uint64_t
         {
-            auto squares = to_unsigned_debug<uint64_t> (
+            auto squares = widen<uint64_t> (
                 move.getSrc().index() * Num_Squares + move.getDst().index()
             );
             return (to_underlying (kind) << Sort_Key_Kind_Shift)
