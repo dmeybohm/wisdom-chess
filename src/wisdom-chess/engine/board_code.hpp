@@ -92,6 +92,8 @@ namespace wisdom
         static constexpr std::uint16_t En_Passant_Targets_Mask =
             (EN_PASSANT_MASK << LEGAL_EN_PASSANT_TARGET_BIT)
             | (EN_PASSANT_MASK << ILLEGAL_EN_PASSANT_TARGET_BIT);
+        static constexpr std::uint16_t Current_Turn_Mask =
+            CURRENT_TURN_MASK << CURRENT_TURN_BIT;
 
     public:
         explicit BoardCode (const Board& board) noexcept;
@@ -147,7 +149,7 @@ namespace wisdom
 
             auto metadata = getMetadataBits();
             metadata &= ~En_Passant_Targets_Mask;
-            metadata |= coord_bits << target_bit_shift;
+            metadata |= narrow_debug<uint16_t> (coord_bits << target_bit_shift);
             setMetadataBits (metadata);
         }
 
@@ -195,11 +197,10 @@ namespace wisdom
 
         void setCurrentTurn (Color who) noexcept
         {
-            auto bits = colorIndex (who);
-            auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            auto current_turn_bit = narrow_debug<uint16_t> (colorIndex (who) & Current_Turn_Mask);
             auto metadata_bits = getMetadataBits();
 
-            metadata_bits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            metadata_bits &= ~Current_Turn_Mask;
             metadata_bits |= current_turn_bit;
             setMetadataBits (metadata_bits);
         }
@@ -224,11 +225,11 @@ namespace wisdom
             std::size_t bit_number = who == Color::White
                 ? CASTLING_STATE_WHITE_BIT
                 : CASTLING_STATE_BLACK_BIT;
-            std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
+            auto mask = narrow_debug<uint16_t> (CASTLE_ONE_COLOR_MASK << bit_number);
 
             auto metadata_bits = getMetadataBits();
             metadata_bits &= ~mask;
-            metadata_bits |= castling_bits << bit_number;
+            metadata_bits |= narrow_debug<uint16_t> (castling_bits << bit_number);
             setMetadataBits (metadata_bits);
         }
 

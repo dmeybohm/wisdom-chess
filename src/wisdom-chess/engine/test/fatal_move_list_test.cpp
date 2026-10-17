@@ -20,7 +20,7 @@ namespace
 
     FATAL_CASE(
         "ordered-append-overflow",
-        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < my_moves.size\\(\\)"
+        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size"
     )
     {
         auto list = std::make_unique<OrderedMoveList>();

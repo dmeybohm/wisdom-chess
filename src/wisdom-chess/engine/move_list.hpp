@@ -176,7 +176,7 @@ namespace wisdom
         constexpr void
         append (uint64_t key, Move move) noexcept
         {
-            EXPECTS( my_size < my_moves.size() );
+            EXPECTS( my_size < Max_Move_List_Size );
             my_moves[my_size++] = KeyedMove { key, move };
         }
 
@@ -201,8 +201,8 @@ namespace wisdom
         };
 
         array<KeyedMove, Max_Move_List_Size> my_moves; // NOLINT(*-pro-type-member-init)
-        size_t my_size = 0;
-        size_t my_next = 0;
+        std::ptrdiff_t my_size = 0;
+        std::ptrdiff_t my_next = 0;
     };
 
     [[nodiscard]] auto asString (const MoveList& list) -> string;
