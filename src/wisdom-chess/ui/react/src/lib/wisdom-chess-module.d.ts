@@ -86,9 +86,6 @@ declare module WisdomChessModule {
     }
     class WebColoredPieceList {
         constructor();
-        get_pieces(index: number): WebColoredPiece;
-        set_pieces(index: number, pieces: WebColoredPiece): void;
-        pieces: WebColoredPiece;
         pieceAt(index: number): WebColoredPiece;
         get_length(): number;
         set_length(length: number): void;

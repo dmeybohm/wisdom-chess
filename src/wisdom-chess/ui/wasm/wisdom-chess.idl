@@ -45,7 +45,6 @@ interface WebColoredPiece {
 [Prefix="wisdom::"]
 interface WebColoredPieceList {
     void WebColoredPieceList();
-    [Value] attribute WebColoredPiece[] pieces;
     [Value] WebColoredPiece pieceAt (unsigned long index);
     attribute unsigned long length;
 };

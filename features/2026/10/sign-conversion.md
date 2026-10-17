@@ -35,7 +35,9 @@ so the subscripts read as they did before, with no cast:
 - `WebColoredPieceList`, the WASM piece list, indexes with
   `std::size_t`; the IDL says `unsigned long`, which still generates
   `number` on the TypeScript side. `indexOf()` returns an
-  `optional<std::size_t>` instead of `-1`.
+  `optional<std::size_t>` instead of `-1`. The IDL's `pieces` array
+  attribute is gone: nothing in JavaScript used it, and the glue the
+  binder generates for an array attribute indexes it with an `int`.
 - `BoardBuilder`'s row loops iterate the row directly with an `int`
   column counter for `addPiece()`.
 - `BoardCode`'s metadata updates compute in `int` and narrow once, since
