@@ -24,9 +24,16 @@ namespace wisdom
         , my_material { Material { *this } }
         , my_king_pos { builder.getKingPositions() }
     {
+        for (auto coord : allCoords())
+        {
+            if (auto piece = pieceAt (coord))
+                my_occupied[colorIndex (pieceColor (*piece))] |= CoordSet::bit (coord);
+        }
+
         classifyEnPassantTarget();
 
         ENSURES( hasKingsAtKingPositions() );
+        ENSURES( occupiedMatchesSquares() );
     }
 
     auto
@@ -35,6 +42,24 @@ namespace wisdom
     {
         return pieceAt (getKingPosition (Color::White)) == ColoredPiece::make (Color::White, Piece::King)
             && pieceAt (getKingPosition (Color::Black)) == ColoredPiece::make (Color::Black, Piece::King);
+    }
+
+    auto
+    Board::occupiedMatchesSquares() const noexcept
+        -> bool
+    {
+        for (auto coord : allCoords())
+        {
+            auto piece = pieceAt (coord);
+            for (auto who : { Color::White, Color::Black })
+            {
+                bool is_own = piece && pieceColor (*piece) == who;
+                if (getPieceCoords (who).contains (coord) != is_own)
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     void Board::dump() const

@@ -57,6 +57,7 @@ add_library(wisdom-chess-core STATIC
         cast.hpp
         castling.hpp
         coord.hpp
+        coord_set.hpp
         error.hpp
         evaluate.hpp
         expected.hpp

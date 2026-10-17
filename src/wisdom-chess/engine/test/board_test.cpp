@@ -66,6 +66,20 @@ namespace
         return board.pieceAt (board.getKingPosition (who)) == ColoredPiece::make (who, Piece::King);
     }
 
+    auto
+    pieceCoordsFromSquares (const Board& board, Color who)
+        -> CoordSet
+    {
+        uint64_t bits = 0;
+        for (auto coord : Board::allCoords())
+        {
+            auto piece = board.pieceAt (coord);
+            if (piece && pieceColor (*piece) == who)
+                bits |= CoordSet::bit (coord);
+        }
+        return CoordSet { bits };
+    }
+
     // Counts the boards reached by legal moves whose incrementally updated
     // state differs from one recomputed from the squares.
     auto
@@ -84,7 +98,9 @@ namespace
                 && next.getMaterial() == Material { next }
                 && next.getPosition() == Position { next }
                 && hasKingAtKingPosition (next, Color::White)
-                && hasKingAtKingPosition (next, Color::Black);
+                && hasKingAtKingPosition (next, Color::Black)
+                && next.getPieceCoords (Color::White) == pieceCoordsFromSquares (next, Color::White)
+                && next.getPieceCoords (Color::Black) == pieceCoordsFromSquares (next, Color::Black);
             if (!consistent)
                 count++;
 
@@ -110,4 +126,34 @@ TEST_CASE( "Incrementally updated board state matches a recompute" )
 
         CHECK( countInconsistentBoards (board, 3) == 0 );
     }
+}
+
+TEST_CASE( "getPieces() gives each of a side's pieces with its square" )
+{
+    FenParser parser { "4k3/8/8/3p4/8/8/8/R3K2N w - - 0 1" };
+    auto board = parser.buildBoard();
+
+    vector<PlacedPiece> white;
+    for (auto placed : board.getPieces (Color::White))
+        white.push_back (placed);
+
+    REQUIRE( white.size() == 3 );
+    CHECK( white[0].coord() == toCoord ("a1") );
+    CHECK( white[0].piece() == ColoredPiece::make (Color::White, Piece::Rook) );
+    CHECK( white[1].coord() == toCoord ("e1") );
+    CHECK( white[1].piece() == ColoredPiece::make (Color::White, Piece::King) );
+    CHECK( white[2].coord() == toCoord ("h1") );
+    CHECK( white[2].piece() == ColoredPiece::make (Color::White, Piece::Knight) );
+
+    int black_count = 0;
+    for (auto [coord, piece] : board.getPieces (Color::Black))
+    {
+        CHECK( board.pieceAt (coord) == piece );
+        CHECK( pieceColor (piece) == Color::Black );
+        black_count++;
+    }
+    CHECK( black_count == 2 );
+
+    auto is_rook = [] (PlacedPiece placed) { return pieceType (placed.piece()) == Piece::Rook; };
+    CHECK( std::ranges::count_if (board.getPieces (Color::White), is_rook) == 1 );
 }
