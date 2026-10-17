@@ -153,4 +153,7 @@ TEST_CASE( "getPieces() gives each of a side's pieces with its square" )
         black_count++;
     }
     CHECK( black_count == 2 );
+
+    auto is_rook = [] (PlacedPiece placed) { return pieceType (placed.piece()) == Piece::Rook; };
+    CHECK( std::ranges::count_if (board.getPieces (Color::White), is_rook) == 1 );
 }

@@ -112,4 +112,6 @@ namespace wisdom
     private:
         uint64_t my_bits = 0;
     };
+
+    static_assert (std::forward_iterator<CoordSet::Iterator>);
 }

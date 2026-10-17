@@ -73,3 +73,7 @@ named there: one `uint64_t` per side marking its pieces' squares.
   tuple-like for structured bindings, whose `get<1>()` reads the piece
   from the board: the loop compiles to the same instructions as before
   but a register move. Depth-7 counts match `main`.
+- `BoardPieces` ends at `std::default_sentinel`, so its iterator, which
+  holds a `nonnull` board and so has no default state, can be an input
+  iterator and `getPieces()` an input range for `std::ranges` algorithms.
+  `static_assert`s pin the iterator concepts of it and `CoordSet`.
