@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iosfwd>
-
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/move.hpp"
 
