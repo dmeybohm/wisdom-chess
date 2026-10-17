@@ -64,6 +64,8 @@ static_assert (std::is_same_v<optional<Shade>, compact_optional<Shade>>);
 static_assert (sizeof (optional<Shade>) == sizeof (Shade));
 static_assert (std::is_same_v<optional<Color>, compact_optional<Color>>);
 static_assert (std::is_same_v<optional<int>, std::optional<int>>);
+static_assert (std::is_same_v<optional<nonnull<int>>, compact_optional<nonnull<int>>>);
+static_assert (sizeof (optional<nonnull<int>>) == sizeof (nonnull<int>));
 static_assert (std::is_same_v<
     optional<WithoutNullRepresentation>,
     std::optional<WithoutNullRepresentation>
@@ -126,6 +128,17 @@ TEST_CASE( "A compact optional" )
         CHECK( first != empty );
         CHECK( empty == optional<Move> {} );
         CHECK( first != Move::make (5, 6, 7, 0) );
+    }
+
+    SUBCASE( "of a nonnull holds a pointer" )
+    {
+        int value = 0;
+        optional<nonnull<int>> holder;
+        CHECK( !holder.has_value() );
+
+        holder = nonnull<int> { &value };
+        REQUIRE( holder.has_value() );
+        CHECK( holder->get() == &value );
     }
 
     SUBCASE( "holds the first square" )
