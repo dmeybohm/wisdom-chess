@@ -321,7 +321,7 @@ TEST_CASE( "Board code can be converted" )
 
         auto result = code.asString();
 
-        std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
+        auto num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
         CHECK( num_zeroes < 64 );
     }
@@ -339,7 +339,7 @@ TEST_CASE( "Board code can be converted" )
         stream << code;
         auto result = stream.str();
 
-        std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
+        auto num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
         CHECK( num_zeroes < 64 );
     }
@@ -509,7 +509,7 @@ TEST_CASE( "Zobrist piece index mapping" )
 {
     SUBCASE( "All piece-color combinations have unique indices" )
     {
-        std::set<int> seen_indices;
+        std::set<std::size_t> seen_indices;
 
         for (auto color : { Color::White, Color::Black })
         {
@@ -587,7 +587,7 @@ TEST_CASE( "Zobrist piece index mapping" )
                                 Piece::Rook, Piece::Queen, Piece::King })
             {
                 auto piece_index = zobristPieceIndex (color, piece);
-                for (auto square = 0; square < Num_Squares; square++)
+                for (std::size_t square = 0; square < Num_Squares; square++)
                 {
                     auto hash_value = Hash_Code_Table[piece_index * Num_Squares + square];
                     CHECK( hash_value != 0 );

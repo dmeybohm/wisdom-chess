@@ -12,8 +12,8 @@ namespace wisdom
         if (my_next == my_size)
             return nullopt;
 
-        auto rest = my_moves.begin() + narrow_debug<std::ptrdiff_t> (my_next);
-        auto end = my_moves.begin() + narrow_debug<std::ptrdiff_t> (my_size);
+        auto rest = my_moves.begin() + my_next;
+        auto end = my_moves.begin() + my_size;
         auto by_key = [] (const KeyedMove& a, const KeyedMove& b) { return a.key < b.key; };
 
         if (my_next == 0)
@@ -21,7 +21,8 @@ namespace wisdom
         else if (my_next == 1)
             std::sort (rest, end, by_key);
 
-        return my_moves[my_next++].move;
+        ++my_next;
+        return rest->move;
     }
 
     auto

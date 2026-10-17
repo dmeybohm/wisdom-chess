@@ -271,7 +271,7 @@ namespace wisdom
             return square && square->type() == piece_type;
         };
         auto result = std::find_if (
-            coord_begin + starting_at.index(),
+            coord_begin + starting_at.index<std::ptrdiff_t>(),
             coord_end,
             finder
         );

@@ -147,17 +147,17 @@ namespace wisdom
 
         if (movement.captured.has_value())
         {
-            int captured_index = my_pieces.indexOf (*movement.captured);
-            EXPECTS( captured_index >= 0 );
-            my_pieces.removeAt (captured_index);
+            auto captured_index = my_pieces.indexOf (*movement.captured);
+            EXPECTS( captured_index.has_value() );
+            my_pieces.removeAt (*captured_index);
         }
 
         auto relocate = [this] (ui::PieceStep step) -> WebColoredPiece&
         {
-            int index = my_pieces.indexOf (step.src);
-            EXPECTS( index >= 0 );
+            auto index = my_pieces.indexOf (step.src);
+            EXPECTS( index.has_value() );
 
-            auto& piece = my_pieces.pieces[index];
+            auto& piece = my_pieces.pieces[*index];
             piece.row = step.dst.row<int>();
             piece.col = step.dst.column<int>();
             return piece;
@@ -178,7 +178,7 @@ namespace wisdom
         -> bool
     {
         const auto& board = my_game.getBoard();
-        int pieces_on_board = 0;
+        std::size_t pieces_on_board = 0;
 
         for (auto coord : Board::allCoords())
         {
@@ -188,11 +188,11 @@ namespace wisdom
 
             pieces_on_board++;
 
-            int index = my_pieces.indexOf (coord);
-            if (index < 0)
+            auto index = my_pieces.indexOf (coord);
+            if (!index.has_value())
                 return false;
 
-            const auto& displayed = my_pieces.pieces[index];
+            const auto& displayed = my_pieces.pieces[*index];
             if (displayed.color != mapColor (piece->color()) || displayed.piece != mapPiece (piece->type()))
                 return false;
         }

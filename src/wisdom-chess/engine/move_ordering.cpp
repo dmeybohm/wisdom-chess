@@ -29,9 +29,9 @@ namespace wisdom
         if (move.isAnyCapturing() || move.isPromoting())
             return;
 
-        auto& score = my_scores[to_unsigned_debug<size_t> (colorIndex (who))]
-            [to_unsigned_debug<size_t> (move.getSrc().index())]
-            [to_unsigned_debug<size_t> (move.getDst().index())];
+        auto& score = my_scores[colorIndex (who)]
+            [move.getSrc().index()]
+            [move.getDst().index()];
 
         score = std::min (score + depth * depth, Max_Score);
     }
@@ -40,9 +40,9 @@ namespace wisdom
     CutoffHistory::getScore (Color who, Move move) const noexcept
         -> int32_t
     {
-        return my_scores[to_unsigned_debug<size_t> (colorIndex (who))]
-            [to_unsigned_debug<size_t> (move.getSrc().index())]
-            [to_unsigned_debug<size_t> (move.getDst().index())];
+        return my_scores[colorIndex (who)]
+            [move.getSrc().index()]
+            [move.getDst().index()];
     }
 
     auto

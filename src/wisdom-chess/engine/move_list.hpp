@@ -57,7 +57,8 @@ namespace wisdom
         append (Move move) noexcept
         {
             EXPECTS( my_size < Max_Move_List_Size );
-            my_moves[my_size++] = move;
+            *(my_moves.begin() + my_size) = move;
+            ++my_size;
         }
 
         constexpr void
@@ -113,7 +114,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         size() const noexcept
-            -> size_t
+            -> std::ptrdiff_t
         {
             return my_size;
         }
@@ -148,7 +149,7 @@ namespace wisdom
             -> Move
         {
             EXPECTS( my_size > 0 );
-            return my_moves[my_size - 1];
+            return *(end() - 1);
         }
 
         constexpr void
@@ -176,8 +177,9 @@ namespace wisdom
         constexpr void
         append (uint64_t key, Move move) noexcept
         {
-            EXPECTS( my_size < my_moves.size() );
-            my_moves[my_size++] = KeyedMove { key, move };
+            EXPECTS( my_size < Max_Move_List_Size );
+            *(my_moves.begin() + my_size) = KeyedMove { key, move };
+            ++my_size;
         }
 
         // The move with the lowest key not yet taken, or none when every
@@ -188,7 +190,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         size() const noexcept
-            -> size_t
+            -> std::ptrdiff_t
         {
             return my_size;
         }
@@ -201,8 +203,8 @@ namespace wisdom
         };
 
         array<KeyedMove, Max_Move_List_Size> my_moves; // NOLINT(*-pro-type-member-init)
-        size_t my_size = 0;
-        size_t my_next = 0;
+        std::ptrdiff_t my_size = 0;
+        std::ptrdiff_t my_next = 0;
     };
 
     [[nodiscard]] auto asString (const MoveList& list) -> string;

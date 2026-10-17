@@ -65,7 +65,7 @@ namespace wisdom
         }
 
         // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-        template <typename IntegerType = int>
+        template <typename IntegerType = std::size_t>
         [[nodiscard]] constexpr auto
         index() const noexcept
             -> IntegerType
@@ -142,7 +142,7 @@ namespace wisdom
     nextCoord (Coord coord) noexcept
         -> optional<Coord>
     {
-        int index = coord.index();
+        int index = coord.index<int>();
         index += 1;
 
         if (index >= Num_Squares)

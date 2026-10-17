@@ -115,10 +115,12 @@ namespace wisdom
         constexpr void
         addRowOfSameColor (int row, Color who, const PieceRow& piece_types)
         {
-            for (auto col = 0; col < Num_Columns; col++)
+            int col = 0;
+            for (auto piece_type : piece_types)
             {
-                if (piece_types[col])
-                    addPiece (row, col, who, *piece_types[col]);
+                if (piece_type)
+                    addPiece (row, col, who, *piece_type);
+                col++;
             }
         }
 
@@ -131,10 +133,12 @@ namespace wisdom
         {
             Coord coord = toCoord (coord_str);
 
-            for (auto col = 0; col < Num_Columns; col++)
+            int col = 0;
+            for (auto piece_type : piece_types)
             {
-                if (piece_types[col])
-                    addPiece (coord.row(), col, who, *piece_types[col]);
+                if (piece_type)
+                    addPiece (coord.row(), col, who, *piece_type);
+                col++;
             }
         }
 

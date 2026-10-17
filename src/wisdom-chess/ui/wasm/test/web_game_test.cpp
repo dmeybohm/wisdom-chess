@@ -24,7 +24,7 @@ namespace
     {
         std::map<std::string, int> result;
         auto& list = game->getPieceList();
-        for (int i = 0; i < list.length; i++)
+        for (std::size_t i = 0; i < list.length; i++)
             result[squareName (list.pieceAt (i))] = list.pieceAt (i).id;
         return result;
     }
@@ -34,7 +34,7 @@ namespace
         -> WebColoredPiece
     {
         auto& list = game->getPieceList();
-        for (int i = 0; i < list.length; i++)
+        for (std::size_t i = 0; i < list.length; i++)
         {
             if (squareName (list.pieceAt (i)) == square)
                 return list.pieceAt (i);
@@ -73,8 +73,8 @@ namespace
             const auto& board = shadow.getBoard();
 
             std::set<int> ids;
-            int occupied = 0;
-            for (int i = 0; i < list.length; i++)
+            std::size_t occupied = 0;
+            for (std::size_t i = 0; i < list.length; i++)
             {
                 auto piece = list.pieceAt (i);
                 ids.insert (piece.id);
@@ -88,7 +88,7 @@ namespace
                     occupied++;
             }
 
-            CHECK( narrow<int> (ids.size()) == list.length );
+            CHECK( ids.size() == list.length );
             CHECK( list.length == occupied );
         }
     };
@@ -100,8 +100,8 @@ TEST_CASE( "The starting position lists every piece in square order" )
     auto& list = fixture.game.getPieceList();
 
     REQUIRE( list.length == 32 );
-    for (int i = 0; i < list.length; i++)
-        CHECK( list.pieceAt (i).id == i + 1 );
+    for (std::size_t i = 0; i < list.length; i++)
+        CHECK( list.pieceAt (i).id == narrow<int> (i) + 1 );
     CHECK( squareName (list.pieceAt (0)) == "a8" );
     CHECK( squareName (list.pieceAt (31)) == "h1" );
     fixture.checkPieceList();

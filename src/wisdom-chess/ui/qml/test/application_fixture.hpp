@@ -13,6 +13,12 @@
 #include "wisdom-chess/ui/qml/main/qml_singletons.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
+// Qt 6.9's QTRY_* macros convert a std::chrono count to int in their
+// expansion, which GCC reports at the use site under -Wconversion.
+#if defined(__GNUC__) && !defined(__clang__) && QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
 namespace wisdom::ui::test
 {
     using namespace wisdom::ui::qml;

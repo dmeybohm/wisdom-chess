@@ -95,7 +95,7 @@ namespace wisdom
 
     inline constexpr int Num_Piece_Types = to_int (Piece::King) - to_int (Piece::Pawn) + 1;
 
-    using ColorIndex = int8_t;
+    using ColorIndex = std::size_t;
 
     // White or Black. A class rather than an enum, so that a Color cannot
     // be made from zero or another integer: its constructors are private,
@@ -169,15 +169,15 @@ namespace wisdom
     static_assert (!std::is_default_constructible_v<Color>);
     static_assert (!std::is_constructible_v<Color, Color::Value>);
 
-    inline constexpr int Color_Index_White = 0;
-    inline constexpr int Color_Index_Black = 1;
+    inline constexpr ColorIndex Color_Index_White = 0;
+    inline constexpr ColorIndex Color_Index_Black = 1;
 
     [[nodiscard]] constexpr auto
     colorIndex (Color who) noexcept
         -> ColorIndex
     {
         EXPECTS( who == Color::White || who == Color::Black );
-        return narrow_debug<int8_t> (to_int (who) - 1);
+        return to_unsigned_debug<ColorIndex> (to_int (who) - 1);
     }
 
     [[nodiscard]] constexpr auto
@@ -189,10 +189,10 @@ namespace wisdom
 
     [[nodiscard]] constexpr auto
     pieceIndex (Piece piece) noexcept
-        -> int
+        -> std::size_t
     {
         ASSERT( piece >= Piece::Pawn && piece <= Piece::King );
-        return to_int (piece) - to_int (Piece::Pawn);
+        return to_unsigned_debug<std::size_t> (to_int (piece) - to_int (Piece::Pawn));
     }
 
     // 3 bits for type of piece

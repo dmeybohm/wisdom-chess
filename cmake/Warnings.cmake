@@ -2,7 +2,7 @@
 # WISDOM_CHESS_WERROR on, as in CI, a warning fails the build.
 function(wisdom_chess_enable_warnings target)
     target_compile_options(${target} PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wconversion -Wsign-conversion>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
     )
     if(WISDOM_CHESS_WERROR)

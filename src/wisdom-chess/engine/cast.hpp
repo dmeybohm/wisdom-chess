@@ -87,7 +87,8 @@ namespace wisdom
     }
 
     // Converts a nonnegative signed value to an unsigned type at least as
-    // wide. Aborts, naming the caller, for a negative value.
+    // wide. Aborts, naming the caller, for a negative value. An enum or a
+    // class goes through to_uint() instead, which cannot fail.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
     to_unsigned (Source value, std::source_location location = std::source_location::current()) noexcept
@@ -105,7 +106,8 @@ namespace wisdom
 
     // Like to_unsigned(), but checked only when Debugging is on or in
     // a constant expression, as ASSERT() is. Release and RelWithDebInfo builds
-    // do a plain static_cast.
+    // do a plain static_cast. An enum or a class goes through to_uint()
+    // instead, which cannot fail.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
     to_unsigned_debug (Source value, std::source_location location = std::source_location::current()) noexcept
@@ -198,7 +200,8 @@ namespace wisdom
 
     // Converts an enum whose underlying type Target can hold, or a class
     // through its explicit conversion, to the signed Target. A conversion
-    // that can throw does not compile.
+    // that can throw does not compile. An integer goes through widen() or
+    // narrow() instead.
     template <std::signed_integral Target = int, typename Source>
         requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
             || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)
@@ -214,7 +217,8 @@ namespace wisdom
 
     // Converts an enum whose underlying type Target can hold, or a class
     // through its explicit conversion, to the unsigned Target. A conversion
-    // that can throw does not compile.
+    // that can throw does not compile. A signed integer goes through
+    // to_unsigned() instead, which checks that it is nonnegative.
     template <std::unsigned_integral Target = unsigned, typename Source>
         requires (std::is_enum_v<Source> && HoldsEveryValueOf<Target, std::underlying_type_t<Source>>)
             || (std::is_class_v<Source> && std::is_nothrow_constructible_v<Target, const Source&>)

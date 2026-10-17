@@ -438,7 +438,7 @@ namespace wisdom
         {
             auto seconds_duration = chrono::duration<double> (end - start);
             auto seconds = seconds_duration.count();
-            auto rate = nodes / std::max (0.000000001, seconds);
+            auto rate = to_double (nodes) / std::max (0.000000001, seconds);
 
             std::ostringstream progress_str;
             progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
