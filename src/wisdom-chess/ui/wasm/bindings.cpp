@@ -6,6 +6,7 @@
 #include "wisdom-chess/ui/wasm/web_types.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
@@ -185,8 +186,14 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
 EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
 {
     auto game = GameState::getGame();
-    auto unpacked_move = Move::fromPacked (packed_move);
-    game->move (unpacked_move);
+
+    // The main thread sends only legal moves it made, so anything else is
+    // our bug. Game::move() trusts its move, so playing it would corrupt
+    // the board, and the two games would drift apart.
+    auto move = parsePackedMove (packed_move);
+    EXPECTS( move.has_value() );
+    EXPECTS( isLegalMove (game->getBoard(), *move) );
+    game->move (*move);
 
     startSearch();
 }
@@ -232,8 +239,9 @@ mainThreadReceiveMove (
     if (game_id != GameModel::currentGameId())
         return;
 
-    Move unpacked_move = Move::fromPacked (packed_move);
-    std::string str = asString (unpacked_move);
+    auto move = parsePackedMove (packed_move);
+    EXPECTS( move.has_value() );
+    std::string str = asString (*move);
     receiveMoveFromWorker (game_id, str.c_str());
 }
 

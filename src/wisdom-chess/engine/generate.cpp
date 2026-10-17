@@ -804,6 +804,14 @@ namespace wisdom
     }
 
     auto
+    isLegalMove (const Board& board, Move move) noexcept
+        -> bool
+    {
+        auto legal_moves = generateLegalMoves (board, board.getCurrentTurn());
+        return std::find (legal_moves.begin(), legal_moves.end(), move) != legal_moves.end();
+    }
+
+    auto
     isLegalPositionAfterMove (const Board& board, Color who, Move mv) noexcept
         -> bool
     {

@@ -419,6 +419,28 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
     }
 }
 
+TEST_CASE( "isLegalMove" )
+{
+    Board board { BoardBuilder::fromDefaultPosition() };
+
+    CHECK( isLegalMove (board, toMove ("e2 e4")) );
+    CHECK( isLegalMove (board, toMove ("g1 f3")) );
+
+    // Well formed, but a3 is empty, the pawn is Black's, or the way is blocked.
+    CHECK( !isLegalMove (board, toMove ("a3 a4")) );
+    CHECK( !isLegalMove (board, toMove ("e7 e5")) );
+    CHECK( !isLegalMove (board, toMove ("o-o", Color::White)) );
+    CHECK( !isLegalMove (board, toMove ("e2 e5")) );
+
+    SUBCASE( "It reads the side to move from the board" )
+    {
+        auto after_e4 = board.withMove (Color::White, toMove ("e2 e4"));
+
+        CHECK( isLegalMove (after_e4, toMove ("e7 e5")) );
+        CHECK( !isLegalMove (after_e4, toMove ("d2 d4")) );
+    }
+}
+
 TEST_CASE( "hasLegalMove" )
 {
     auto board_from_fen = [] (czstring fen_text) {

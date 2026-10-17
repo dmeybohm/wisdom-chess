@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 
@@ -79,7 +80,13 @@ namespace wisdom
 
     void WebGame::makeComputerMove (czstring move_text)
     {
-        applyMove (toMove (move_text, my_game.getCurrentTurn()));
+        // The worker sends only moves its search made, so anything else is
+        // our bug. Game::move() trusts its move, so playing it would corrupt
+        // the board, and the two games would drift apart.
+        auto move = parseMove (move_text, my_game.getCurrentTurn());
+        EXPECTS( move.has_value() );
+        EXPECTS( wisdom::isLegalMove (my_game.getBoard(), *move) );
+        applyMove (*move);
     }
 
     auto

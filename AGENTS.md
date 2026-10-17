@@ -174,7 +174,8 @@ area, and list a new file in the program's
 `wisdom_chess_add_fatal_tests()` call (`cmake/FatalTests.cmake`); the
 build asks the program for the list. The engine's cases are in
 `wisdom-chess-fatal-tests`, the view model's in
-`wisdom-chess-viewmodel-fatal-tests`. Case names must be unique across
+`wisdom-chess-viewmodel-fatal-tests`, and the web frontend's in
+`wisdom-chess-web-fatal-tests`. Case names must be unique across
 the programs.
 
 The `QML: ...` tests (`src/wisdom-chess/ui/qml/test`) use Qt Test, styled like doctest:

@@ -180,14 +180,6 @@ namespace wisdom
             // is neutral.
             return current_color == searching_color ? Search_Draw_Contempt : 0;
         }
-
-        auto
-        isLegalMove (const Board& board, Color who, Move move) noexcept
-            -> bool
-        {
-            auto legal_moves = generateLegalMoves (board, who);
-            return std::find (legal_moves.begin(), legal_moves.end(), move) != legal_moves.end();
-        }
     }
 
     auto
@@ -486,7 +478,7 @@ namespace wisdom
 
         if (best_result.move.has_value())
         {
-            ENSURES( isLegalMove (my_original_board, side, *best_result.move) );
+            ENSURES( isLegalMove (my_original_board, *best_result.move) );
             ENSURES( best_result.score <= Checkmate_Score && best_result.score >= -Checkmate_Score );
         }
         return best_result;
