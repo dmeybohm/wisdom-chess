@@ -13,8 +13,13 @@ namespace wisdom
             LogLevel_Debug = 1,
         };
 
+        Logger() = default;
+
         // Put virtual destructor in the .cpp file to put vtable there:
         virtual ~Logger();
+
+        Logger (const Logger&) = delete;
+        auto operator= (const Logger&) -> Logger& = delete;
 
         // Every function is noexcept, so that any context can log. A logger
         // that cannot deliver a message terminates the process: an exception
