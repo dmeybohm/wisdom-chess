@@ -102,7 +102,13 @@ committing C++. The conventions below are about what the code does.
   it, then take `value()` for a `nonnull`, which aborts when null. A
   `nonnull` checks for null when constructed, where a null aborts, and
   not when dereferenced; pass `get()` to an API that takes a raw pointer.
-  See `features/2026/10/single-nonnull.md`. A C string is `czstring` or
+  See `features/2026/10/single-nonnull.md`. Prefer `nullable`.
+  `optional<nonnull<Type>>` is pointer-sized too, but `*` and `->` check
+  that it holds a value only when `Debugging` is on, so in Release an
+  empty one gives a null pointer; use it only where `nullable`'s check on
+  every `value()` costs too much, such as an iterator's board, and only
+  where the code already knows it is not empty. See
+  `features/2026/10/optional-nonnull.md`. A C string is `czstring` or
   `zstring`. `owning<Type>` is an owning raw pointer, only where
   something outside C++ arranges the deletion, such as Qt's
   `deleteLater()`. For an object handed to JavaScript, hold a

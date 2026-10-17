@@ -341,7 +341,10 @@ namespace wisdom
             using difference_type = int;
             using value_type = PlacedPiece;
             using reference = PlacedPiece;
-            using iterator_category = std::input_iterator_tag;
+            using iterator_category = std::forward_iterator_tag;
+
+            constexpr
+            Iterator() noexcept = default;
 
             constexpr
             Iterator (nonnull<const Board> board, CoordSet::Iterator coords) noexcept
@@ -353,7 +356,7 @@ namespace wisdom
             operator*() const noexcept
                 -> PlacedPiece
             {
-                return PlacedPiece { my_board, *my_coords };
+                return PlacedPiece { *my_board, *my_coords };
             }
 
             constexpr auto
@@ -374,6 +377,13 @@ namespace wisdom
             }
 
             [[nodiscard]] constexpr auto
+            operator== (const Iterator& other) const noexcept
+                -> bool
+            {
+                return my_coords == other.my_coords;
+            }
+
+            [[nodiscard]] constexpr auto
             operator== (std::default_sentinel_t) const noexcept
                 -> bool
             {
@@ -381,7 +391,7 @@ namespace wisdom
             }
 
         private:
-            nonnull<const Board> my_board;
+            optional<nonnull<const Board>> my_board;
             CoordSet::Iterator my_coords;
         };
 
@@ -410,7 +420,7 @@ namespace wisdom
         CoordSet my_coords;
     };
 
-    static_assert (std::input_iterator<BoardPieces::Iterator>);
+    static_assert (std::forward_iterator<BoardPieces::Iterator>);
     static_assert (std::sentinel_for<std::default_sentinel_t, BoardPieces::Iterator>);
 
     inline auto
