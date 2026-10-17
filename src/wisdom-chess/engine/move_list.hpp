@@ -160,6 +160,53 @@ namespace wisdom
         }
     };
 
+    // Moves with a sort key each, handed out lowest key first. A list put
+    // in order before its first move is taken costs a sort at every node,
+    // while most nodes that cut off do so on the first move: so the first
+    // move is found by selection, and the rest are sorted only when a
+    // second is taken.
+    class OrderedMoveList // NOLINT(*-pro-type-member-init)
+    {
+    public:
+        constexpr void
+        clear() noexcept
+        {
+            my_size = 0;
+            my_next = 0;
+        }
+
+        constexpr void
+        append (uint64_t key, Move move) noexcept
+        {
+            EXPECTS( my_size < my_moves.size() );
+            my_moves[my_size++] = KeyedMove { key, move };
+        }
+
+        // The move with the lowest key not yet taken, or none when every
+        // move has been.
+        [[nodiscard]] auto
+        next() noexcept
+            -> optional<Move>;
+
+        [[nodiscard]] constexpr auto
+        size() const noexcept
+            -> size_t
+        {
+            return my_size;
+        }
+
+    private:
+        struct KeyedMove
+        {
+            uint64_t key;
+            Move move;
+        };
+
+        array<KeyedMove, Max_Move_List_Size> my_moves; // NOLINT(*-pro-type-member-init)
+        size_t my_size = 0;
+        size_t my_next = 0;
+    };
+
     [[nodiscard]] auto asString (const MoveList& list) -> string;
 
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&;

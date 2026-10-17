@@ -407,6 +407,35 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         }
     }
 
+    SUBCASE( "A list filled again holds only the new position's moves" )
+    {
+        auto game = Game::createGameFromFen (
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+        );
+        const auto& board = game.getBoard();
+        Board start;
+
+        auto list = std::make_unique<OrderedMoveList>();
+        generateOrderedMoves (list.get(), start, Color::White, MoveOrdering {});
+        CHECK( list->next().has_value() );
+
+        generateOrderedMoves (list.get(), board, Color::White, MoveOrdering {});
+        std::vector<Move> taken;
+        while (auto move = list->next())
+            taken.push_back (*move);
+
+        auto expected = generateAllPotentialMoves (board, Color::White);
+        CHECK( taken == std::vector<Move> (expected.begin(), expected.end()) );
+
+        generateOrderedCaptures (list.get(), board, Color::White);
+        taken.clear();
+        while (auto move = list->next())
+            taken.push_back (*move);
+
+        auto captures = generateCaptures (board, Color::White);
+        CHECK( taken == std::vector<Move> (captures.begin(), captures.end()) );
+    }
+
     SUBCASE( "An empty ordering gives the plain order" )
     {
         Board board;

@@ -564,18 +564,18 @@ namespace wisdom
 
     namespace
     {
-        auto
-        generateSortedMoves (
+        void
+        fillOrderedMoves (
+            nonnull<OrderedMoveList> moves,
             const Board& board,
             Color who,
             const MoveOrdering& ordering,
             bool captures_only
         ) noexcept
-            -> MoveList
         {
-            MoveList result;
+            MoveList generated;
             MoveGeneration generation {
-                board, &result, 0, 0, who, ordering, captures_only
+                board, &generated, 0, 0, who, ordering, captures_only
             };
 
             for (auto coord : Board::allCoords())
@@ -588,32 +588,46 @@ namespace wisdom
                 generation.generate (*piece, coord);
             }
 
-            struct KeyedMove
-            {
-                uint64_t key;
-                Move move;
-            };
+            moves->clear();
+            for (auto move : generated)
+                moves->append (generation.sortKey (move), move);
+        }
 
-            array<KeyedMove, Max_Move_List_Size> keyed; // NOLINT(*-pro-type-member-init)
-            auto count = result.size();
+        auto
+        generateSortedMoves (
+            const Board& board,
+            Color who,
+            const MoveOrdering& ordering,
+            bool captures_only
+        ) noexcept
+            -> MoveList
+        {
+            OrderedMoveList ordered;
+            fillOrderedMoves (&ordered, board, who, ordering, captures_only);
 
-            for (size_t i = 0; i < count; i++)
-            {
-                auto move = *(result.begin() + i);
-                keyed[i] = KeyedMove { generation.sortKey (move), move };
-            }
-
-            std::sort (
-                keyed.begin(),
-                keyed.begin() + count,
-                [] (const KeyedMove& a, const KeyedMove& b) { return a.key < b.key; }
-            );
-
-            for (size_t i = 0; i < count; i++)
-                *(result.begin() + i) = keyed[i].move;
+            MoveList result;
+            while (auto move = ordered.next())
+                result.append (*move);
 
             return result;
         }
+    }
+
+    void
+    generateOrderedMoves (
+        nonnull<OrderedMoveList> moves,
+        const Board& board,
+        Color who,
+        const MoveOrdering& ordering
+    ) noexcept
+    {
+        fillOrderedMoves (moves, board, who, ordering, false);
+    }
+
+    void
+    generateOrderedCaptures (nonnull<OrderedMoveList> moves, const Board& board, Color who) noexcept
+    {
+        fillOrderedMoves (moves, board, who, MoveOrdering {}, true);
     }
 
     auto
