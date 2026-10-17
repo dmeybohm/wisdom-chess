@@ -53,6 +53,9 @@ namespace wisdom
         // Put virtual destructor in the .cpp file to put vtable there:
         virtual ~GameStatusUpdate();
 
+        GameStatusUpdate (const GameStatusUpdate&) = delete;
+        auto operator= (const GameStatusUpdate&) -> GameStatusUpdate& = delete;
+
         // Run after a status update.
         void update (GameStatus status);
 
