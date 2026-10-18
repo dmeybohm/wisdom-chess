@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/engine/optional.hpp"
 #include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
@@ -33,6 +34,25 @@ namespace wisdom
 
         nonnull (std::nullptr_t) = delete;
 
+        // An empty optional<nonnull> holds a null pointer, which only the
+        // optional can make.
+        struct NullRepresentation
+        {
+            [[nodiscard]] static constexpr auto
+            make (NullRepresentationKey) noexcept
+                -> nonnull
+            {
+                return nonnull { NullTag {} };
+            }
+
+            [[nodiscard]] static constexpr auto
+            isNull (const nonnull& ptr) noexcept
+                -> bool
+            {
+                return ptr.my_ptr == nullptr;
+            }
+        };
+
         // For an API that takes a raw pointer.
         [[nodiscard]] constexpr auto
         get() const noexcept
@@ -60,6 +80,15 @@ namespace wisdom
             -> bool = default;
 
     private:
+        struct NullTag
+        {
+        };
+
+        explicit constexpr nonnull (NullTag) noexcept
+            : my_ptr { nullptr }
+        {
+        }
+
         T* my_ptr; // lint-allow(raw-pointer): the wrapped pointer
     };
 
