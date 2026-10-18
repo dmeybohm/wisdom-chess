@@ -173,6 +173,34 @@ namespace
             {
                 break;
             }
+            // decltype's operand is part of the type.
+            if (isIdentifier (token, "decltype") && isPunctuator (code[i + 1], "("))
+            {
+                size_t close = i + 1;
+                int depth = 0;
+                while (close < code.size())
+                {
+                    if (isPunctuator (code[close], "("))
+                    {
+                        ++depth;
+                    }
+                    else if (isPunctuator (code[close], ")") && --depth == 0)
+                    {
+                        break;
+                    }
+                    ++close;
+                }
+                if (close >= code.size())
+                {
+                    return std::nullopt;
+                }
+                for (; i <= close; ++i)
+                {
+                    text += code[i].text;
+                }
+                --i;
+                continue;
+            }
             // A name before a parameter list is a function's; a "(" that a
             // "&" follows parenthesizes a declarator instead.
             if (isIdentifier (token) && isPunctuator (code[i + 1], "(") && i + 2 < code.size()
@@ -180,7 +208,8 @@ namespace
             {
                 return std::nullopt;
             }
-            if (isIdentifier (token) && endsDeclarator (code[i + 1]))
+            // A name that a bit-field's width follows ends the type too.
+            if (isIdentifier (token) && (endsDeclarator (code[i + 1]) || isPunctuator (code[i + 1], ":")))
             {
                 break;
             }
@@ -198,7 +227,8 @@ namespace
             {
                 continue;
             }
-            if (!text.empty() && isIdentifier (token) && isIdentifier (code[i - 1]))
+            if (!text.empty() && isIdentifier (token)
+                && (isIdentifier (code[i - 1]) || isPunctuator (code[i - 1], ")")))
             {
                 text += ' ';
             }
@@ -309,7 +339,8 @@ namespace
                 const auto& after = code[i + 2];
                 bool plain = parens == 0
                     && (isIdentifier (before) || isPunctuator (before, ">")
-                        || isPunctuator (before, ">>") || isPunctuator (before, ","))
+                        || isPunctuator (before, ">>") || isPunctuator (before, ")")
+                        || isPunctuator (before, ","))
                     && endsDeclarator (after);
 
                 // "T (&name)[N];" or "T a, (&name)[N];"

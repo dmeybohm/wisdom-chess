@@ -17,3 +17,6 @@
 52:29:reference-member:Reference member 'sixth': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
 53:43:reference-member:Reference member 'eighth': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
 54:21:reference-member:Reference member 'tenth': use nonnull<int[2]> or nullable<int[2]>, which cannot bind a temporary and keep the type assignable
+61:21:reference-member:Reference member 'fifth': use nonnull<decltype(Width)> or nullable<decltype(Width)>, which cannot bind a temporary and keep the type assignable
+62:27:reference-member:Reference member 'sixth': use nonnull<decltype(Width) const> or nullable<decltype(Width) const>, which cannot bind a temporary and keep the type assignable
+63:36:reference-member:Reference member 'seventh': use nonnull<unsigned> or nullable<unsigned>, which cannot bind a temporary and keep the type assignable

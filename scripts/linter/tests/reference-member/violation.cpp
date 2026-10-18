@@ -53,3 +53,12 @@ struct Initializers
     int seventh = Row_Mask & Column_Mask, &eighth;
     int ninth = 0, (&tenth)[2];
 };
+
+// A decltype is a type, and a bit-field's width does not hide a later
+// declarator.
+struct Decltype
+{
+    decltype (Width)& fifth;
+    decltype (Width) const& sixth;
+    unsigned flags : Width & Mask, &seventh;
+};

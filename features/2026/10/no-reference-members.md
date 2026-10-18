@@ -94,3 +94,13 @@ Codegen is the same: a reference member is a pointer in memory, and
   one, or one after a comma at the statement's own bracket depth, so an
   `&` inside an initializer expression, `int mask = a & b, c;`, is not
   one. Fixtures cover both sides.
+
+### Session #4
+
+- Review found a false positive and a miss. A bit-field's width,
+  `unsigned flags : Width & Mask;`, was read into the type, so its `&`
+  looked like a declarator; a name that `:` follows now ends the type.
+  `decltype (Width)& fifth;` was skipped as a function named `decltype`;
+  the operand is now read as part of the type, and a `)` may precede the
+  `&` of a declarator, since the forward pass already rejects an `&`
+  that begins none.

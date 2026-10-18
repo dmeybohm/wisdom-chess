@@ -69,3 +69,11 @@ struct Initializers
     int chosen = pick (first & second, third & fourth);
     bool both = first && second, either = false;
 };
+
+// A bit-field's width is an expression.
+struct BitFields
+{
+    unsigned flags : Width & Mask;
+    unsigned low : 4, high : Width & Mask;
+    unsigned last : Width & Mask, plain;
+};
