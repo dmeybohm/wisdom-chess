@@ -1,0 +1,22 @@
+3:16:reference-member:Reference member 'board': use nonnull<const Board> or nullable<const Board>, which cannot bind a temporary and keep the type assignable
+19:17:reference-member:Reference member 'my_stream': use nonnull<std::ostream> or nullable<std::ostream>, which cannot bind a temporary and keep the type assignable
+20:18:reference-member:Reference member 'my_boards': use nonnull<vector<Board>> or nullable<vector<Board>>, which cannot bind a temporary and keep the type assignable
+21:16:reference-member:Reference member 'my_board': use nonnull<Board const> or nullable<Board const>, which cannot bind a temporary and keep the type assignable
+22:9:reference-member:Reference member 'my_game': use nonnull<Game> or nullable<Game>, which cannot bind a temporary and keep the type assignable
+23:26:reference-member:Reference member 'Defaults': use nonnull<const Settings> or nullable<const Settings>, which cannot bind a temporary and keep the type assignable
+24:19:reference-member:Reference member 'my_logger': use nonnull<Logger> or nullable<Logger>, which cannot bind a temporary and keep the type assignable
+31:16:reference-member:Reference member 'history': use nonnull<History> or nullable<History>, which cannot bind a temporary and keep the type assignable
+39:8:reference-member:Reference member 'first': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+40:16:reference-member:Reference member 'last': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+41:8:reference-member:Reference member 'attributed': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+42:10:reference-member:Reference member 'array': use nonnull<int[3]> or nullable<int[3]>, which cannot bind a temporary and keep the type assignable
+43:33:reference-member:Reference member 'marked': use nonnull<const Board> or nullable<const Board>, which cannot bind a temporary and keep the type assignable
+44:23:reference-member:Reference member 'lists': use nonnull<span<const Move>[8]> or nullable<span<const Move>[8]>, which cannot bind a temporary and keep the type assignable
+50:20:reference-member:Reference member 'second': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+51:22:reference-member:Reference member 'fourth': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+52:29:reference-member:Reference member 'sixth': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+53:43:reference-member:Reference member 'eighth': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+54:21:reference-member:Reference member 'tenth': use nonnull<int[2]> or nullable<int[2]>, which cannot bind a temporary and keep the type assignable
+61:21:reference-member:Reference member 'fifth': use nonnull<decltype(Width)> or nullable<decltype(Width)>, which cannot bind a temporary and keep the type assignable
+62:27:reference-member:Reference member 'sixth': use nonnull<decltype(Width) const> or nullable<decltype(Width) const>, which cannot bind a temporary and keep the type assignable
+63:36:reference-member:Reference member 'seventh': use nonnull<unsigned> or nullable<unsigned>, which cannot bind a temporary and keep the type assignable
