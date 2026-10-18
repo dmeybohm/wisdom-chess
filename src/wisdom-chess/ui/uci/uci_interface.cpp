@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <mutex>
 #include <random>
 
 #include "wisdom-chess/ui/uci/uci_interface.hpp"
@@ -304,7 +305,6 @@ namespace wisdom
         waitForSearchThread();
         my_transposition_table.clear();
         my_position_tokens.clear();
-        std::lock_guard<std::mutex> lock { my_game_mutex };
         my_game = withExternalArbiter (Game::createStandardGame());
     }
 
@@ -314,7 +314,6 @@ namespace wisdom
             return;
 
         waitForSearchThread();
-        std::lock_guard<std::mutex> lock { my_game_mutex };
 
         Game new_game = Game::createStandardGame();
         auto moves_it = std::find (tokens.begin(), tokens.end(), "moves");
@@ -389,7 +388,6 @@ namespace wisdom
         }
         else if (wtime.has_value() || btime.has_value())
         {
-            std::lock_guard<std::mutex> lock { my_game_mutex };
             Color current_turn = my_game.getCurrentTurn();
 
             int time_remaining = 0;
@@ -423,19 +421,13 @@ namespace wisdom
         int current_search_id = my_search_id.fetch_add (1) + 1;
         my_stop_requested.store (false);
 
-        Game game_copy = [this]
-        {
-            std::lock_guard<std::mutex> lock { my_game_mutex };
-            return my_game;
-        }();
-
         // The game is copied per search so that a later "position" cannot
         // disturb it, but the table is lent to the thread so that what one
         // search learns is available to the next.
         nonnull<TranspositionTable> table = &my_transposition_table;
 
         my_search_thread = std::thread (
-            [this, game = std::move (game_copy), table, search_depth, search_time,
+            [this, game = my_game, table, search_depth, search_time,
              current_search_id, debug_mode = my_debug_mode]() mutable
             {
                 game.setMaxDepth (search_depth);

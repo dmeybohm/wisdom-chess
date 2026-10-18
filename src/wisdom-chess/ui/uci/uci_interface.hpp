@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <iostream>
-#include <mutex>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -72,6 +71,8 @@ namespace wisdom
 
         void waitForSearchThread();
 
+        // The search thread searches a copy; the main thread touches this
+        // only after waitForSearchThread().
         Game my_game;
 
         // The last "position" command applied, so that the next one can be
@@ -82,7 +83,6 @@ namespace wisdom
         bool my_debug_mode = false;
         bool my_quit_requested = false;
 
-        std::mutex my_game_mutex;
         std::atomic<int> my_search_id { 0 };
         std::atomic<bool> my_stop_requested { false };
         std::thread my_search_thread;
