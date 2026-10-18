@@ -1,5 +1,5 @@
 #include "wisdom-chess/ui/uci/uci_interface.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 auto
 main()

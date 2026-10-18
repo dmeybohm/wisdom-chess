@@ -3,7 +3,7 @@
 #include <mutex>
 
 #include "wisdom-chess/engine/evaluate.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"

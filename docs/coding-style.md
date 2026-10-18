@@ -49,7 +49,7 @@ reason in the same comment, as in
   `[&board] (int count)` but `[this]()`.
 - Test macros put spaces inside the parentheses instead:
   `CHECK( x == y )`, `REQUIRE( ... )`, and Qt Test's `QCOMPARE( a, b )`.
-  So do the contract macros of `engine/error.hpp`: `EXPECTS( x > 0 )`,
+  So do the contract macros of `lib/error.hpp`: `EXPECTS( x > 0 )`,
   `ENSURES( ... )`, `ASSERT( ... )` and `PRECONDITION_FAILED( ... )`
   [`test-macro-spacing`].
 - Brace initializers have spaces inside the braces:
@@ -124,10 +124,10 @@ reason in the same comment, as in
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
 
 The vocabulary modelled on the GSL is spelled as the GSL spells its own,
-in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
+in lower-case `snake_case`: the pointer types of `lib/ptr.hpp`
 (`nonnull`, `nullable`, `owning`), `czstring`, and the conversions of
-`engine/cast.hpp` (`narrow`, `to_unsigned`, ...). The contract
-macros of `engine/error.hpp`, `EXPECTS()`, `ENSURES()` and `ASSERT()`,
+`lib/cast.hpp` (`narrow`, `to_unsigned`, ...). The contract
+macros of `lib/error.hpp`, `EXPECTS()`, `ENSURES()` and `ASSERT()`,
 are upper case like any macro; the functions under them, which only the
 macros call, are `snake_case` too. The GSL itself is not a dependency.
 
@@ -153,10 +153,10 @@ Getters:
 
 ## Standard library names
 
-`engine/types.hpp` brings the common standard types into the namespace
+`lib/types.hpp` brings the common standard types into the namespace
 (`string`, `optional`, `vector`, `unique_ptr`, ...) and aliases
-`chrono`. `engine/global.hpp` includes it, and so do the headers
-`global.hpp` is built on, such as `error.hpp`. Inside `wisdom`, write
+`chrono`. `engine/global.hpp` includes it, and so do the other headers
+under `lib/`, such as `error.hpp`. Inside `wisdom`, write
 them without `std::`: `optional<Move>`, `chrono::milliseconds`. Code
 outside the namespace, such as a `main()` or a test that only uses
 `wisdom::ui::qml`, keeps `std::`.

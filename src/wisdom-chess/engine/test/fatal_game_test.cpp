@@ -3,7 +3,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/history.hpp"
 
-#include "fatal_test.hpp"
+#include "wisdom-chess/lib/test/fatal_test.hpp"
 
 using namespace wisdom;
 

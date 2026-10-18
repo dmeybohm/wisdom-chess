@@ -5,41 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(WisdomEngine CXX)
 
-find_package(Threads REQUIRED)
-
-CPMAddPackage(
-  NAME doctest
-  GITHUB_REPOSITORY doctest/doctest
-  GIT_TAG v2.4.12
-  OPTIONS
-     "DOCTEST_NO_INSTALL On"
-)
-
-find_package(doctest)
-
-# Header only. Its own CMake project would add tests and install rules, so
-# only its include directory is used.
-CPMAddPackage(
-  NAME expected
-  GITHUB_REPOSITORY TartanLlama/expected
-  GIT_TAG v1.3.1
-  DOWNLOAD_ONLY YES
-)
-
-if (doctest_FOUND)
-    include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
-endif()
-
-if (EMSCRIPTEN AND TARGET doctest)
-    # Under node, stdout always looks like a terminal, and the color codes
-    # in the test list break doctest_discover_tests().
-    target_compile_definitions(doctest INTERFACE DOCTEST_CONFIG_COLORS_NONE)
-
-    # The engine is compiled with -pthread, and a test executable linked
-    # without it has no thread-local storage.
-    target_link_options(doctest INTERFACE -pthread)
-endif()
-
 if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
     # Disable precompile headers because there is a confict on android where it links
     # some code as PIC and some as non-PIC and can't combine them.
@@ -50,17 +15,14 @@ else()
     message("-- wisdom-chess: precompiled headers enabled")
 endif()
 
-add_library(wisdom-chess-core STATIC
+add_library(wisdom-chess-engine STATIC
         board_builder.hpp
         board_code.hpp
         board.hpp
-        cast.hpp
         castling.hpp
         coord.hpp
         coord_set.hpp
-        error.hpp
         evaluate.hpp
-        expected.hpp
         fen_parser.hpp
         game.hpp
         game_file.hpp
@@ -68,22 +30,16 @@ add_library(wisdom-chess-core STATIC
         generate.hpp
         global.hpp
         history.hpp
-        logger.hpp
         material.hpp
         move.hpp
         move_list.hpp
         move_ordering.hpp
         move_timer.hpp
-        optional.hpp
         piece.hpp
         position.hpp
-        ptr.hpp
-        random.hpp
         search.hpp
-        str.hpp
         threats.hpp
         transposition_table.hpp
-        types.hpp
         board.cpp
         board_code.cpp
         castling.cpp
@@ -94,9 +50,7 @@ add_library(wisdom-chess-core STATIC
         game_file.cpp
         game_status.cpp
         generate.cpp
-        global.cpp
         history.cpp
-        logger.cpp
         material.cpp
         move.cpp
         move_list.cpp
@@ -105,39 +59,32 @@ add_library(wisdom-chess-core STATIC
         piece.cpp
         position.cpp
         search.cpp
-        str.cpp
         transposition_table.cpp)
 
 if (PCH_ENABLED)
-    target_precompile_headers(wisdom-chess-core PRIVATE global.hpp)
+    target_precompile_headers(wisdom-chess-engine PRIVATE global.hpp)
 else()
-    target_sources(wisdom-chess-core PRIVATE global.hpp)
+    target_sources(wisdom-chess-engine PRIVATE global.hpp)
 endif()
 
-target_include_directories(wisdom-chess-core PUBLIC ../..)
-target_include_directories(wisdom-chess-core SYSTEM PUBLIC ${expected_SOURCE_DIR}/include)
-add_library(wisdom::chess ALIAS wisdom-chess-core)
+target_include_directories(wisdom-chess-engine PUBLIC ../..)
+add_library(wisdom::chess ALIAS wisdom-chess-engine)
 
-target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
+target_link_libraries(wisdom-chess-engine PUBLIC wisdom::lib)
 
-wisdom_chess_enable_warnings(wisdom-chess-core)
+wisdom_chess_enable_warnings(wisdom-chess-engine)
 
 if (EMSCRIPTEN)
-    target_compile_options(wisdom-chess-core PUBLIC -pthread)
+    target_compile_options(wisdom-chess-engine PUBLIC -pthread)
 endif()
 
 if (NOT WIN32 AND NOT EMSCRIPTEN)
     message("-- wisdom-chess: stack protector disabled for performance")
-    target_compile_options(wisdom-chess-core PRIVATE -fno-stack-protector)
+    target_compile_options(wisdom-chess-engine PRIVATE -fno-stack-protector)
 endif()
 
 if (doctest_FOUND)
-    message("-- wisdom-chess: Including tests with doctest")
     add_subdirectory(test)
-else()
-    message("-- wisdom-chess: Tests disabled (doctest not found)")
-    set(WISDOM_CHESS_SLOW_TESTS Off)
-    set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
 
 if (WISDOM_CHESS_BENCHMARKS AND NOT EMSCRIPTEN)

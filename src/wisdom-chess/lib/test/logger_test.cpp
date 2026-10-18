@@ -2,7 +2,8 @@
 #include <regex>
 #include <sstream>
 
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/cast.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 #include "wisdom-chess-tests.hpp"
 

@@ -5,7 +5,7 @@
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 extern "C"
 {

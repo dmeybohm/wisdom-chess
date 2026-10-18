@@ -9,8 +9,8 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/str.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/str.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/lib/cast.hpp"
+#include "wisdom-chess/lib/optional.hpp"
+#include "wisdom-chess/lib/types.hpp"
 
 namespace wisdom
 {

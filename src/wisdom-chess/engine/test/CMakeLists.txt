@@ -24,12 +24,9 @@ if (WISDOM_CHESS_FAST_TESTS)
         move_timer_test.cpp
         optional_test.cpp
         game_file_test.cpp
-        str_test.cpp
         board_test.cpp
         game_test.cpp
-        global_test.cpp
         transposition_table_test.cpp
-        logger_test.cpp
         test_main.cpp)
 
     target_precompile_headers(wisdom-chess-fast-tests PRIVATE ../global.hpp)
@@ -74,25 +71,14 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-medium-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
-    # The main() and case registry of every fatal test program
-    # (cmake/FatalTests.cmake).
-    add_library(wisdom-chess-fatal-main STATIC fatal_test_main.cpp)
-    target_link_libraries(wisdom-chess-fatal-main PUBLIC wisdom::chess)
-    wisdom_chess_enable_warnings(wisdom-chess-fatal-main)
-
-    if (WISDOM_CHESS_FILC_COMPAT)
-        target_compile_definitions(wisdom-chess-fatal-main PRIVATE WISDOM_CHESS_FILC_COMPAT)
-    endif()
-
     wisdom_chess_add_fatal_tests(wisdom-chess-fatal-tests
         fatal_board_test.cpp
-        fatal_cast_test.cpp
-        fatal_contract_test.cpp
         fatal_game_test.cpp
         fatal_move_list_test.cpp
         fatal_parse_test.cpp
         fatal_transposition_table_test.cpp
         fatal_uncaught_test.cpp)
+    target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
 
 endif()
 

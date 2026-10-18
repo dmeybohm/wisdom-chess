@@ -265,6 +265,10 @@ ctest --test-dir build -j 4          # -L fast / -L medium / -L slow to pick one
 
 The suites, by the labels and name prefixes `ctest -N` shows:
 
+- **Library** (`wisdom-chess-lib-tests`, label `fast`): doctest cases for
+  the general-purpose code under `src/wisdom-chess/lib`: the conversions,
+  the contract checks, the compact optional, the pointer types, the
+  logger and the string helpers.
 - **Engine** (`wisdom-chess-fast-tests`, label `fast`): doctest cases for
   the board, move generation, rules, search, transposition table and
   logger, in about a second in Release. Run new engine tests in a Debug
@@ -277,7 +281,8 @@ The suites, by the labels and name prefixes `ctest -N` shows:
   the published node counts and the hash-collision sweep. Needs
   `WISDOM_CHESS_SLOW_TESTS=On`.
 - **`Fatal: ...`** (`cmake/FatalTests.cmake`): runs the failed contract
-  checks and other emergency-logging paths of the engine
+  checks and other emergency-logging paths of the library
+  (`wisdom-chess-lib-fatal-tests`), the engine
   (`wisdom-chess-fatal-tests`) and the view model
   (`wisdom-chess-viewmodel-fatal-tests`) as separate processes, and
   checks that they report before aborting.

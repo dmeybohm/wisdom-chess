@@ -29,7 +29,7 @@ committing C++. The conventions below are about what the code does.
 
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
-- Conversions go through `engine/cast.hpp`. A conversion
+- Conversions go through `lib/cast.hpp`. A conversion
   that can lose a value has two forms: a checked form that terminates,
   and a `_debug` form that terminates but checks only when `Debugging` is
   on, like `ASSERT`, so not in Release or RelWithDebInfo:
@@ -57,13 +57,13 @@ committing C++. The conventions below are about what the code does.
     `operator bool`, which must be `noexcept`.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
-  (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,
+  (`lib/expected.hpp`): `Game::tryCreateGameFromFen()`,
   `FenParser::parse()`, `parseMove()`, `parseCoord()`, `parseInt()`.
   The forms without one (`createGameFromFen()`, `toMove()`,
   `toCoord()`) are for strings the program wrote, such as literals,
   and treat a bad one as a precondition failure. Name a new pair the
   same way: `parseX()` for outside text, `toX()` for the program's own.
-- `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check a
+- `EXPECTS( cond )` / `ENSURES( cond )` (`lib/error.hpp`) check a
   function's contract and abort when it is broken, so they suit `noexcept`
   functions too. See `features/2026/10/exception-removal.md`.
   `PRECONDITION_FAILED( "a piece type" )` is the same report for a case
@@ -72,7 +72,7 @@ committing C++. The conventions below are about what the code does.
   only when `Debugging` is on, and otherwise the condition is not
   evaluated. The macros quote the condition in the failure message, so
   the functions under them (`expects()`, ...) are not called directly.
-- Report through `logEmergency()` (`engine/logger.hpp`) before
+- Report through `logEmergency()` (`lib/logger.hpp`) before
   terminating, never raw `std::cerr`. Every `Logger` function is
   `noexcept`, so any context can log; a logger that cannot deliver a
   message terminates the process. Every `Logger` implements
@@ -97,7 +97,7 @@ committing C++. The conventions below are about what the code does.
   `Game::getDrawLimits()` gives it the limits to apply, and nothing
   defaults them. See `features/2026/10/draw-arbiter.md`.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
-  Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
+  Spell a non-owning pointer by its nullability (`lib/ptr.hpp`):
   `nonnull<Type>` or `nullable<Type>`, which cannot be dereferenced: test
   it, then take `value()` for a `nonnull`, which aborts when null. A
   `nonnull` checks for null when constructed, where a null aborts, and
@@ -128,7 +128,7 @@ committing C++. The conventions below are about what the code does.
   binds a temporary silently and deletes the type's assignment, where a
   `nonnull` needs an `&` at the construction site, which a temporary
   cannot supply. See `features/2026/10/no-reference-members.md`.
-- `optional` is `wisdom::optional` (`engine/optional.hpp`), not
+- `optional` is `wisdom::optional` (`lib/optional.hpp`), not
   `std::optional`: a type that nests a public `NullRepresentation`
   (`Move`, `Coord`, `ColoredPiece`, `Piece`, `Color`), or an enum with a
   `nullRepresentation()` function, gets one without a flag, and pins it
@@ -182,10 +182,11 @@ binaries' standard input. A UCI script that starts a search must send
 The `Fatal: ...` tests cover what doctest cannot catch because it ends
 the process: a failed `EXPECTS` or `ASSERT`, a null `nonnull`, an
 uncaught exception. Add one with `FATAL_CASE( name, expected [, listed] )`
-(`engine/test/fatal_test.hpp`) in the `fatal_*_test.cpp` file for its
+(`lib/test/fatal_test.hpp`) in the `fatal_*_test.cpp` file for its
 area, and list a new file in the program's
 `wisdom_chess_add_fatal_tests()` call (`cmake/FatalTests.cmake`); the
-build asks the program for the list. The engine's cases are in
+build asks the program for the list. The library's cases are in
+`wisdom-chess-lib-fatal-tests`, the engine's in
 `wisdom-chess-fatal-tests`, the view model's in
 `wisdom-chess-viewmodel-fatal-tests`, and the web frontend's in
 `wisdom-chess-web-fatal-tests`. Case names must be unique across

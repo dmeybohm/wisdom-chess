@@ -1,4 +1,4 @@
-#include "wisdom-chess/engine/cast.hpp"
+#include "wisdom-chess/lib/cast.hpp"
 
 #include "fatal_test.hpp"
 
@@ -22,6 +22,26 @@ namespace
     {
         int volatile negative = -1;
         [[maybe_unused]] auto narrowed = narrow<std::size_t> (negative);
+    }
+
+    FATAL_CASE(
+        "absolute-value-of-minimum",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
+    )
+    {
+        int volatile minimum = std::numeric_limits<int>::min();
+        [[maybe_unused]] auto absolute = absoluteValue (minimum);
+    }
+
+    // Promoted to int before the negation, so the check has to catch it
+    // rather than the narrowing back.
+    FATAL_CASE(
+        "absolute-value-of-small-minimum",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
+    )
+    {
+        int8_t volatile minimum = std::numeric_limits<int8_t>::min();
+        [[maybe_unused]] auto absolute = absoluteValue (minimum);
     }
 
     FATAL_CASE(

@@ -5,7 +5,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include "wisdom-chess/engine/types.hpp"
+#include "wisdom-chess/lib/types.hpp"
 
 namespace wisdom
 {

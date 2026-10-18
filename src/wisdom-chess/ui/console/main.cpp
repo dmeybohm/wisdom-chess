@@ -1,5 +1,5 @@
 #include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 namespace wisdom::ui::console
 {

@@ -1,7 +1,7 @@
 #include <emscripten.h>
 #include <emscripten/wasm_worker.h>
 
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/ui/wasm/web_logger.hpp"
 
 emscripten_wasm_worker_t engine_thread;

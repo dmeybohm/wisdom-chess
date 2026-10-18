@@ -3,8 +3,8 @@
 
 #include <doctest/doctest.h>
 
-#include "wisdom-chess/engine/logger.hpp"
-#include "wisdom-chess/engine/ptr.hpp"
+#include "wisdom-chess/lib/logger.hpp"
+#include "wisdom-chess/lib/ptr.hpp"
 #include "wisdom-chess/ui/uci/uci_interface.hpp"
 
 using namespace wisdom;

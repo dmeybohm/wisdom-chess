@@ -3,8 +3,8 @@
 #include <charconv>
 #include <cstdlib>
 
-#include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/error.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 namespace wisdom
 {

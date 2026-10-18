@@ -5,7 +5,8 @@
 #include <iostream>
 #include <mutex>
 
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/cast.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 namespace wisdom
 {

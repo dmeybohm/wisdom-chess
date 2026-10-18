@@ -5,7 +5,7 @@ if (WISDOM_CHESS_CONSOLE_UI)
     )
 
     target_link_libraries(wisdom-chess-uci
-        wisdom-chess-core
+        wisdom-chess-engine
     )
     wisdom_chess_enable_warnings(wisdom-chess-uci)
 

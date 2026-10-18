@@ -4,7 +4,7 @@
 #include <QQuickWindow>
 #include <QSGRendererInterface>
 
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"

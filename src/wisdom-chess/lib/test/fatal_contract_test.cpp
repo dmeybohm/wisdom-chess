@@ -1,5 +1,5 @@
-#include "wisdom-chess/engine/error.hpp"
-#include "wisdom-chess/engine/ptr.hpp"
+#include "wisdom-chess/lib/error.hpp"
+#include "wisdom-chess/lib/ptr.hpp"
 
 #include "fatal_test.hpp"
 
