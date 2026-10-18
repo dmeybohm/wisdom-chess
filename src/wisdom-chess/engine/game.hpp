@@ -135,14 +135,14 @@ namespace wisdom
 
         [[nodiscard]] auto 
         getSearchTimeout() const 
-            -> std::chrono::seconds
+            -> std::chrono::milliseconds
         {
-            return my_move_timer.getSeconds();
+            return my_move_timer.getTimeLimit();
         }
 
-        void setSearchTimeout (std::chrono::seconds seconds)
+        void setSearchTimeout (std::chrono::milliseconds timeout)
         {
-            my_move_timer.setSeconds (seconds);
+            my_move_timer.setTimeLimit (timeout);
         }
 
         [[nodiscard]] auto

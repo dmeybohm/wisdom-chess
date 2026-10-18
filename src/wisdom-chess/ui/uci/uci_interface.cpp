@@ -54,6 +54,10 @@ namespace wisdom
         {
             handleGo (tokens);
         }
+        else if (command == "setoption")
+        {
+            handleSetOption (tokens);
+        }
         else if (command == "stop")
         {
             handleStop();
@@ -160,12 +164,134 @@ namespace wisdom
         }
     }
 
+    // Backported from the UCI frontend on main: the search budget comes
+    // from the clock as there, through a millisecond timer, less the
+    // Move Overhead. The search itself still runs on this thread.
     auto
     UciInterface::handleGo (const vector<string>& tokens)
         -> void
     {
+        optional<int> wtime, btime, winc, binc, movetime, depth;
+        bool infinite = false;
+
+        auto parse_int = [] (const string& text) -> optional<int>
+        {
+            try
+            {
+                return std::stoi (text);
+            }
+            catch (const std::exception&)
+            {
+                return nullopt;
+            }
+        };
+
+        for (size_t i = 1; i < tokens.size(); i++)
+        {
+            const auto& token = tokens[i];
+            if (token == "infinite")
+            {
+                infinite = true;
+                continue;
+            }
+            if (i + 1 >= tokens.size())
+                break;
+            auto value = parse_int (tokens[i + 1]);
+            if (token == "wtime")
+                wtime = value;
+            else if (token == "btime")
+                btime = value;
+            else if (token == "winc")
+                winc = value;
+            else if (token == "binc")
+                binc = value;
+            else if (token == "movetime")
+                movetime = value;
+            else if (token == "depth")
+                depth = value;
+            else
+                continue;
+            i++;
+        }
+
+        std::chrono::milliseconds search_time { 0 };
+        if (movetime.has_value())
+        {
+            search_time = std::chrono::milliseconds {
+                std::max (*movetime - my_move_overhead_ms, 1)
+            };
+        }
+        else if (wtime.has_value() || btime.has_value())
+        {
+            bool white = my_game.getCurrentTurn() == Color::White;
+            int time_remaining = white ? wtime.value_or (0) : btime.value_or (0);
+            int increment = white ? winc.value_or (0) : binc.value_or (0);
+
+            // Never more than half of what is left after the overhead, so a
+            // short clock cannot run out. A budget of zero would mean no
+            // limit, so the least is one millisecond.
+            int available = std::max (time_remaining - my_move_overhead_ms, 0);
+            int time_for_move = (available / 30) + increment;
+            time_for_move = std::max (time_for_move, 100);
+            time_for_move = std::min (time_for_move, available / 2);
+            search_time = std::chrono::milliseconds { std::max (time_for_move, 1) };
+        }
+        else if (infinite)
+        {
+            search_time = std::chrono::hours { 1 };
+        }
+
+        auto saved_timeout = my_game.getSearchTimeout();
+        auto saved_depth = my_game.getMaxDepth();
+        if (search_time.count() > 0)
+            my_game.setSearchTimeout (search_time);
+        if (depth.has_value())
+            my_game.setMaxDepth (std::clamp (*depth, 1, 64));
+
         auto best_move = my_game.findBestMove (my_logger);
+
+        my_game.setSearchTimeout (saved_timeout);
+        my_game.setMaxDepth (saved_depth);
         sendBestMove (best_move);
+    }
+
+    auto
+    UciInterface::handleSetOption (const vector<string>& tokens)
+        -> void
+    {
+        string name;
+        optional<int> value;
+
+        for (size_t i = 1; i < tokens.size(); i++)
+        {
+            if (tokens[i] == "name")
+            {
+                for (i++; i < tokens.size() && tokens[i] != "value"; i++)
+                {
+                    if (!name.empty())
+                        name += ' ';
+                    for (char c : tokens[i])
+                        name += static_cast<char> (std::tolower (static_cast<unsigned char> (c)));
+                }
+                i--;
+            }
+            else if (tokens[i] == "value" && i + 1 < tokens.size())
+            {
+                try
+                {
+                    value = std::stoi (tokens[i + 1]);
+                }
+                catch (const std::exception&)
+                {
+                }
+                break;
+            }
+        }
+
+        if (name == "depth" && value.has_value())
+            my_game.setMaxDepth (std::clamp (*value, 1, 64));
+        else if (name == "move overhead" && value.has_value())
+            my_move_overhead_ms = std::clamp (*value, 0, 5000);
     }
 
     auto
@@ -201,6 +327,9 @@ namespace wisdom
     UciInterface::sendEngineInfo()
         -> void
     {
+        std::cout << "option name Depth type spin default " << Default_Max_Depth
+                  << " min 1 max 64\n";
+        std::cout << "option name Move Overhead type spin default 10 min 0 max 5000\n";
     }
 
     auto

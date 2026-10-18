@@ -26,7 +26,7 @@ namespace wisdom::test
         auto build (const Board& board, int depth, int time = 30)
             -> IterativeSearch
         {
-            timer.setSeconds (chrono::seconds { time });
+            timer.setTimeLimit (chrono::seconds { time });
             return { board, history, logger, timer, depth };
         }
     };

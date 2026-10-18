@@ -27,6 +27,7 @@ namespace wisdom
         auto handleNewGame() -> void;
         auto handlePosition (const vector<string>& tokens) -> void;
         auto handleGo (const vector<string>& tokens) -> void;
+        auto handleSetOption (const vector<string>& tokens) -> void;
         auto handleStop() -> void;
         auto handleQuit() -> void;
 
@@ -41,5 +42,8 @@ namespace wisdom
         Game my_game;
         shared_ptr<Logger> my_logger;
         bool my_debug_mode = false;
+
+        // Clock time kept back for everything outside the search.
+        int my_move_overhead_ms = 10;
     };
 }
