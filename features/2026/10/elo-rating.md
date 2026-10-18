@@ -94,3 +94,19 @@ CCRL rating. A CCRL number needs anchors with CCRL ratings, through
   were downloaded, built and checked, the 12 games took 18 seconds, and
   the summary ended with the pairwise table and Ordo's table with both
   anchors fixed.
+- A gauntlet interrupted with Ctrl-C after 6 of 12 games was resumed with
+  `--resume`; the tally counted each game once and the rating followed.
+- Bracket, `--rounds 20 new=HEAD sf1600=stockfish:1600
+  sf2000=stockfish:2000 sf2400=stockfish:2400` at 8+0.08 (120 games,
+  11 minutes):
+
+  | Pairing       | W / D / L   | Score | Elo  |
+  |---------------|-------------|-------|------|
+  | new vs sf1600 | 26 / 4 / 10 | 70.0% | +147 |
+  | new vs sf2000 | 14 / 5 / 21 | 41.2% | -61  |
+  | new vs sf2400 | 4 / 1 / 35  | 11.2% | -359 |
+
+  Ordo put `new` at 1884 ± 84 on that scale.
+- Rating run started: `new=HEAD sf1700=stockfish:1700
+  sf1900=stockfish:1900 sf2100=stockfish:2100`, 500 games per anchor at
+  8+0.08.
