@@ -20,6 +20,8 @@
 # and Ordo rates every engine against the anchors, so the summary also
 # gives each engine's rating on the anchors' scale. Stockfish's UCI_Elo
 # scale is calibrated at 120 seconds plus 1 a move against CCRL 40/4.
+# A match of anchors alone is a round-robin that checks their scale
+# against each other, and no rating is computed.
 #
 # Examples: ./scripts/run-engine-match.sh base=main new=HEAD
 #           ./scripts/run-engine-match.sh new=HEAD sf1600=stockfish:1600 sf2000=stockfish:2000
@@ -553,14 +555,6 @@ run_fastchess() {
     fi
 }
 
-has_anchors() {
-    local rating
-    for rating in "${RATINGS[@]}"; do
-        [ -z "$rating" ] || return 0
-    done
-    return 1
-}
-
 # Rate every engine against the anchors with Ordo, over the games the
 # tally counted, so that a game replayed after a resume is not counted
 # twice. Ordo's anchors file only takes effect with two or more anchors;
@@ -580,21 +574,31 @@ rate() {
 
     echo ""
     echo "Ratings against the anchors (Ordo, $ORDO_SIMULATIONS simulations for the errors):"
-    "$ORDO" -q -p "$RUN_DIR/counted.pgn" "${anchor_args[@]}" \
-        -s "$ORDO_SIMULATIONS" -D -W -o "$RUN_DIR/ratings.txt" > /dev/null 2>&1 \
-        || { echo "Ordo failed to rate the games."; return 0; }
+    if ! "$ORDO" -p "$RUN_DIR/counted.pgn" "${anchor_args[@]}" \
+        -s "$ORDO_SIMULATIONS" -D -W -o "$RUN_DIR/ratings.txt" > "$RUN_DIR/ordo.log" 2>&1; then
+        tail -5 "$RUN_DIR/ordo.log" >&2
+        echo "Error: Ordo failed to rate the games; the full output is $RUN_DIR/ordo.log" >&2
+        return 1
+    fi
     cat "$RUN_DIR/ratings.txt"
 }
 
+# Tally the games, and rate them when there is an engine to rate. A tally
+# or rating that fails still prints how to resume an interrupted match,
+# and then the script fails.
 tally() {
+    local status=0
+
     echo "" | tee -a "$RUN_DIR/summary.txt"
     if [ -s "$RUN_DIR/games.pgn" ]; then
+        set +e
         {
-            if python3 "$SCRIPT_DIR/engine-match-tally.py" --counted "$RUN_DIR/counted.pgn" \
-                "$RUN_DIR/games.pgn" "${NAMES[@]}" 2>&1; then
-                ! has_anchors || rate
-            fi
-        } | tee -a "$RUN_DIR/summary.txt" || true
+            python3 "$SCRIPT_DIR/engine-match-tally.py" --counted "$RUN_DIR/counted.pgn" \
+                "$RUN_DIR/games.pgn" "${NAMES[@]}" 2>&1 \
+            && { [ "$TOURNAMENT_KIND" != gauntlet ] || rate; }
+        } | tee -a "$RUN_DIR/summary.txt"
+        status="${PIPESTATUS[0]}"
+        set -e
     else
         echo "No games finished." | tee -a "$RUN_DIR/summary.txt"
     fi
@@ -606,6 +610,7 @@ tally() {
         echo "  $0 --resume $RUN_DIR"
         exit "$FASTCHESS_STATUS"
     fi
+    exit "$status"
 }
 
 # Build, fetch or check every engine, and collect fastchess's -engine
@@ -631,11 +636,15 @@ for i in "${!NAMES[@]}"; do
 done
 FASTCHESS_ENGINES=("${SEEDS[@]}" "${ANCHORS[@]}")
 if [ "$ANCHOR_COUNT" -gt 0 ] && [ "$SEED_COUNT" -gt 0 ]; then
+    TOURNAMENT_KIND=gauntlet
     TOURNAMENT=(-tournament gauntlet -seeds "$SEED_COUNT")
     TOURNAMENT_TEXT="gauntlet, $SEED_COUNT engine(s) against $ANCHOR_COUNT anchor(s)"
 else
+    TOURNAMENT_KIND=roundrobin
     TOURNAMENT=(-tournament roundrobin)
     TOURNAMENT_TEXT="round-robin"
+    [ "$ANCHOR_COUNT" -eq 0 ] \
+        || echo "Note: every engine is an anchor, so they play each other and no rating is computed."
 fi
 
 if [ "$BUILD_ONLY" = yes ]; then
@@ -646,7 +655,7 @@ if [ "$BUILD_ONLY" = yes ]; then
 fi
 
 build_fastchess
-! has_anchors || build_ordo
+[ "$TOURNAMENT_KIND" != gauntlet ] || build_ordo
 
 if [ -n "$RESUME_DIR" ]; then
     # The saved config.json names the engines, which were checked above
@@ -688,7 +697,7 @@ done > "$RUN_DIR/engines.txt"
     echo "Time control: $TC, rounds: $ROUNDS, concurrency: $CONCURRENCY, seed: $SEED"
     echo "Move Overhead: $OVERHEAD ms, hash: $HASH MB, depth limit: $MAX_DEPTH, book: $BOOK_NAME"
     echo "fastchess: $FASTCHESS_COMMIT"
-    ! has_anchors || echo "Ordo: $ORDO_COMMIT"
+    [ "$TOURNAMENT_KIND" != gauntlet ] || echo "Ordo: $ORDO_COMMIT"
 } | tee "$RUN_DIR/summary.txt"
 echo "Results: $RUN_DIR"
 

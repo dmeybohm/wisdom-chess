@@ -127,3 +127,18 @@ CCRL rating. A CCRL number needs anchors with CCRL ratings, through
   with the time control, and why CCRL-rated anchors are the next step
   for a CCRL number.
 - Results: `~/.cache/wisdom-chess/match/results/20261018-101458-new-sf1700-sf1900-sf2100`.
+
+### Session #2 (2026-10-18)
+
+Two review comments on PR #384:
+
+- A match of anchors alone fell back to a round-robin, against the help
+  text. Kept, since two Stockfish levels playing each other is how the
+  scale's consistency is checked, but now documented, with a note when
+  it happens, and Ordo is neither built nor run, as it would only print
+  the fixed ratings back.
+- An Ordo failure was swallowed and the script exited 0 without the
+  rating. Ordo's output now goes to `ordo.log` in the results directory,
+  its tail is printed on failure, and the script exits nonzero, after
+  still printing how to resume an interrupted match. Checked by
+  replacing the cached Ordo with a script that exits 3.
