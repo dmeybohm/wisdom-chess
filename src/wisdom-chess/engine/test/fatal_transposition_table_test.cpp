@@ -8,7 +8,7 @@ namespace
 {
     FATAL_CASE(
         "transposition-table-no-megabytes",
-        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: size_in_mb >= 1"
+        R"re(Precondition failed at .*transposition_table\.cpp:[0-9]+: size_in_mb >= 1)re"
     )
     {
         int volatile size = 0;
@@ -17,7 +17,7 @@ namespace
 
     FATAL_CASE(
         "transposition-table-less-than-a-bucket",
-        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: entry_count >= TranspositionBucket::Size"
+        R"re(Precondition failed at .*transposition_table\.cpp:[0-9]+: entry_count >= TranspositionBucket::Size)re"
     )
     {
         [[maybe_unused]] auto table = TranspositionTable::fromEntries (2);
@@ -25,7 +25,7 @@ namespace
 
     FATAL_CASE(
         "transposition-table-entries-not-a-power-of-two",
-        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: std::has_single_bit \\(entry_count\\)"
+        R"re(Precondition failed at .*transposition_table\.cpp:[0-9]+: std::has_single_bit \(entry_count\))re"
     )
     {
         [[maybe_unused]] auto table = TranspositionTable::fromEntries (6);
@@ -33,7 +33,7 @@ namespace
 
     FATAL_CASE(
         "transposition-table-store-empty-bound",
-        "Precondition failed at .*transposition_table\\.cpp:[0-9]+: bound_type != BoundType::Empty"
+        R"re(Precondition failed at .*transposition_table\.cpp:[0-9]+: bound_type != BoundType::Empty)re"
     )
     {
         auto table = TranspositionTable::fromEntries (4);
@@ -42,7 +42,7 @@ namespace
 
     FATAL_CASE(
         "depth-and-score-bits-depth-too-large",
-        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: depth >= 0 && depth <= Max_Depth"
+        R"re(Precondition failed at .*transposition_table\.hpp:[0-9]+: depth >= 0 && depth <= Max_Depth)re"
     )
     {
         int volatile depth = DepthAndScoreBits::Max_Depth + 1;
@@ -51,7 +51,7 @@ namespace
 
     FATAL_CASE(
         "depth-and-score-bits-score-too-large",
-        "Precondition failed at .*transposition_table\\.hpp:[0-9]+: score >= Min_Score && score <= Max_Score"
+        R"re(Precondition failed at .*transposition_table\.hpp:[0-9]+: score >= Min_Score && score <= Max_Score)re"
     )
     {
         int volatile score = DepthAndScoreBits::Max_Score + 1;

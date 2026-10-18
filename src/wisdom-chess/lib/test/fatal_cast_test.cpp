@@ -8,7 +8,7 @@ namespace
 {
     FATAL_CASE(
         "narrow-overflow",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: narrow: the value fits)re"
     )
     {
         int volatile too_big = 300;
@@ -17,7 +17,7 @@ namespace
 
     FATAL_CASE(
         "narrow-negative-to-unsigned",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: narrow: the value fits)re"
     )
     {
         int volatile negative = -1;
@@ -26,7 +26,7 @@ namespace
 
     FATAL_CASE(
         "absolute-value-of-minimum",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: absoluteValue: the negation fits)re"
     )
     {
         int volatile minimum = std::numeric_limits<int>::min();
@@ -37,7 +37,7 @@ namespace
     // rather than the narrowing back.
     FATAL_CASE(
         "absolute-value-of-small-minimum",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: absoluteValue: the negation fits)re"
     )
     {
         int8_t volatile minimum = std::numeric_limits<int8_t>::min();
@@ -46,7 +46,7 @@ namespace
 
     FATAL_CASE(
         "to-unsigned-negative",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_unsigned: the value is nonnegative"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: to_unsigned: the value is nonnegative)re"
     )
     {
         int volatile negative = -1;
@@ -55,7 +55,7 @@ namespace
 
     FATAL_CASE(
         "to-enum-overflow",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_enum: the value fits"
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: to_enum: the value fits)re"
     )
     {
         enum class Small : int8_t
@@ -69,7 +69,7 @@ namespace
     // The _debug conversions only check when Debugging is on.
     FATAL_CASE(
         "narrow-debug-overflow",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow_debug: the value fits",
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: narrow_debug: the value fits)re",
         Debugging
     )
     {
@@ -79,7 +79,7 @@ namespace
 
     FATAL_CASE(
         "to-unsigned-debug-negative",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative",
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative)re",
         Debugging
     )
     {
@@ -89,7 +89,7 @@ namespace
 
     FATAL_CASE(
         "to-enum-debug-overflow",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_enum_debug: the value fits",
+        R"re(Precondition failed at .*fatal_cast_test\.cpp:[0-9]+: to_enum_debug: the value fits)re",
         Debugging
     )
     {

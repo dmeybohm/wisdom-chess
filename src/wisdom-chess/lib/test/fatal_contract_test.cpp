@@ -9,7 +9,7 @@ namespace
 {
     FATAL_CASE(
         "null-nonnull",
-        "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr"
+        R"re(Precondition failed at .*ptr\.hpp:[0-9]+: ptr != nullptr)re"
     )
     {
         int* volatile null_ptr = nullptr; // lint-allow(raw-pointer): the null under test
@@ -18,7 +18,7 @@ namespace
 
     FATAL_CASE(
         "null-nullable-value",
-        "Precondition failed at .*ptr\\.hpp:[0-9]+: my_ptr != nullptr"
+        R"re(Precondition failed at .*ptr\.hpp:[0-9]+: my_ptr != nullptr)re"
     )
     {
         nullable<int> null_ptr;
@@ -27,7 +27,7 @@ namespace
 
     FATAL_CASE(
         "expects-failure",
-        "Precondition failed at .*fatal_contract_test\\.cpp:[0-9]+: condition"
+        R"re(Precondition failed at .*fatal_contract_test\.cpp:[0-9]+: condition)re"
     )
     {
         volatile bool condition = false;
@@ -36,7 +36,7 @@ namespace
 
     FATAL_CASE(
         "ensures-failure",
-        "Postcondition failed at .*fatal_contract_test\\.cpp:[0-9]+: condition"
+        R"re(Postcondition failed at .*fatal_contract_test\.cpp:[0-9]+: condition)re"
     )
     {
         volatile bool condition = false;
@@ -45,7 +45,7 @@ namespace
 
     FATAL_CASE(
         "precondition-failed",
-        "Precondition failed at .*fatal_contract_test\\.cpp:[0-9]+: a test description"
+        R"re(Precondition failed at .*fatal_contract_test\.cpp:[0-9]+: a test description)re"
     )
     {
         PRECONDITION_FAILED( "a test description" );
@@ -54,7 +54,7 @@ namespace
     // ASSERT() only checks when Debugging is on.
     FATAL_CASE(
         "assert-failure",
-        "Assertion failed at .*fatal_contract_test\\.cpp:[0-9]+: condition",
+        R"re(Assertion failed at .*fatal_contract_test\.cpp:[0-9]+: condition)re",
         Debugging
     )
     {

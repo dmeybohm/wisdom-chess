@@ -12,7 +12,7 @@ namespace
 {
     FATAL_CASE(
         "coord-parse-invalid",
-        "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
+        R"re(Precondition failed at .*coord\.hpp:[0-9]+: result\.has_value\(\))re"
     )
     {
         [[maybe_unused]] Coord coord = toCoord ("z9");
@@ -20,7 +20,7 @@ namespace
 
     FATAL_CASE(
         "move-parse-invalid",
-        "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
+        R"re(Precondition failed at .*move\.cpp:[0-9]+: optional_result\.has_value\(\))re"
     )
     {
         [[maybe_unused]] Move move = toMove ("invalid");
@@ -28,7 +28,7 @@ namespace
 
     FATAL_CASE(
         "move-parse-castling-without-color",
-        "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
+        R"re(Precondition failed at .*move\.cpp:[0-9]+: optional_result\.has_value\(\))re"
     )
     {
         [[maybe_unused]] Move move = toMove ("o-o");
@@ -36,7 +36,7 @@ namespace
 
     FATAL_CASE(
         "move-list-invalid-move",
-        "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
+        R"re(Precondition failed at .*move\.cpp:[0-9]+: optional_result\.has_value\(\))re"
     )
     {
         [[maybe_unused]] MoveList list { Color::White, { "e2 e4", "not a move" } };
@@ -44,7 +44,7 @@ namespace
 
     FATAL_CASE(
         "fen-parser-invalid",
-        "Precondition failed at .*fen_parser\\.cpp:[0-9]+: a valid FEN string: Invalid piece type!"
+        R"re(Precondition failed at .*fen_parser\.cpp:[0-9]+: a valid FEN string: Invalid piece type!)re"
     )
     {
         [[maybe_unused]] FenParser parser { "not a fen" };
@@ -52,7 +52,7 @@ namespace
 
     FATAL_CASE(
         "create-game-from-invalid-fen",
-        "Precondition failed at .*fen_parser\\.cpp:[0-9]+: a valid FEN string: Invalid piece type!"
+        R"re(Precondition failed at .*fen_parser\.cpp:[0-9]+: a valid FEN string: Invalid piece type!)re"
     )
     {
         [[maybe_unused]] Game game = Game::createGameFromFen ("not a fen");

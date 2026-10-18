@@ -12,13 +12,13 @@ using namespace wisdom;
 
 namespace
 {
-    FATAL_CASE( "bad-castling-flags", "Precondition failed at .*castling\\.hpp" )
+    FATAL_CASE( "bad-castling-flags", R"re(Precondition failed at .*castling\.hpp)re" )
     {
         volatile uint8_t flags = 0x4;
         [[maybe_unused]] CastlingEligibility eligibility { flags };
     }
 
-    FATAL_CASE( "bad-en-passant-row", "Precondition failed at .*board_code\\.hpp" )
+    FATAL_CASE( "bad-en-passant-row", R"re(Precondition failed at .*board_code\.hpp)re" )
     {
         Board board { BoardBuilder::fromDefaultPosition() };
         BoardCode code { board };
@@ -42,7 +42,7 @@ namespace
 
     FATAL_CASE(
         "color-index-without-color",
-        "Precondition failed at .*piece\\.hpp:[0-9]+: who == Color::White \\|\\| who == Color::Black"
+        R"re(Precondition failed at .*piece\.hpp:[0-9]+: who == Color::White \|\| who == Color::Black)re"
     )
     {
         Color color = corruptColor();
@@ -51,7 +51,7 @@ namespace
 
     FATAL_CASE(
         "colored-piece-without-color",
-        "Precondition failed at .*piece\\.hpp:[0-9]+: color == Color::White \\|\\| color == Color::Black"
+        R"re(Precondition failed at .*piece\.hpp:[0-9]+: color == Color::White \|\| color == Color::Black)re"
     )
     {
         Color color = corruptColor();
@@ -60,7 +60,7 @@ namespace
 
     FATAL_CASE(
         "pawn-direction-without-color",
-        "Precondition failed at .*coord\\.hpp:[0-9]+: color == Color::Black \\|\\| color == Color::White"
+        R"re(Precondition failed at .*coord\.hpp:[0-9]+: color == Color::Black \|\| color == Color::White)re"
     )
     {
         Color color = corruptColor();
@@ -69,7 +69,7 @@ namespace
 
     FATAL_CASE(
         "board-builder-invalid-coordinate",
-        "Precondition failed at .*coord\\.hpp:[0-9]+: result\\.has_value\\(\\)"
+        R"re(Precondition failed at .*coord\.hpp:[0-9]+: result\.has_value\(\))re"
     )
     {
         BoardBuilder builder;
@@ -78,7 +78,7 @@ namespace
 
     FATAL_CASE(
         "board-builder-half-move-clock-out-of-range",
-        "Precondition failed at .*board_builder\\.hpp:[0-9]+: new_half_moves_clock >= 0"
+        R"re(Precondition failed at .*board_builder\.hpp:[0-9]+: new_half_moves_clock >= 0)re"
     )
     {
         BoardBuilder builder;
@@ -88,7 +88,7 @@ namespace
 
     FATAL_CASE(
         "board-builder-full-moves-out-of-range",
-        "Precondition failed at .*board_builder\\.hpp:[0-9]+: new_full_moves >= 1"
+        R"re(Precondition failed at .*board_builder\.hpp:[0-9]+: new_full_moves >= 1)re"
     )
     {
         BoardBuilder builder;
@@ -98,7 +98,7 @@ namespace
 
     FATAL_CASE(
         "board-builder-replace-king",
-        "Precondition failed at .*board_builder\\.hpp:[0-9]+: !existing \\|\\| pieceType"
+        R"re(Precondition failed at .*board_builder\.hpp:[0-9]+: !existing \|\| pieceType)re"
     )
     {
         BoardBuilder builder;
