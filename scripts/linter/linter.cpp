@@ -346,6 +346,7 @@ auto getDefaultConfig() -> LinterConfig
             { "namespace-braces", Severity::Error },
             { "no-tabs", Severity::Error },
             { "raw-pointer", Severity::Error },
+            { "reference-member", Severity::Error },
             { "allman-braces", Severity::Error },
             { "no-trailing-whitespace", Severity::Error },
         },

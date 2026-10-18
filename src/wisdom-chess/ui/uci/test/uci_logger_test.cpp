@@ -4,6 +4,7 @@
 #include <doctest/doctest.h>
 
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/ptr.hpp"
 #include "wisdom-chess/ui/uci/uci_interface.hpp"
 
 using namespace wisdom;
@@ -13,19 +14,19 @@ namespace
     // Captures a stream for the lifetime of the object.
     struct CapturedStream
     {
-        std::ostream& stream;
+        nonnull<std::ostream> stream;
         std::ostringstream captured;
         std::streambuf* original; // lint-allow(raw-pointer): std::ios API
 
-        explicit CapturedStream (std::ostream& stream_to_capture)
+        explicit CapturedStream (nonnull<std::ostream> stream_to_capture)
             : stream { stream_to_capture }
-            , original { stream_to_capture.rdbuf (captured.rdbuf()) }
+            , original { stream_to_capture->rdbuf (captured.rdbuf()) }
         {
         }
 
         ~CapturedStream()
         {
-            stream.rdbuf (original);
+            stream->rdbuf (original);
         }
     };
 
@@ -61,7 +62,7 @@ namespace
 
 TEST_CASE( "The UCI emergency logger writes each line as an info string" )
 {
-    CapturedStream cout { std::cout };
+    CapturedStream cout { &std::cout };
     auto logger = makeUciLogger (false);
 
     logger->emergency ("first\nsecond\n");
@@ -71,7 +72,7 @@ TEST_CASE( "The UCI emergency logger writes each line as an info string" )
 
 TEST_CASE( "The UCI logger prefixes every line of a message" )
 {
-    CapturedStream cout { std::cout };
+    CapturedStream cout { &std::cout };
     auto logger = makeUciLogger (true);
 
     logger->debug ("first\nsecond");
@@ -82,7 +83,7 @@ TEST_CASE( "The UCI logger prefixes every line of a message" )
 
 TEST_CASE( "A failing standard output does not escape the UCI emergency logger" )
 {
-    CapturedStream cerr { std::cerr };
+    CapturedStream cerr { &std::cerr };
     auto logger = makeUciLogger (false);
     setEmergencyLogger (logger);
 
@@ -100,7 +101,7 @@ TEST_CASE( "A failing standard output does not escape the UCI emergency logger" 
 
     // The failure must not leave the emergency path locked out.
     {
-        CapturedStream cout { std::cout };
+        CapturedStream cout { &std::cout };
         logEmergency ("again");
         CHECK( cout.captured.str() == "info string again\n" );
     }

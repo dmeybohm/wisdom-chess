@@ -107,14 +107,21 @@ committing C++. The conventions below are about what the code does.
   something outside C++ arranges the deletion, such as Qt's
   `deleteLater()`. For an object handed to JavaScript, hold a
   `unique_ptr` and `release()` it in the `return`.
-- The linter's `raw-pointer` rule enforces the pointer rules. Qt types and
-  `auto*` locals are exempt. For a pointer an API requires (`main`, QML's
+- The linter's `raw-pointer` rule enforces the pointer rules, and its
+  `reference-member` rule the rule below on data members. Qt types and
+  `auto*` locals are exempt from `raw-pointer`. For a pointer an API requires (`main`, QML's
   singleton `create()`, the WebIDL bindings, `EM_JS`), end the line with
   `// lint-allow(raw-pointer): <reason>`. `lint-allow(<rule>)` silences
   any rule on its line.
 - Use `nonnull<Type>` in preference to a mutable `Type&` reference, for
-  both functions and member variables. Use `const Type&` for const
-  references.
+  both parameters and member variables. `const Type&` is for a parameter
+  or a local, whose binding ends with the call or the scope. A reference
+  may not outlive the expression or call that bound it, so a data member
+  that points at something it does not own is `nonnull<const Type>` or
+  `nonnull<Type>`, never a reference, const or not: a reference member
+  binds a temporary silently and deletes the type's assignment, where a
+  `nonnull` needs an `&` at the construction site, which a temporary
+  cannot supply. See `features/2026/10/no-reference-members.md`.
 - `optional` is `wisdom::optional` (`engine/optional.hpp`), not
   `std::optional`: a type that nests a public `NullRepresentation`
   (`Move`, `Coord`, `ColoredPiece`, `Piece`, `Color`), or an enum with a

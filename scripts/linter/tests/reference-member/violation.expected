@@ -1,0 +1,8 @@
+3:16:reference-member:Reference member 'board': use nonnull<const Board> or nullable<const Board>, which cannot bind a temporary and keep the type assignable
+19:17:reference-member:Reference member 'my_stream': use nonnull<std::ostream> or nullable<std::ostream>, which cannot bind a temporary and keep the type assignable
+20:18:reference-member:Reference member 'my_boards': use nonnull<vector<Board>> or nullable<vector<Board>>, which cannot bind a temporary and keep the type assignable
+21:16:reference-member:Reference member 'my_board': use nonnull<Board const> or nullable<Board const>, which cannot bind a temporary and keep the type assignable
+22:9:reference-member:Reference member 'my_game': use nonnull<Game> or nullable<Game>, which cannot bind a temporary and keep the type assignable
+23:26:reference-member:Reference member 'Defaults': use nonnull<const Settings> or nullable<const Settings>, which cannot bind a temporary and keep the type assignable
+24:19:reference-member:Reference member 'my_logger': use nonnull<Logger> or nullable<Logger>, which cannot bind a temporary and keep the type assignable
+31:16:reference-member:Reference member 'history': use nonnull<History> or nullable<History>, which cannot bind a temporary and keep the type assignable

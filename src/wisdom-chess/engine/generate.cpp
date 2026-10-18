@@ -69,7 +69,7 @@ namespace wisdom
 
     struct MoveGeneration
     {
-        const Board& board;
+        nonnull<const Board> board;
         nonnull<MoveList> moves;
         int piece_row;
         int piece_col;
@@ -175,9 +175,9 @@ namespace wisdom
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
-        ASSERT( board.pieceAt (src).has_value() );
-        ColoredPiece src_piece = *board.pieceAt (src);
-        auto dst_piece = board.pieceAt (dst);
+        ASSERT( board->pieceAt (src).has_value() );
+        ColoredPiece src_piece = *board->pieceAt (src);
+        auto dst_piece = board->pieceAt (dst);
 
         if (dst_piece && pieceColor (src_piece) == pieceColor (*dst_piece))
             return;
@@ -211,21 +211,21 @@ namespace wisdom
         if (captures_only)
             return;
 
-        if (board.ableToCastle (who, CastlingRights::Queenside) &&
+        if (board->ableToCastle (who, CastlingRights::Queenside) &&
             piece_col == King_Column)
         {
             Move queenside_castle
                 = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
-            if (validCastlingMove (board, queenside_castle))
+            if (validCastlingMove (*board, queenside_castle))
                 appendMove (queenside_castle);
         }
 
-        if (board.ableToCastle (who, CastlingRights::Kingside) &&
+        if (board->ableToCastle (who, CastlingRights::Kingside) &&
             piece_col == King_Column)
         {
             Move kingside_castle
                 = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
-            if (validCastlingMove (board, kingside_castle))
+            if (validCastlingMove (*board, kingside_castle))
                 appendMove (kingside_castle);
         }
     }
@@ -236,7 +236,7 @@ namespace wisdom
              isValidRow (row) && isValidColumn (col);
              row = nextRow (row, row_direction), col = nextColumn (col, col_direction))
         {
-            auto piece = board.pieceAt (row, col);
+            auto piece = board->pieceAt (row, col);
 
             appendMove (Move::make (piece_row, piece_col, row, col));
 
@@ -327,16 +327,16 @@ namespace wisdom
         array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
         // single move
-        if (!board.pieceAt (row, piece_col))
+        if (!board->pieceAt (row, piece_col))
             all_pawn_moves[0] = Move::make (piece_row, piece_col, row, piece_col);
 
         // double move
-        if (isPawnUnmoved (board, piece_row, piece_col))
+        if (isPawnUnmoved (*board, piece_row, piece_col))
         {
             int double_row = nextRow (row, dir);
 
             if (all_pawn_moves[0].has_value()
-                && !board.pieceAt (double_row, piece_col))
+                && !board->pieceAt (double_row, piece_col))
             {
                 all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
@@ -350,7 +350,7 @@ namespace wisdom
             if (!isValidColumn (take_col))
                 continue;
 
-            auto target_piece = board.pieceAt (row, take_col);
+            auto target_piece = board->pieceAt (row, take_col);
 
             if (target_piece && pieceColor (*target_piece) != who)
             {
@@ -385,10 +385,10 @@ namespace wisdom
         }
 
         // en passant, skipped when no capture of the target is legal
-        if (board.getLegalEnPassantTarget().has_value())
+        if (board->getLegalEnPassantTarget().has_value())
         {
             optional<int> en_passant_column
-                = eligibleEnPassantColumn (board, piece_row, piece_col, who);
+                = eligibleEnPassantColumn (*board, piece_row, piece_col, who);
             if (en_passant_column.has_value())
                 enPassant (*en_passant_column);
         }
@@ -405,7 +405,7 @@ namespace wisdom
         int take_row = nextRow (piece_row, direction);
         int take_col = en_passant_column;
 
-        ASSERT( board.pieceAt (piece_row, take_col)
+        ASSERT( board->pieceAt (piece_row, take_col)
             == ColoredPiece::make (colorInvert (who), Piece::Pawn) );
 
         Move new_move = Move::makeEnPassant (piece_row, piece_col, take_row, take_col);
@@ -538,7 +538,7 @@ namespace wisdom
 
         if (move.isAnyCapturing())
         {
-            auto score = to_unsigned_debug<uint64_t> (Material_Diff_Offset - materialDiff (board, move));
+            auto score = to_unsigned_debug<uint64_t> (Material_Diff_Offset - materialDiff (*board, move));
             return makeSortKey (SortKind::Capture, score, move);
         }
 
@@ -575,7 +575,7 @@ namespace wisdom
         {
             MoveList generated;
             MoveGeneration generation {
-                board, &generated, 0, 0, who, ordering, captures_only
+                &board, &generated, 0, 0, who, ordering, captures_only
             };
 
             for (auto [coord, piece] : board.getPieces (who))
@@ -713,7 +713,7 @@ namespace wisdom
             -> MoveList
         {
             MoveList result;
-            MoveGeneration generation { board, &result, 0, 0, who, MoveOrdering {} };
+            MoveGeneration generation { &board, &result, 0, 0, who, MoveOrdering {} };
 
             ASSERT( board.pieceAt (coord) == piece );
             generation.generate (piece, coord);

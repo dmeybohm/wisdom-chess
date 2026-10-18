@@ -16,14 +16,14 @@ namespace wisdom
             Threatened,
         };
 
-        const Board& board;
+        nonnull<const Board> board;
         Color opponent;
 
         Color king_color;
         int king_row;
         int king_col;
 
-        InlineThreats (const Board& board, Color king_color, Coord king_coord) noexcept
+        InlineThreats (nonnull<const Board> board, Color king_color, Coord king_coord) noexcept
             : board { board }
             , opponent { colorInvert (king_color) }
             , king_color { king_color }
@@ -54,7 +54,7 @@ namespace wisdom
         checkSlidingThreats (int target_row, int target_col) const noexcept
             -> ThreatStatus
         {
-            auto piece = board.pieceAt (target_row, target_col);
+            auto piece = board->pieceAt (target_row, target_col);
             if (!piece)
                 return ThreatStatus::None;
 
@@ -108,7 +108,7 @@ namespace wisdom
                 int target_row = king_row + dr;
                 int target_col = king_col + dc;
                 if (isValidRow (target_row) && isValidColumn (target_col)
-                    && board.pieceAt (target_row, target_col) == opponent_knight)
+                    && board->pieceAt (target_row, target_col) == opponent_knight)
                 {
                     return true;
                 }
@@ -128,11 +128,11 @@ namespace wisdom
 
             int left_attack_exists
                 = (isValidRow (target_row) && isValidColumn (left_col)
-                   && board.pieceAt (target_row, left_col)
+                   && board->pieceAt (target_row, left_col)
                        == ColoredPiece::make (opponent, Piece::Pawn));
             int right_attack_exists
                 = (isValidRow (target_row) && isValidColumn (right_col)
-                   && board.pieceAt (target_row, right_col)
+                   && board->pieceAt (target_row, right_col)
                        == ColoredPiece::make (opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
@@ -153,16 +153,16 @@ namespace wisdom
 
             bool left_attack_exists
                 = (isValidRow (target_row) && isValidColumn (starting_col)
-                   && board.pieceAt (target_row, starting_col) == opponent_king);
+                   && board->pieceAt (target_row, starting_col) == opponent_king);
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
                 middle_attack_exists
                     = (isValidRow (target_row) && isValidColumn (middle_col)
-                       && board.pieceAt (target_row, middle_col) == opponent_king);
+                       && board->pieceAt (target_row, middle_col) == opponent_king);
             }
             bool right_attack_exists
                 = (isValidRow (target_row) && isValidColumn (ending_col)
-                   && board.pieceAt (target_row, ending_col) == opponent_king);
+                   && board->pieceAt (target_row, ending_col) == opponent_king);
 
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
@@ -270,7 +270,7 @@ namespace wisdom
     ) noexcept
         -> bool
     {
-        InlineThreats threats { board, who, king_coord };
+        InlineThreats threats { &board, who, king_coord };
         return threats.checkAll();
     }
 
