@@ -30,6 +30,21 @@ TEST_CASE( "Lossless conversion checks" )
     }
 }
 
+TEST_CASE( "absoluteValue" )
+{
+    static_assert (absoluteValue (-3) == 3);
+    static_assert (absoluteValue (3) == 3);
+    static_assert (absoluteValue (0) == 0);
+    static_assert (absoluteValue (int8_t { -128 + 1 }) == 127);
+    static_assert (absoluteValue (uint8_t { 200 }) == 200);
+    static_assert (absoluteValue (std::numeric_limits<int64_t>::min() + 1)
+        == std::numeric_limits<int64_t>::max());
+    static_assert (std::is_same_v<decltype (absoluteValue (int8_t { -1 })), int8_t>);
+
+    int negative = -7;
+    CHECK( absoluteValue (negative) == 7 );
+}
+
 TEST_CASE( "truncate discards the high bits" )
 {
     static_assert (truncate<uint32_t> (uint64_t { 0x1234'5678'9abc'def0ULL }) == 0x9abc'def0U);

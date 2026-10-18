@@ -73,3 +73,10 @@ engine library is renamed from `wisdom-chess-core` to
 - The MSVC CI job failed on the lib tests with doctest's C5285 warning,
   which the view model, web and UCI test targets already silence with
   `/wd5285`. The lib tests get the same block.
+- Moved `absoluteValue()` from an unnamed namespace in
+  `engine/generate.cpp` to `lib/cast.hpp`, beside `isNegative()`. It is
+  `constexpr` now rather than `consteval`, so it serves at runtime too,
+  and a signed value goes through `narrow`, so the most negative value
+  of a type, whose absolute value does not fit it, aborts instead of
+  overflowing. An unsigned value is returned as is. Tested in
+  `cast_test.cpp` and the `absolute-value-of-minimum` fatal case.

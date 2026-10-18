@@ -16,14 +16,6 @@ namespace wisdom
     namespace
     {
         consteval auto
-        absoluteValue (auto integer)
-            -> decltype (integer)
-        {
-            static_assert (std::is_integral_v<decltype (integer)>);
-            return integer < 0 ? integer * -1 : integer;
-        }
-
-        consteval auto
         knightMoveListInit()
             -> KnightMoveLists
         {

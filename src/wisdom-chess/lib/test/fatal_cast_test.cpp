@@ -25,6 +25,15 @@ namespace
     }
 
     FATAL_CASE(
+        "absolute-value-of-minimum",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+    )
+    {
+        int8_t volatile minimum = -128;
+        [[maybe_unused]] auto absolute = absoluteValue (minimum);
+    }
+
+    FATAL_CASE(
         "to-unsigned-negative",
         "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: to_unsigned: the value is nonnegative"
     )
