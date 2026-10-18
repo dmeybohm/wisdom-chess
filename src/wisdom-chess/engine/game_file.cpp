@@ -3,7 +3,7 @@
 #include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/history.hpp"
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 namespace wisdom
 {

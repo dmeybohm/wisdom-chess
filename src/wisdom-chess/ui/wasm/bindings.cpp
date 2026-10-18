@@ -7,7 +7,7 @@
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 

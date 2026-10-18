@@ -5,7 +5,7 @@
 # wisdom_chess_add_fatal_tests(<target> <source>...)
 #
 # Builds a program from the sources, whose cases are written with
-# FATAL_CASE() (engine/test/fatal_test.hpp), and adds a "Fatal: <case>" test
+# FATAL_CASE() (lib/test/fatal_test.hpp), and adds a "Fatal: <case>" test
 # for each. The cases register themselves, so they are compiled into the
 # program rather than linked from a library, which could drop them. The
 # main() they share is the wisdom-chess-fatal-main library.

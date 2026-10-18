@@ -8,7 +8,7 @@
 #include "wisdom-chess/engine/move_ordering.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/search.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 namespace wisdom

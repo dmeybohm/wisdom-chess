@@ -1,7 +1,7 @@
 #pragma once
 
 #include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/expected.hpp"
+#include "wisdom-chess/lib/expected.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
 namespace wisdom

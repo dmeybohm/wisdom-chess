@@ -1,6 +1,10 @@
 #pragma once
 
-#include "wisdom-chess/engine/global.hpp"
+#include <cstdint>
+#include <limits>
+
+#include "wisdom-chess/lib/cast.hpp"
+#include "wisdom-chess/lib/ptr.hpp"
 
 namespace wisdom
 {

@@ -2,7 +2,7 @@
 
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/move_list.hpp"

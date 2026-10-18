@@ -3,7 +3,7 @@
 #include <emscripten.h>
 
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 
 namespace wisdom::worker
 {

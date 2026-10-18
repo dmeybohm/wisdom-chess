@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 namespace wisdom::bench
 {

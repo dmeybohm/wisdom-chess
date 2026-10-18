@@ -4,7 +4,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
 
-#include "fatal_test.hpp"
+#include "wisdom-chess/lib/test/fatal_test.hpp"
 
 using namespace wisdom;
 

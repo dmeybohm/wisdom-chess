@@ -2,7 +2,7 @@
 
 #include <tl/expected.hpp>
 
-#include "wisdom-chess/engine/types.hpp"
+#include "wisdom-chess/lib/types.hpp"
 
 namespace wisdom
 {

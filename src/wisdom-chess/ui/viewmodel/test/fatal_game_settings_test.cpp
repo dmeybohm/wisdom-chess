@@ -1,5 +1,5 @@
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/test/fatal_test.hpp"
+#include "wisdom-chess/lib/test/fatal_test.hpp"
 #include "wisdom-chess/ui/viewmodel/game_settings.hpp"
 
 using namespace wisdom;

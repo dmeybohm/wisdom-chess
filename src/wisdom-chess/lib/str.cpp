@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 namespace wisdom
 {

@@ -1,4 +1,4 @@
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 #include "wisdom-chess-tests.hpp"
 

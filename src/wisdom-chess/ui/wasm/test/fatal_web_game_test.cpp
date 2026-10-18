@@ -1,4 +1,4 @@
-#include "wisdom-chess/engine/test/fatal_test.hpp"
+#include "wisdom-chess/lib/test/fatal_test.hpp"
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 
 using namespace wisdom;

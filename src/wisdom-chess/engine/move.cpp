@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 

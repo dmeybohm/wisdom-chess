@@ -8,9 +8,12 @@ code conventions in [coding-style.md](coding-style.md). The reasons
 behind the design decisions are in the feature logs under `features/`,
 and each section links to the ones that matter.
 
-The engine is the `wisdom-chess-core` library in
-`src/wisdom-chess/engine`, in the `wisdom::` namespace. The chess parts
-of it, from the bottom up:
+The engine is the `wisdom-chess-engine` library in
+`src/wisdom-chess/engine`, in the `wisdom::` namespace. It is built on
+`wisdom-chess-lib` in `src/wisdom-chess/lib`, the general-purpose code
+that knows nothing about chess: the contract checks, the named
+conversions, the compact optional, the pointer types, the logger and
+the string helpers. The chess parts, from the bottom up:
 
 | Layer | Files | What it holds |
 |---|---|---|

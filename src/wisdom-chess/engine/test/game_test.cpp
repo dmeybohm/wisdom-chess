@@ -6,7 +6,7 @@
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"

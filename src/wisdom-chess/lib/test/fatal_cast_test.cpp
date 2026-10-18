@@ -1,4 +1,4 @@
-#include "wisdom-chess/engine/cast.hpp"
+#include "wisdom-chess/lib/cast.hpp"
 
 #include "fatal_test.hpp"
 

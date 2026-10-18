@@ -3,7 +3,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 #include "wisdom-chess-perft.hpp"
 

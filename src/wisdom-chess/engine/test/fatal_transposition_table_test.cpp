@@ -1,6 +1,6 @@
 #include "wisdom-chess/engine/transposition_table.hpp"
 
-#include "fatal_test.hpp"
+#include "wisdom-chess/lib/test/fatal_test.hpp"
 
 using namespace wisdom;
 

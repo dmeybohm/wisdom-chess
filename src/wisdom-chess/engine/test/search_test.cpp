@@ -7,7 +7,7 @@
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/history.hpp"
-#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/generate.hpp"

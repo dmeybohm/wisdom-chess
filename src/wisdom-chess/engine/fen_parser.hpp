@@ -2,7 +2,7 @@
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
-#include "wisdom-chess/engine/expected.hpp"
+#include "wisdom-chess/lib/expected.hpp"
 
 namespace wisdom
 {

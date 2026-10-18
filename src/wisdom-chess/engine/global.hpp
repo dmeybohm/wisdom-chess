@@ -24,11 +24,11 @@
 #include <random>
 #include <source_location>
 
-#include "wisdom-chess/engine/cast.hpp"
-#include "wisdom-chess/engine/error.hpp"
-#include "wisdom-chess/engine/optional.hpp"
-#include "wisdom-chess/engine/ptr.hpp"
-#include "wisdom-chess/engine/types.hpp"
+#include "wisdom-chess/lib/cast.hpp"
+#include "wisdom-chess/lib/error.hpp"
+#include "wisdom-chess/lib/optional.hpp"
+#include "wisdom-chess/lib/ptr.hpp"
+#include "wisdom-chess/lib/types.hpp"
 
 namespace wisdom
 {

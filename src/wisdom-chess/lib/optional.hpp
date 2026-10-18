@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/lib/error.hpp"
 
 namespace wisdom
 {

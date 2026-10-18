@@ -4,7 +4,7 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
-#include "wisdom-chess/engine/expected.hpp"
+#include "wisdom-chess/lib/expected.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/game_status.hpp"

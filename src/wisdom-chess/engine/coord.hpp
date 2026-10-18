@@ -2,7 +2,7 @@
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/piece.hpp"
-#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/lib/str.hpp"
 
 namespace wisdom
 {

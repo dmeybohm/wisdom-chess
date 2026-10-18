@@ -10,9 +10,9 @@
 #include <span>
 #include <string_view>
 
-#include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/logger.hpp"
-#include "wisdom-chess/engine/ptr.hpp"
+#include "wisdom-chess/lib/logger.hpp"
+#include "wisdom-chess/lib/ptr.hpp"
+#include "wisdom-chess/lib/types.hpp"
 
 namespace wisdom::test
 {
