@@ -11,7 +11,7 @@ namespace
 {
     FATAL_CASE(
         "game-external-draw-arbiter-without-repetitions",
-        "Precondition failed at .*game\\.cpp:[0-9]+: draw_limits\\.repetitions > 0"
+        R"re(Precondition failed at .*game\.cpp:[0-9]+: draw_limits\.repetitions > 0)re"
     )
     {
         auto game = Game::createStandardGame();
@@ -20,7 +20,7 @@ namespace
 
     FATAL_CASE(
         "game-external-draw-arbiter-without-half-moves",
-        "Precondition failed at .*game\\.cpp:[0-9]+: draw_limits\\.half_moves_without_progress > 0"
+        R"re(Precondition failed at .*game\.cpp:[0-9]+: draw_limits\.half_moves_without_progress > 0)re"
     )
     {
         auto game = Game::createStandardGame();
@@ -29,7 +29,7 @@ namespace
 
     FATAL_CASE(
         "game-max-depth-zero",
-        "Precondition failed at .*game\\.cpp:[0-9]+: max_depth > 0"
+        R"re(Precondition failed at .*game\.cpp:[0-9]+: max_depth > 0)re"
     )
     {
         auto game = Game::createStandardGame();
@@ -39,7 +39,7 @@ namespace
 
     FATAL_CASE(
         "game-search-timeout-zero",
-        "Precondition failed at .*game\\.cpp:[0-9]+: timeout > chrono::milliseconds::zero\\(\\)"
+        R"re(Precondition failed at .*game\.cpp:[0-9]+: timeout > chrono::milliseconds::zero\(\))re"
     )
     {
         auto game = Game::createStandardGame();
@@ -48,7 +48,7 @@ namespace
 
     FATAL_CASE(
         "history-add-position-while-tentative",
-        "Precondition failed at .*history\\.hpp:[0-9]+: my_tentative_nesting_count == 0"
+        R"re(Precondition failed at .*history\.hpp:[0-9]+: my_tentative_nesting_count == 0)re"
     )
     {
         Board board = Board { BoardBuilder::fromDefaultPosition() };

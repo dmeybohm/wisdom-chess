@@ -8,7 +8,7 @@ namespace
 {
     FATAL_CASE(
         "append-overflow",
-        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size"
+        R"re(Precondition failed at .*move_list\.hpp:[0-9]+: my_size < Max_Move_List_Size)re"
     )
     {
         MoveList list;
@@ -20,7 +20,7 @@ namespace
 
     FATAL_CASE(
         "ordered-append-overflow",
-        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size"
+        R"re(Precondition failed at .*move_list\.hpp:[0-9]+: my_size < Max_Move_List_Size)re"
     )
     {
         auto list = std::make_unique<OrderedMoveList>();
@@ -30,19 +30,19 @@ namespace
             list->append (0, move);
     }
 
-    FATAL_CASE( "remove-from-empty", "Precondition failed at .*move_list\\.hpp" )
+    FATAL_CASE( "remove-from-empty", R"re(Precondition failed at .*move_list\.hpp)re" )
     {
         MoveList list;
         list.removeLast();
     }
 
-    FATAL_CASE( "front-of-empty", "Precondition failed at .*move_list\\.hpp" )
+    FATAL_CASE( "front-of-empty", R"re(Precondition failed at .*move_list\.hpp)re" )
     {
         MoveList list;
         [[maybe_unused]] Move move = list.front();
     }
 
-    FATAL_CASE( "back-of-empty", "Precondition failed at .*move_list\\.hpp" )
+    FATAL_CASE( "back-of-empty", R"re(Precondition failed at .*move_list\.hpp)re" )
     {
         MoveList list;
         [[maybe_unused]] Move move = list.back();

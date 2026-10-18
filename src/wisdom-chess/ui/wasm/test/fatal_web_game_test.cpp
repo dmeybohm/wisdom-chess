@@ -7,7 +7,7 @@ namespace
 {
     FATAL_CASE(
         "web-computer-move-unparseable",
-        "Precondition failed at .*web_game\\.cpp:[0-9]+: move\\.has_value\\(\\)"
+        R"re(Precondition failed at .*web_game\.cpp:[0-9]+: move\.has_value\(\))re"
     )
     {
         WebGame game { WebPlayer::ChessEngine, WebPlayer::Human, 1 };
@@ -17,7 +17,7 @@ namespace
     // Well formed, but a3 is empty.
     FATAL_CASE(
         "web-computer-move-illegal",
-        "Precondition failed at .*web_game\\.cpp:[0-9]+: wisdom::isLegalMove"
+        R"re(Precondition failed at .*web_game\.cpp:[0-9]+: wisdom::isLegalMove)re"
     )
     {
         WebGame game { WebPlayer::ChessEngine, WebPlayer::Human, 1 };
