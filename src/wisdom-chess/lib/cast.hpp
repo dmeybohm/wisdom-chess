@@ -68,17 +68,25 @@ namespace wisdom
     }
 
     // The absolute value of an integer. Unlike std::abs, usable in a
-    // constant expression. Aborts for the most negative value of a signed
-    // type, whose absolute value does not fit it.
+    // constant expression. Aborts, naming the caller, for the most negative
+    // value of a signed type, whose absolute value does not fit it: the
+    // check comes before the negation, which would overflow.
     template <std::integral T>
     [[nodiscard]] constexpr auto
     absoluteValue (T value, std::source_location location = std::source_location::current()) noexcept
         -> T
     {
         if constexpr (std::is_signed_v<T>)
+        {
+            if (value == std::numeric_limits<T>::min()) [[unlikely]]
+                terminateOnCheckFailure ("Precondition", "absoluteValue: the negation fits the type", location);
+
             return isNegative (value) ? narrow<T> (-value, location) : value;
+        }
         else
+        {
             return value;
+        }
     }
 
     // Whether Target can represent every value of Source: a signed Source

@@ -75,8 +75,14 @@ engine library is renamed from `wisdom-chess-core` to
   `/wd5285`. The lib tests get the same block.
 - Moved `absoluteValue()` from an unnamed namespace in
   `engine/generate.cpp` to `lib/cast.hpp`, beside `isNegative()`. It is
-  `constexpr` now rather than `consteval`, so it serves at runtime too,
-  and a signed value goes through `narrow`, so the most negative value
-  of a type, whose absolute value does not fit it, aborts instead of
-  overflowing. An unsigned value is returned as is. Tested in
-  `cast_test.cpp` and the `absolute-value-of-minimum` fatal case.
+  `constexpr` now rather than `consteval`, so it serves at runtime too.
+  The most negative value of a signed type, whose absolute value does
+  not fit it, aborts. Review caught that the first version checked by
+  narrowing the negation back, which is too late for `int` and wider:
+  negating `INT_MIN` overflows before anything can look, and in a
+  constant expression fails to compile. The check is now a comparison
+  with `numeric_limits<T>::min()` before the negation. An unsigned value
+  is returned as is. Tested in `cast_test.cpp` and the
+  `absolute-value-of-minimum` (`int`) and
+  `absolute-value-of-small-minimum` (`int8_t`, which promotes before the
+  negation) fatal cases.

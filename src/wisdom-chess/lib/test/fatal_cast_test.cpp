@@ -26,10 +26,21 @@ namespace
 
     FATAL_CASE(
         "absolute-value-of-minimum",
-        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: narrow: the value fits"
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
     )
     {
-        int8_t volatile minimum = -128;
+        int volatile minimum = std::numeric_limits<int>::min();
+        [[maybe_unused]] auto absolute = absoluteValue (minimum);
+    }
+
+    // Promoted to int before the negation, so the check has to catch it
+    // rather than the narrowing back.
+    FATAL_CASE(
+        "absolute-value-of-small-minimum",
+        "Precondition failed at .*fatal_cast_test\\.cpp:[0-9]+: absoluteValue: the negation fits"
+    )
+    {
+        int8_t volatile minimum = std::numeric_limits<int8_t>::min();
         [[maybe_unused]] auto absolute = absoluteValue (minimum);
     }
 
