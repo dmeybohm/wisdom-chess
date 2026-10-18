@@ -222,9 +222,8 @@ namespace wisdom
     {
         if (my_search_thread.joinable())
         {
-            // A stopped search still owes the GUI its bestmove, so let it finish.
-            if (!my_stop_requested.load())
-                my_search_id.fetch_add (1);
+            if (my_search_request.load() != SearchRequest::Stop)
+                my_search_request.store (SearchRequest::Cancel);
             my_search_thread.join();
         }
     }
@@ -418,8 +417,7 @@ namespace wisdom
             search_time = chrono::hours { 24 };
         }
 
-        int current_search_id = my_search_id.fetch_add (1) + 1;
-        my_stop_requested.store (false);
+        my_search_request.store (SearchRequest::Run);
 
         // The game is copied per search so that a later "position" cannot
         // disturb it, but the table is lent to the thread so that what one
@@ -428,17 +426,18 @@ namespace wisdom
 
         my_search_thread = std::thread (
             [this, game = my_game, table, search_depth, search_time,
-             current_search_id, debug_mode = my_debug_mode]() mutable
+             debug_mode = my_debug_mode]() mutable
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
                     game.setSearchTimeout (search_time);
-                game.setPeriodicFunction (buildNotifier (current_search_id));
+                game.setPeriodicFunction (buildNotifier());
 
                 auto logger = makeUciLogger (debug_mode);
                 auto best_move = game.findBestMove (logger, table);
 
-                if (my_search_id.load() == current_search_id)
+                // A cancelled search was superseded, so its answer is not wanted.
+                if (my_search_request.load() != SearchRequest::Cancel)
                 {
                     if (!best_move.has_value())
                         best_move = pickRandomLegalMove (game);
@@ -501,7 +500,7 @@ namespace wisdom
 
     void UciInterface::handleStop()
     {
-        my_stop_requested.store (true);
+        my_search_request.store (SearchRequest::Stop);
     }
 
     void UciInterface::handleQuit()
@@ -623,16 +622,17 @@ namespace wisdom
     }
 
     auto
-    UciInterface::buildNotifier (int initial_search_id)
+    UciInterface::buildNotifier()
         -> MoveTimer::PeriodicFunction
     {
-        return [this, initial_search_id] (nonnull<MoveTimer> timer)
+        return [this] (nonnull<MoveTimer> timer)
         {
-            if (my_search_id.load() != initial_search_id)
+            auto request = my_search_request.load();
+            if (request == SearchRequest::Cancel)
             {
                 timer->setCancelled (true);
             }
-            else if (my_stop_requested.load())
+            else if (request == SearchRequest::Stop)
             {
                 // "stop" means the time is up: the search ends through its
                 // normal timeout and keeps the last completed depth.

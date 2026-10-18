@@ -29,6 +29,15 @@ belongs to.
    unless a stop is pending, and `handleGo()` resets to `Run` before
    spawning the thread.
 
+   A `std::jthread` with its `stop_token` as the cancel signal was tried
+   first. It needs `-fexperimental-library` on the Android NDK's libc++
+   18, which gates `jthread` behind that flag, so the UCI target failed
+   to build in the Android CI job. The enum needs no build change, and
+   the token's advantages were slight: the request has to be reset
+   before each search either way, and the explicit join in the
+   destructor and `handleGo()` already covers what `jthread` would
+   join on its own.
+
 What stays: the thread itself, since "stop" has to be read from standard
 input while a search runs; the output lock, since the search thread
 writes "info" lines while the command loop may answer "isready".
@@ -39,3 +48,7 @@ writes "info" lines while the command loop may answer "isready".
 
 - Step 1 done. The `.cpp` gained its own `#include <mutex>` for the
   output lock, which it had taken from the header.
+- Step 2 done, as the enum after the `jthread` attempt failed on
+  Android. The 32 `UCI: ...` tests and the UCI unit tests pass in a
+  Release build, and the `UCI: ...` tests pass with the binary built
+  under ThreadSanitizer (Clang 18).

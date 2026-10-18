@@ -65,11 +65,25 @@ namespace wisdom
         void sendEngineInfo();
         void sendBestMove (const optional<Move>& move);
 
+        // The periodic function for the search thread, which acts on
+        // my_search_request.
         [[nodiscard]] auto
-        buildNotifier (int initial_search_id)
+        buildNotifier()
             -> MoveTimer::PeriodicFunction;
 
+        // Join the search thread, cancelling its search unless "stop" was
+        // sent, so that a stopped search still answers with its bestmove.
         void waitForSearchThread();
+
+        // What the command loop asks of the running search. "stop" ends it
+        // at the current depth and it still answers; a command that
+        // supersedes it cancels it, and it answers nothing.
+        enum class SearchRequest
+        {
+            Run,
+            Stop,
+            Cancel,
+        };
 
         // The search thread searches a copy; the main thread touches this
         // only after waitForSearchThread().
@@ -83,8 +97,7 @@ namespace wisdom
         bool my_debug_mode = false;
         bool my_quit_requested = false;
 
-        std::atomic<int> my_search_id { 0 };
-        std::atomic<bool> my_stop_requested { false };
+        std::atomic<SearchRequest> my_search_request { SearchRequest::Run };
         std::thread my_search_thread;
 
         UciSettings my_settings;
