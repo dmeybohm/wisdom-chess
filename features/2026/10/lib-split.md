@@ -63,3 +63,10 @@ engine library is renamed from `wisdom-chess-core` to
   the lib's CMake files, hoisted the packages and renamed the engine
   target. Updated `AGENTS.md`, `docs/building.md`,
   `docs/coding-style.md` and `docs/engine-architecture.md`.
+
+### Session #2 (2026-10-18)
+
+- Review found that the engine's `add_subdirectory(bench)` block had
+  been dropped with the package blocks, so `WISDOM_CHESS_BENCHMARKS`
+  built nothing. Restored it and built `wisdom-chess-benchmarks` to
+  confirm.

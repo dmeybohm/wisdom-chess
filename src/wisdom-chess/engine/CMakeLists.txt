@@ -86,3 +86,7 @@ endif()
 if (doctest_FOUND)
     add_subdirectory(test)
 endif()
+
+if (WISDOM_CHESS_BENCHMARKS AND NOT EMSCRIPTEN)
+    add_subdirectory(bench)
+endif()
