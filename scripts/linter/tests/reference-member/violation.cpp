@@ -32,3 +32,14 @@ auto make() -> int
     };
     return 0;
 }
+
+// Declarators the rule reads past the name of.
+struct Declarators
+{
+    int& first, second;
+    int plain, &last;
+    int& attributed [[maybe_unused]];
+    int (&array)[3];
+    [[maybe_unused]] const Board& marked;
+    span<const Move> (&lists)[8];
+};

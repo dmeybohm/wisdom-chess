@@ -6,3 +6,9 @@
 23:26:reference-member:Reference member 'Defaults': use nonnull<const Settings> or nullable<const Settings>, which cannot bind a temporary and keep the type assignable
 24:19:reference-member:Reference member 'my_logger': use nonnull<Logger> or nullable<Logger>, which cannot bind a temporary and keep the type assignable
 31:16:reference-member:Reference member 'history': use nonnull<History> or nullable<History>, which cannot bind a temporary and keep the type assignable
+39:8:reference-member:Reference member 'first': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+40:16:reference-member:Reference member 'last': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+41:8:reference-member:Reference member 'attributed': use nonnull<int> or nullable<int>, which cannot bind a temporary and keep the type assignable
+42:10:reference-member:Reference member 'array': use nonnull<int[3]> or nullable<int[3]>, which cannot bind a temporary and keep the type assignable
+43:33:reference-member:Reference member 'marked': use nonnull<const Board> or nullable<const Board>, which cannot bind a temporary and keep the type assignable
+44:23:reference-member:Reference member 'lists': use nonnull<span<const Move>[8]> or nullable<span<const Move>[8]>, which cannot bind a temporary and keep the type assignable

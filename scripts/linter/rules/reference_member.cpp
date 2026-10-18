@@ -1,3 +1,4 @@
+#include <optional>
 #include <unordered_set>
 
 #include "../linter.hpp"
@@ -63,9 +64,18 @@ namespace
         return isIdentifier (token) && keywords.count (token.text) > 0;
     }
 
-    // The type's tokens from the start of the statement to code[last], or
-    // nothing when the statement is not a plain data member declaration.
-    auto memberTypeText (const std::vector<Token>& code, size_t last) -> std::string
+    // What may follow a member's name: the end of the declaration, an
+    // initializer, another declarator or an attribute.
+    auto endsDeclarator (const Token& token) -> bool
+    {
+        return isPunctuator (token, ";") || isPunctuator (token, "=") || isPunctuator (token, "{")
+            || isPunctuator (token, ",") || isPunctuator (token, "[");
+    }
+
+    // The start of the declaration statement that code[last] is in, or
+    // nothing when the tokens back to it show it is not a plain data member
+    // declaration.
+    auto statementStart (const std::vector<Token>& code, size_t last) -> std::optional<size_t>
     {
         size_t start = last + 1;
         for (size_t i = last + 1; i-- > 0; )
@@ -79,24 +89,46 @@ namespace
             if (isPunctuator (token, "(") || isPunctuator (token, ")") || isPunctuator (token, "=")
                 || isPunctuator (token, "->") || isNonMemberKeyword (token))
             {
-                return {};
+                return std::nullopt;
             }
             start = i;
         }
+        return start;
+    }
 
+    // The type the declaration at code[start] declares: its tokens up to
+    // the first declarator, without storage specifiers and attributes.
+    auto declaredTypeText (const std::vector<Token>& code, size_t start) -> std::string
+    {
         std::string text;
-        for (size_t i = start; i <= last; ++i)
+        for (size_t i = start; i + 1 < code.size(); ++i)
         {
-            if (isStorageSpecifier (code[i]))
+            const auto& token = code[i];
+            if (isPunctuator (token, "&") || isPunctuator (token, "&&") || isPunctuator (token, "(")
+                || (isIdentifier (token) && endsDeclarator (code[i + 1])))
+            {
+                break;
+            }
+            if (isPunctuator (token, "[") && isPunctuator (code[i + 1], "["))
+            {
+                while (i + 1 < code.size()
+                       && !(isPunctuator (code[i], "]") && isPunctuator (code[i + 1], "]")))
+                {
+                    ++i;
+                }
+                ++i;
+                continue;
+            }
+            if (isStorageSpecifier (token))
             {
                 continue;
             }
-            if (!text.empty() && (isIdentifier (code[i]) && isIdentifier (code[i - 1])))
+            if (!text.empty() && isIdentifier (token) && isIdentifier (code[i - 1]))
             {
                 text += ' ';
             }
-            text += code[i].text;
-            if (isPunctuator (code[i], ","))
+            text += token.text;
+            if (isPunctuator (token, ","))
             {
                 text += ' ';
             }
@@ -156,27 +188,51 @@ namespace
                 }
 
                 if ((!isPunctuator (token, "&") && !isPunctuator (token, "&&"))
-                    || scopes.empty() || !scopes.back() || parens != 0 || i == 0
-                    || i + 2 >= code.size())
+                    || scopes.empty() || !scopes.back() || i == 0 || i + 2 >= code.size()
+                    || !isIdentifier (code[i + 1]))
                 {
                     continue;
                 }
 
-                // "T& name;", "T& name = ...;" or "T& name { ... };"
+                // "T& name;", "T& name = ...;", "T& name { ... };", "T& name, ...;",
+                // "T& name [[...]];", or "T a, &name;" with the type's
+                // first declarator before it.
                 const auto& before = code[i - 1];
                 const auto& member = code[i + 1];
                 const auto& after = code[i + 2];
-                if ((!isIdentifier (before) && !isPunctuator (before, ">") && !isPunctuator (before, ">>"))
-                    || !isIdentifier (member)
-                    || (!isPunctuator (after, ";") && !isPunctuator (after, "=") && !isPunctuator (after, "{")))
+                bool plain = parens == 0
+                    && (isIdentifier (before) || isPunctuator (before, ">")
+                        || isPunctuator (before, ">>") || isPunctuator (before, ","))
+                    && endsDeclarator (after);
+
+                // "T (&name)[N];"
+                bool parenthesized = parens == 1 && i >= 2 && isPunctuator (before, "(")
+                    && (isIdentifier (code[i - 2]) || isPunctuator (code[i - 2], ">")
+                        || isPunctuator (code[i - 2], ">>"))
+                    && isPunctuator (after, ")");
+                if (!plain && !parenthesized)
                 {
                     continue;
                 }
 
-                auto type = memberTypeText (code, i - 1);
+                auto start = statementStart (code, parenthesized ? i - 2 : i - 1);
+                if (!start)
+                {
+                    continue;
+                }
+                auto type = declaredTypeText (code, *start);
                 if (type.empty())
                 {
                     continue;
+                }
+                if (parenthesized)
+                {
+                    for (size_t j = i + 3; j < code.size() && !isPunctuator (code[j], ";")
+                         && !isPunctuator (code[j], "=") && !isPunctuator (code[j], "{")
+                         && !isPunctuator (code[j], ","); ++j)
+                    {
+                        type += code[j].text;
+                    }
                 }
 
                 violations.push_back (LintViolation {

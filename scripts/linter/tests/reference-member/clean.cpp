@@ -52,3 +52,10 @@ auto total (int a, int b) -> int
 }
 
 const Board& Global_Board = board;
+
+struct Declarators
+{
+    int values[3], count;
+    int (*callback) (int); // lint-allow(raw-pointer): fixture
+    nonnull<const Board> (&boards)[2]; // lint-allow(reference-member): fixture of the marker
+};

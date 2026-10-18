@@ -63,11 +63,21 @@ Codegen is the same: a reference member is a pointer in memory, and
 - Rewrote the pointer-versus-reference rule in AGENTS.md.
 - Added the linter's `reference-member` rule
   (`scripts/linter/rules/reference_member.cpp`). It reports a `&` or `&&`
-  that sits directly in a class, struct or union body, outside any
-  parentheses, between a type and a name that `;`, `=` or `{` follows.
+  that sits directly in a class, struct or union body between a type and
+  a name that `;`, `=`, `{`, `,` or an attribute follows, so a reference
+  that shares its declaration with other members (`int& first, second;`,
+  `int plain, &last;`) or has an attribute after its name is caught too,
+  as is the parenthesized declarator of a reference to an array,
+  `int (&array)[3];`.
   A statement that contains parentheses, `=`, `->`, or `using`,
   `typedef`, `friend`, `operator` or `template` is not a data member and
   is skipped, so function declarations, trailing return types, alias
   declarations and default initializers do not trip it. Run over the
   tree as it was before this branch, it reported exactly the three
   members above and nothing else.
+
+### Session #2
+
+- Review found three declarator forms the rule missed: a name followed
+  by a comma, a name followed by an attribute, and a parenthesized
+  declarator. Extended the check to all three and added fixtures.
