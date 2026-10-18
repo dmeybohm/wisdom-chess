@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Tally an engine match by pairing.
 
-Usage: engine-match-tally.py GAMES.pgn NAME NAME [NAME...]
+Usage: engine-match-tally.py [--counted OUT.pgn] GAMES.pgn NAME NAME [NAME...]
 
 Prints wins, draws and losses for each pair of the named engines, with an
 Elo difference and a 95% range from a normal approximation over single
 games. Each pair is printed later name against earlier name, so list a
-baseline first.
+baseline first. With --counted, the games that were counted are written
+to OUT.pgn, for a rating program to read.
 
 A score of 0% or 100% has no finite Elo difference, and the range needs at
 least 10 games,
@@ -64,12 +65,19 @@ def estimate(wins, draws, losses):
 
 
 def main():
-    if len(sys.argv) < 4:
+    arguments = sys.argv[1:]
+    counted_path = None
+    if arguments[:1] == ["--counted"]:
+        if len(arguments) < 2:
+            sys.exit("Error: --counted needs a file name")
+        counted_path = arguments[1]
+        arguments = arguments[2:]
+    if len(arguments) < 3:
         print(__doc__.strip(), file=sys.stderr)
         sys.exit(1)
 
-    path = sys.argv[1]
-    names = sys.argv[2:]
+    path = arguments[0]
+    names = arguments[1:]
     if len(set(names)) != len(names):
         sys.exit("Error: an engine name is given twice")
 
@@ -97,6 +105,7 @@ def main():
         games[key] = (tags, game)
     replayed = text.count("[Event ") - len(games)
 
+    counted = []
     for tags, game in games.values():
         white, black, result = tags.get("White"), tags.get("Black"), tags.get("Result")
         found.update(name for name in (white, black) if name)
@@ -105,6 +114,7 @@ def main():
         finished.update((white, black))
         if white not in names or black not in names:
             continue
+        counted.append(game)
 
         earlier, later = sorted((white, black), key=names.index)
         score = {"1-0": 1.0, "0-1": 0.0, "1/2-1/2": 0.5}[result]
@@ -123,6 +133,13 @@ def main():
     if missing:
         engines = ", ".join(sorted(found)) or "none"
         sys.exit(f"Error: no finished games for {', '.join(missing)} in {path} (engines found: {engines})")
+
+    if counted_path is not None:
+        try:
+            with open(counted_path, "w", encoding="utf-8") as output:
+                output.write("\n".join(game.strip() + "\n" for game in counted))
+        except OSError as error:
+            sys.exit(f"Error: cannot write {counted_path}: {error.strerror}")
 
     print(f"{'Pairing':<28} {'Games':>6} {'W / D / L':>16} {'Score':>7} {'Elo':>6}  95% range")
     for (earlier, later), (wins, draws, losses) in sorted(

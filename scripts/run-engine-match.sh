@@ -1,14 +1,28 @@
 #!/bin/bash
-# Measure playing strength by playing versions of the engine against each
-# other. Each NAME=REF builds the UCI engine at a git commit, branch or tag,
-# and fastchess plays a round-robin between them from a book of openings,
-# each opening once with each colour. See
-# features/2026/09/engine-match-script.md.
+# Measure playing strength by playing engines against each other. Each
+# NAME=ENGINE names an engine, and fastchess plays a round-robin between
+# them from a book of openings, each opening once with each colour. See
+# features/2026/09/engine-match-script.md and
+# features/2026/10/elo-rating.md.
 #
-# Usage: ./scripts/run-engine-match.sh [options] NAME=REF NAME=REF [NAME=REF...]
+# Usage: ./scripts/run-engine-match.sh [options] NAME=ENGINE NAME=ENGINE [NAME=ENGINE...]
 #        ./scripts/run-engine-match.sh --resume RESULTS_DIR
 #
-# Example: ./scripts/run-engine-match.sh base=main new=HEAD
+# An ENGINE is one of:
+#   REF                 this engine, built at a git commit, branch or tag
+#   stockfish:ELO       Stockfish, limited to ELO with UCI_LimitStrength;
+#                       downloaded on first use; ELO is 1320 to 3190
+#   uci:PATH[@RATING]   any UCI engine on this machine, with an optional
+#                       rating of its own, such as its CCRL rating
+#
+# An engine with a rating is an anchor. With anchors, the other engines
+# play each other and every anchor, the anchors do not play each other,
+# and Ordo rates every engine against the anchors, so the summary also
+# gives each engine's rating on the anchors' scale. Stockfish's UCI_Elo
+# scale is calibrated at 120 seconds plus 1 a move against CCRL 40/4.
+#
+# Examples: ./scripts/run-engine-match.sh base=main new=HEAD
+#           ./scripts/run-engine-match.sh new=HEAD sf1600=stockfish:1600 sf2000=stockfish:2000
 #
 # Options:
 #   --tc TC             time control in fastchess's format, such as 8+0.08
@@ -23,14 +37,14 @@
 #   --work-dir DIR      where builds, engines, fastchess, the book and the
 #                       results go (default: $XDG_CACHE_HOME/wisdom-chess/match,
 #                       or ~/.cache/wisdom-chess/match)
-#   --build-only        build the engines and stop
+#   --build-only        build or fetch the engines and stop
 #   --resume DIR        continue an interrupted match from its results
 #                       directory; the other options are taken from it
 #   -j N                parallel build jobs (default: nproc)
 #   -h, --help          this message
 #
 # List the baseline first: the summary prints each pairing as the later
-# engine against the earlier one. The engines' Depth option is set to its
+# engine against the earlier one. This engine's Depth option is set to its
 # maximum, 64, so that only the clock limits a search.
 #
 # Engines are cached by commit, so a rerun only builds what changed. Only
@@ -53,8 +67,23 @@ BOOK_URL=https://github.com/official-stockfish/books/raw/master/8moves_v3.pgn.zi
 BOOK_SHA256=7e1e9dd118b4bb97d8a8b5b8a790c86e21f8509d59a27d2883767d94477be02e
 BOOK_NAME=8moves_v3.pgn
 
+STOCKFISH_VERSION=19
+STOCKFISH_URL=https://github.com/official-stockfish/Stockfish/releases/download/sf_19/stockfish-linux-x86-64-universal.tar.gz
+STOCKFISH_SHA256=9defc0d4e55d49c65a6d042f3e571a39fcea499ade6dbe741b53b8c65e03611f
+STOCKFISH_MEMBER=stockfish/stockfish-linux-x86-64-universal
+
+ORDO_COMMIT=17eec774f2e4b9fdd2b1b38739f55ea221fb851a
+ORDO_URL="https://github.com/michiguel/Ordo/archive/$ORDO_COMMIT.tar.gz"
+ORDO_SHA256=eae9aa565cc9c555f5f7cc90f3871563011ee24dede1e3333401e8e3494fbb32
+ORDO_SIMULATIONS=1000
+
 MAX_DEPTH=64
-NO_SCORE_WARNING="No info line available"
+
+# fastchess warns for every move of this engine, which prints no scores,
+# and for every move of a Stockfish playing below full strength, whose
+# best move is on purpose not the one its last PV began with; it follows
+# that warning with the PV, the position and the moves.
+NOISE_PATTERN="^(Warning; (No info line available|Bestmove does not match beginning of last PV)|Info; |Position; |Moves; )"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -142,7 +171,7 @@ while [ $# -gt 0 ]; do
         -h|--help) usage; exit 0 ;;
         -*) fail "unknown option $1 (see --help)" ;;
         *=*) ENGINE_SPECS+=("$1"); shift ;;
-        *) fail "expected NAME=REF, got $1 (see --help)" ;;
+        *) fail "expected NAME=ENGINE, got $1 (see --help)" ;;
     esac
 done
 
@@ -157,22 +186,95 @@ need_whole_number --hash "$HASH" 1
 need_whole_number --seed "$SEED" 0
 need_whole_number -j "$JOBS" 1
 
+# Each engine has a name, a kind (git, stockfish or uci), a value (the
+# commit, the UCI_Elo or the path) and a rating, empty unless it is an
+# anchor. engines.txt in the results directory holds the same, one
+# tab-separated line per engine, so that a match can be resumed.
+NAMES=()
+KINDS=()
+VALUES=()
+RATINGS=()
+
+add_engine() {
+    local name="$1"
+    local kind="$2"
+    local value="$3"
+    local rating="$4"
+    local existing
+
+    [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || fail "engine names may only use letters, digits, - and _: $name"
+    for existing in "${NAMES[@]}"; do
+        [ "$existing" != "$name" ] || fail "engine name $name is given twice"
+    done
+    NAMES+=("$name")
+    KINDS+=("$kind")
+    VALUES+=("$value")
+    RATINGS+=("$rating")
+}
+
+parse_spec() {
+    local spec="$1"
+    local name="${spec%%=*}"
+    local engine="${spec#*=}"
+    local commit rating
+
+    case "$engine" in
+        stockfish:*)
+            rating="${engine#stockfish:}"
+            [[ "$rating" =~ ^[0-9]+$ ]] || fail "stockfish: needs a whole-number Elo, got '$rating'"
+            add_engine "$name" stockfish "$rating" "$rating"
+            ;;
+        uci:*)
+            engine="${engine#uci:}"
+            rating=
+            if [[ "$engine" == *@* ]]; then
+                rating="${engine##*@}"
+                engine="${engine%@*}"
+                [[ "$rating" =~ ^[0-9]+$ ]] || fail "the rating after @ must be a whole number, got '$rating'"
+            fi
+            [ -n "$engine" ] || fail "uci: needs the path of an engine"
+            [ -x "$engine" ] || fail "$engine is not an executable file"
+            add_engine "$name" uci "$(cd "$(dirname "$engine")" && pwd)/$(basename "$engine")" "$rating"
+            ;;
+        *)
+            commit="$(git -C "$REPO_DIR" rev-parse --verify --quiet "$engine^{commit}")" \
+                || fail "$engine is not a commit, branch or tag in $REPO_DIR"
+            add_engine "$name" git "$commit" ""
+            ;;
+    esac
+}
+
+read_engines_file() {
+    local file="$1"
+    local name kind value rating
+
+    while IFS=$'\t' read -r name kind value rating; do
+        # Before anchors, the file held "name commit" separated by a space.
+        if [ -z "$kind" ] && [[ "$name" =~ ^([A-Za-z0-9_-]+)\ ([0-9a-f]{40})$ ]]; then
+            name="${BASH_REMATCH[1]}"
+            kind=git
+            value="${BASH_REMATCH[2]}"
+        fi
+        case "$kind" in
+            git|stockfish|uci) [ -n "$value" ] ;;
+            *) false ;;
+        esac || fail "$file should list each engine's name, kind and value"
+        add_engine "$name" "$kind" "$value" "$rating"
+    done < "$file"
+}
+
 if [ -n "$RESUME_DIR" ]; then
     [ "${#ENGINE_SPECS[@]}" -eq 0 ] || fail "--resume takes its engines from the results directory"
     [ -f "$RESUME_DIR/config.json" ] && [ -f "$RESUME_DIR/engines.txt" ] \
         || fail "$RESUME_DIR is not the results directory of a match that can be resumed"
     RUN_DIR="$(cd "$RESUME_DIR" && pwd)"
     WORK_DIR="$(cd "$RUN_DIR/../.." && pwd)"
-    NAMES=()
-    COMMITS=()
-    while read -r name commit; do
-        [ -n "$name" ] && [ -n "$commit" ] \
-            || fail "$RUN_DIR/engines.txt should list each engine's name and commit"
-        NAMES+=("$name")
-        COMMITS+=("$commit")
-    done < "$RUN_DIR/engines.txt"
+    read_engines_file "$RUN_DIR/engines.txt"
 else
-    [ "${#ENGINE_SPECS[@]}" -ge 2 ] || fail "give at least two engines as NAME=REF (see --help)"
+    [ "${#ENGINE_SPECS[@]}" -ge 2 ] || fail "give at least two engines as NAME=ENGINE (see --help)"
+    for spec in "${ENGINE_SPECS[@]}"; do
+        parse_spec "$spec"
+    done
 fi
 require_tools
 
@@ -189,6 +291,11 @@ flock -n 9 || fail "another match is using $WORK_DIR; wait for it to finish or p
 engine_answers() {
     ENGINE_OPTIONS="$(printf 'uci\nquit\n' | timeout 10 "$1" 2> /dev/null)" \
         && grep -q "^uciok" <<< "$ENGINE_OPTIONS"
+}
+
+# Whether ENGINE_OPTIONS, from the last engine_answers, names the option.
+engine_has_option() {
+    grep -q "^option name $1 " <<< "$ENGINE_OPTIONS"
 }
 
 # Build the UCI engine from a clean export of the commit, so that local
@@ -238,9 +345,99 @@ build_engine() {
     # Engines from before 3c48792 have no Move Overhead, and a timer that
     # overshoots short budgets by tens of milliseconds, so they lose on time
     # at short clocks.
-    grep -q "^option name Move Overhead" <<< "$ENGINE_OPTIONS" \
+    engine_has_option "Move Overhead" \
         || fail "the engine at ${commit:0:12} has no Move Overhead option, so it predates" \
             "the search timer fixes of 3c48792 and would lose on time; use a later commit"
+}
+
+# Download a pinned release of Stockfish, checked against its SHA-256.
+fetch_stockfish() {
+    STOCKFISH="$WORK_DIR/engines/stockfish-$STOCKFISH_VERSION"
+
+    if [ ! -x "$STOCKFISH" ]; then
+        local tarball="$WORK_DIR/engines/stockfish-$STOCKFISH_VERSION.tar.gz"
+        local unpacked="$WORK_DIR/engines/unpacked"
+
+        echo "Downloading Stockfish $STOCKFISH_VERSION..."
+        curl -fsSL -o "$tarball" "$STOCKFISH_URL"
+        echo "$STOCKFISH_SHA256  $tarball" | sha256sum --check --quiet \
+            || fail "the downloaded Stockfish does not match its checksum"
+        rm -rf "$unpacked"
+        mkdir -p "$unpacked"
+        tar -xzf "$tarball" -C "$unpacked" "$STOCKFISH_MEMBER"
+        mv "$unpacked/$STOCKFISH_MEMBER" "$STOCKFISH"
+        rm -rf "$unpacked" "$tarball"
+    fi
+
+    engine_answers "$STOCKFISH" || fail "$STOCKFISH does not answer the uci command"
+    engine_has_option UCI_Elo || fail "$STOCKFISH has no UCI_Elo option"
+}
+
+# The Elo an engine's UCI_Elo option accepts, as "min max".
+uci_elo_range() {
+    sed -n 's/^option name UCI_Elo type spin default [0-9]* min \([0-9]*\) max \([0-9]*\).*/\1 \2/p' \
+        <<< "$ENGINE_OPTIONS"
+}
+
+check_stockfish_elo() {
+    local elo="$1"
+    local least most
+
+    read -r least most <<< "$(uci_elo_range)"
+    [ -n "$least" ] && [ -n "$most" ] || fail "$STOCKFISH does not say what UCI_Elo it accepts"
+    [ "$elo" -ge "$least" ] && [ "$elo" -le "$most" ] \
+        || fail "Stockfish $STOCKFISH_VERSION accepts a UCI_Elo from $least to $most, not $elo"
+}
+
+check_uci_engine() {
+    local engine="$1"
+
+    engine_answers "$engine" || fail "$engine does not answer the uci command"
+}
+
+# Sets ENGINE_COMMAND to the engine's executable and ENGINE_ARGS to its
+# fastchess options, and checks that it answers.
+prepare_engine() {
+    local kind="$1"
+    local value="$2"
+
+    ENGINE_ARGS=()
+    case "$kind" in
+        git)
+            build_engine "$value"
+            ENGINE_COMMAND="$WORK_DIR/engines/wisdom-chess-uci-$value"
+            ;;
+        stockfish)
+            fetch_stockfish
+            check_stockfish_elo "$value"
+            ENGINE_COMMAND="$STOCKFISH"
+            ENGINE_ARGS+=("option.UCI_LimitStrength=true" "option.UCI_Elo=$value")
+            ;;
+        uci)
+            check_uci_engine "$value"
+            ENGINE_COMMAND="$value"
+            ;;
+        *) fail "unknown engine kind $kind" ;;
+    esac
+
+    # Options go only to the engines that have them, since fastchess passes
+    # every option on and an engine may not accept one it does not know.
+    ! engine_has_option "Move Overhead" || ENGINE_ARGS+=("option.Move Overhead=$OVERHEAD")
+    ! engine_has_option Hash || ENGINE_ARGS+=("option.Hash=$HASH")
+    ! engine_has_option Depth || ENGINE_ARGS+=("option.Depth=$MAX_DEPTH")
+}
+
+describe_engine() {
+    local kind="$1"
+    local value="$2"
+    local rating="$3"
+    local spec="$4"
+
+    case "$kind" in
+        git) echo "$value ($spec)" ;;
+        stockfish) echo "Stockfish $STOCKFISH_VERSION at UCI_Elo $value (anchor at $rating)" ;;
+        uci) echo "$value${rating:+ (anchor at $rating)}" ;;
+    esac
 }
 
 build_fastchess() {
@@ -257,6 +454,30 @@ build_fastchess() {
     cp "$src/fastchess" "$FASTCHESS.tmp"
     mv "$FASTCHESS.tmp" "$FASTCHESS"
     rm -rf "$src"
+}
+
+# Ordo rates the engines against the anchors. It is built from a pinned
+# source tarball, checked against its SHA-256.
+build_ordo() {
+    ORDO="$WORK_DIR/bin/ordo-${ORDO_COMMIT:0:12}"
+    [ -x "$ORDO" ] && return
+
+    local tarball="$WORK_DIR/src/ordo.tar.gz"
+    local src="$WORK_DIR/src/ordo"
+    local log="$WORK_DIR/bin/ordo-build.log"
+
+    echo "Building Ordo at ${ORDO_COMMIT:0:12}..."
+    curl -fsSL -o "$tarball" "$ORDO_URL"
+    echo "$ORDO_SHA256  $tarball" | sha256sum --check --quiet \
+        || fail "the downloaded Ordo source does not match its checksum"
+    rm -rf "$src"
+    mkdir -p "$src"
+    tar -xzf "$tarball" -C "$src" --strip-components=1
+    make -C "$src" -j "$JOBS" ordo > "$log" 2>&1 \
+        || fail "the Ordo build failed; see $log"
+    cp "$src/ordo" "$ORDO.tmp"
+    mv "$ORDO.tmp" "$ORDO"
+    rm -rf "$src" "$tarball"
 }
 
 fetch_book() {
@@ -314,12 +535,11 @@ run_fastchess() {
     # and says how to resume, so the filter and tee ignore the interrupt and
     # pass that on, and this script goes on to tally the games so far.
     # fastchess saves its state as config.json in the current directory, so
-    # it runs from the results. The engines print no scores, which fastchess
-    # warns about for every move.
+    # it runs from the results.
     trap 'interrupted=yes' INT
     set +e
     (cd "$RUN_DIR" && exec "${INHIBIT[@]}" "$FASTCHESS" "$@") 2>&1 \
-        | (trap '' INT; exec grep --line-buffered -v "$NO_SCORE_WARNING") \
+        | (trap '' INT; exec grep --line-buffered -E -v "$NOISE_PATTERN") \
         | (trap '' INT; exec tee -a "$RUN_DIR/fastchess.out")
     FASTCHESS_STATUS="${PIPESTATUS[0]}"
     set -e
@@ -328,16 +548,53 @@ run_fastchess() {
     [ "$interrupted" = no ] || FASTCHESS_STATUS=130
 
     if [ -f "$RUN_DIR/fastchess.log" ]; then
-        grep -v "$NO_SCORE_WARNING" "$RUN_DIR/fastchess.log" > "$RUN_DIR/fastchess.log.tmp" || true
+        grep -E -v "$NOISE_PATTERN" "$RUN_DIR/fastchess.log" > "$RUN_DIR/fastchess.log.tmp" || true
         mv "$RUN_DIR/fastchess.log.tmp" "$RUN_DIR/fastchess.log"
     fi
+}
+
+has_anchors() {
+    local rating
+    for rating in "${RATINGS[@]}"; do
+        [ -z "$rating" ] || return 0
+    done
+    return 1
+}
+
+# Rate every engine against the anchors with Ordo, over the games the
+# tally counted, so that a game replayed after a resume is not counted
+# twice. Ordo's anchors file only takes effect with two or more anchors;
+# a single one is given with -A and -a.
+rate() {
+    local i
+    local anchor_args=()
+    local anchors=0
+
+    for i in "${!NAMES[@]}"; do
+        [ -n "${RATINGS[$i]}" ] || continue
+        anchors=$((anchors + 1))
+        anchor_args=(-A "${NAMES[$i]}" -a "${RATINGS[$i]}")
+        echo "\"${NAMES[$i]}\",${RATINGS[$i]}"
+    done > "$RUN_DIR/anchors.csv"
+    [ "$anchors" -eq 1 ] || anchor_args=(-m "$RUN_DIR/anchors.csv")
+
+    echo ""
+    echo "Ratings against the anchors (Ordo, $ORDO_SIMULATIONS simulations for the errors):"
+    "$ORDO" -q -p "$RUN_DIR/counted.pgn" "${anchor_args[@]}" \
+        -s "$ORDO_SIMULATIONS" -D -W -o "$RUN_DIR/ratings.txt" > /dev/null 2>&1 \
+        || { echo "Ordo failed to rate the games."; return 0; }
+    cat "$RUN_DIR/ratings.txt"
 }
 
 tally() {
     echo "" | tee -a "$RUN_DIR/summary.txt"
     if [ -s "$RUN_DIR/games.pgn" ]; then
-        python3 "$SCRIPT_DIR/engine-match-tally.py" "$RUN_DIR/games.pgn" "${NAMES[@]}" 2>&1 \
-            | tee -a "$RUN_DIR/summary.txt" || true
+        {
+            if python3 "$SCRIPT_DIR/engine-match-tally.py" --counted "$RUN_DIR/counted.pgn" \
+                "$RUN_DIR/games.pgn" "${NAMES[@]}" 2>&1; then
+                ! has_anchors || rate
+            fi
+        } | tee -a "$RUN_DIR/summary.txt" || true
     else
         echo "No games finished." | tee -a "$RUN_DIR/summary.txt"
     fi
@@ -351,13 +608,49 @@ tally() {
     fi
 }
 
-if [ -n "$RESUME_DIR" ]; then
-    # The saved config.json names the cached engines, which may have gone or
-    # stopped answering since the match was interrupted.
-    for commit in "${COMMITS[@]}"; do
-        build_engine "$commit"
+# Build, fetch or check every engine, and collect fastchess's -engine
+# arguments. Games between two anchors say nothing about the other engines'
+# ratings, so with anchors the tournament is a gauntlet: the engines
+# without a rating are its seeds, which fastchess takes first, and they
+# play each other and every anchor.
+SEEDS=()
+ANCHORS=()
+SEED_COUNT=0
+ANCHOR_COUNT=0
+COMMANDS=()
+for i in "${!NAMES[@]}"; do
+    prepare_engine "${KINDS[$i]}" "${VALUES[$i]}"
+    COMMANDS+=("$ENGINE_COMMAND")
+    if [ -z "${RATINGS[$i]}" ]; then
+        SEEDS+=(-engine "cmd=$ENGINE_COMMAND" "name=${NAMES[$i]}" "${ENGINE_ARGS[@]}")
+        SEED_COUNT=$((SEED_COUNT + 1))
+    else
+        ANCHORS+=(-engine "cmd=$ENGINE_COMMAND" "name=${NAMES[$i]}" "${ENGINE_ARGS[@]}")
+        ANCHOR_COUNT=$((ANCHOR_COUNT + 1))
+    fi
+done
+FASTCHESS_ENGINES=("${SEEDS[@]}" "${ANCHORS[@]}")
+if [ "$ANCHOR_COUNT" -gt 0 ] && [ "$SEED_COUNT" -gt 0 ]; then
+    TOURNAMENT=(-tournament gauntlet -seeds "$SEED_COUNT")
+    TOURNAMENT_TEXT="gauntlet, $SEED_COUNT engine(s) against $ANCHOR_COUNT anchor(s)"
+else
+    TOURNAMENT=(-tournament roundrobin)
+    TOURNAMENT_TEXT="round-robin"
+fi
+
+if [ "$BUILD_ONLY" = yes ]; then
+    for i in "${!NAMES[@]}"; do
+        echo "${NAMES[$i]}: ${COMMANDS[$i]}"
     done
-    build_fastchess
+    exit 0
+fi
+
+build_fastchess
+! has_anchors || build_ordo
+
+if [ -n "$RESUME_DIR" ]; then
+    # The saved config.json names the engines, which were checked above
+    # since they may have gone or stopped answering since the interrupt.
     echo "Resumed: $(date '+%Y-%m-%d %H:%M:%S')" | tee -a "$RUN_DIR/summary.txt"
     echo "Results: $RUN_DIR"
     run_fastchess -config "file=$RUN_DIR/config.json"
@@ -365,33 +658,6 @@ if [ -n "$RESUME_DIR" ]; then
     exit 0
 fi
 
-NAMES=()
-COMMITS=()
-for spec in "${ENGINE_SPECS[@]}"; do
-    name="${spec%%=*}"
-    ref="${spec#*=}"
-    [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || fail "engine names may only use letters, digits, - and _: $name"
-    for existing in "${NAMES[@]}"; do
-        [ "$existing" != "$name" ] || fail "engine name $name is given twice"
-    done
-    commit="$(git -C "$REPO_DIR" rev-parse --verify --quiet "$ref^{commit}")" \
-        || fail "$ref is not a commit, branch or tag in $REPO_DIR"
-    NAMES+=("$name")
-    COMMITS+=("$commit")
-done
-
-for commit in "${COMMITS[@]}"; do
-    build_engine "$commit"
-done
-
-if [ "$BUILD_ONLY" = yes ]; then
-    for i in "${!NAMES[@]}"; do
-        echo "${NAMES[$i]}: $WORK_DIR/engines/wisdom-chess-uci-${COMMITS[$i]}"
-    done
-    exit 0
-fi
-
-build_fastchess
 fetch_book
 
 mapfile -t CORES < <(physical_cores)
@@ -410,33 +676,30 @@ fi
 RUN_DIR="$WORK_DIR/results/$(date +%Y%m%d-%H%M%S)-$(IFS=-; echo "${NAMES[*]}")"
 mkdir -p "$RUN_DIR"
 for i in "${!NAMES[@]}"; do
-    echo "${NAMES[$i]} ${COMMITS[$i]}"
+    printf '%s\t%s\t%s\t%s\n' "${NAMES[$i]}" "${KINDS[$i]}" "${VALUES[$i]}" "${RATINGS[$i]}"
 done > "$RUN_DIR/engines.txt"
-
-ENGINE_ARGS=()
-for i in "${!NAMES[@]}"; do
-    ENGINE_ARGS+=(-engine "cmd=$WORK_DIR/engines/wisdom-chess-uci-${COMMITS[$i]}" "name=${NAMES[$i]}")
-done
 
 {
     echo "Engines:"
     for i in "${!NAMES[@]}"; do
-        echo "  ${NAMES[$i]}: ${COMMITS[$i]} (${ENGINE_SPECS[$i]#*=})"
+        echo "  ${NAMES[$i]}: $(describe_engine "${KINDS[$i]}" "${VALUES[$i]}" "${RATINGS[$i]}" "${ENGINE_SPECS[$i]#*=}")"
     done
+    echo "Tournament: $TOURNAMENT_TEXT"
     echo "Time control: $TC, rounds: $ROUNDS, concurrency: $CONCURRENCY, seed: $SEED"
     echo "Move Overhead: $OVERHEAD ms, hash: $HASH MB, depth limit: $MAX_DEPTH, book: $BOOK_NAME"
     echo "fastchess: $FASTCHESS_COMMIT"
+    ! has_anchors || echo "Ordo: $ORDO_COMMIT"
 } | tee "$RUN_DIR/summary.txt"
 echo "Results: $RUN_DIR"
 
 run_fastchess \
-    "${ENGINE_ARGS[@]}" \
-    -each "tc=$TC" "option.Move Overhead=$OVERHEAD" "option.Hash=$HASH" "option.Depth=$MAX_DEPTH" \
+    "${FASTCHESS_ENGINES[@]}" \
+    -each "tc=$TC" \
     -openings "file=$BOOK" format=pgn order=random \
     -srand "$SEED" \
     -rounds "$ROUNDS" -repeat \
     -concurrency "$CONCURRENCY" "${AFFINITY[@]}" \
-    -tournament roundrobin \
+    "${TOURNAMENT[@]}" \
     -recover \
     -ratinginterval 50 \
     -pgnout "file=$RUN_DIR/games.pgn" \
