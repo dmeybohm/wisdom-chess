@@ -43,3 +43,13 @@ struct Declarators
     [[maybe_unused]] const Board& marked;
     span<const Move> (&lists)[8];
 };
+
+// An earlier declarator's initializer does not hide a later reference.
+struct Initializers
+{
+    int first = 0, &second;
+    int third { 0 }, &fourth;
+    int fifth = max (1, 2), &sixth;
+    int seventh = Row_Mask & Column_Mask, &eighth;
+    int ninth = 0, (&tenth)[2];
+};

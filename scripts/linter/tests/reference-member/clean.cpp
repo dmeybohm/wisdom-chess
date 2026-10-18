@@ -59,3 +59,13 @@ struct Declarators
     int (*callback) (int); // lint-allow(raw-pointer): fixture
     nonnull<const Board> (&boards)[2]; // lint-allow(reference-member): fixture of the marker
 };
+
+// An '&' inside an initializer expression is not a declarator.
+struct Initializers
+{
+    int wide = Row_Mask & Column_Mask, narrow = 0;
+    int total = first & second, other = third & fourth;
+    int masked = count & Row_Mask;
+    int chosen = pick (first & second, third & fourth);
+    bool both = first && second, either = false;
+};

@@ -81,3 +81,16 @@ Codegen is the same: a reference member is a pointer in memory, and
 - Review found three declarator forms the rule missed: a name followed
   by a comma, a name followed by an attribute, and a parenthesized
   declarator. Extended the check to all three and added fixtures.
+
+### Session #3
+
+- Review found that an initializer on an earlier declarator hid a later
+  reference, as in `int first = 0, &second;`, because the scan back to
+  the statement's start gave up at `=`. The scan now steps over balanced
+  brackets and initializers, and stops at `;`, an access specifier, or
+  the closing brace of a body, which is told from a brace initializer's
+  by its opening brace starting a line. A forward pass then finds where
+  the type ends and requires the `&` to begin a declarator: the first
+  one, or one after a comma at the statement's own bracket depth, so an
+  `&` inside an initializer expression, `int mask = a & b, c;`, is not
+  one. Fixtures cover both sides.

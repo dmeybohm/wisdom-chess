@@ -72,22 +72,76 @@ namespace
             || isPunctuator (token, ",") || isPunctuator (token, "[");
     }
 
+    auto isOpenBracket (const Token& token) -> bool
+    {
+        return isPunctuator (token, "(") || isPunctuator (token, "[") || isPunctuator (token, "{");
+    }
+
+    auto isCloseBracket (const Token& token) -> bool
+    {
+        return isPunctuator (token, ")") || isPunctuator (token, "]") || isPunctuator (token, "}");
+    }
+
+    // The open bracket matching the close bracket at code[close].
+    auto matchingOpen (const std::vector<Token>& code, size_t close) -> std::optional<size_t>
+    {
+        int depth = 0;
+        for (size_t i = close + 1; i-- > 0; )
+        {
+            if (isCloseBracket (code[i]))
+            {
+                ++depth;
+            }
+            else if (isOpenBracket (code[i]) && --depth == 0)
+            {
+                return i;
+            }
+        }
+        return std::nullopt;
+    }
+
+    // Whether the ":" at code[colon] ends an access specifier.
+    auto endsAccessSpecifier (const std::vector<Token>& code, size_t colon) -> bool
+    {
+        static const std::unordered_set<std::string> specifiers {
+            "public", "private", "protected", "signals", "slots", "Q_SIGNALS", "Q_SLOTS",
+        };
+        return colon > 0 && isIdentifier (code[colon - 1])
+            && specifiers.count (code[colon - 1].text) > 0;
+    }
+
     // The start of the declaration statement that code[last] is in, or
-    // nothing when the tokens back to it show it is not a plain data member
-    // declaration.
+    // nothing when the tokens back to it show it is not a data member
+    // declaration. The initializers of earlier declarators are stepped
+    // over; a body's closing brace, whose opening brace starts its line,
+    // ends the search.
     auto statementStart (const std::vector<Token>& code, size_t last) -> std::optional<size_t>
     {
         size_t start = last + 1;
         for (size_t i = last + 1; i-- > 0; )
         {
             const auto& token = code[i];
-            if (isPunctuator (token, ";") || isPunctuator (token, "{") || isPunctuator (token, "}")
-                || isPunctuator (token, ":"))
+            if (isCloseBracket (token))
+            {
+                auto open = matchingOpen (code, i);
+                if (!open)
+                {
+                    return std::nullopt;
+                }
+                if (isPunctuator (token, "}") && startsLine (code, *open))
+                {
+                    break;
+                }
+                i = *open;
+                start = i;
+                continue;
+            }
+            if (isPunctuator (token, ";") || isOpenBracket (token)
+                || (isPunctuator (token, ":") && endsAccessSpecifier (code, i)))
             {
                 break;
             }
-            if (isPunctuator (token, "(") || isPunctuator (token, ")") || isPunctuator (token, "=")
-                || isPunctuator (token, "->") || isNonMemberKeyword (token))
+            if (isPunctuator (token, "->") || isNonMemberKeyword (token))
             {
                 return std::nullopt;
             }
@@ -96,16 +150,37 @@ namespace
         return start;
     }
 
-    // The type the declaration at code[start] declares: its tokens up to
-    // the first declarator, without storage specifiers and attributes.
-    auto declaredTypeText (const std::vector<Token>& code, size_t start) -> std::string
+    struct DeclaredType
+    {
+        // The type's text without storage specifiers and attributes.
+        std::string text;
+
+        // Index of the first declarator's first token.
+        size_t end;
+    };
+
+    // The type the declaration at code[start] declares, or nothing when
+    // the first declarator is a function's.
+    auto declaredType (const std::vector<Token>& code, size_t start) -> std::optional<DeclaredType>
     {
         std::string text;
-        for (size_t i = start; i + 1 < code.size(); ++i)
+        size_t i = start;
+        for (; i + 1 < code.size(); ++i)
         {
             const auto& token = code[i];
             if (isPunctuator (token, "&") || isPunctuator (token, "&&") || isPunctuator (token, "(")
-                || (isIdentifier (token) && endsDeclarator (code[i + 1])))
+                || isPunctuator (token, "*"))
+            {
+                break;
+            }
+            // A name before a parameter list is a function's; a "(" that a
+            // "&" follows parenthesizes a declarator instead.
+            if (isIdentifier (token) && isPunctuator (code[i + 1], "(") && i + 2 < code.size()
+                && !isPunctuator (code[i + 2], "&") && !isPunctuator (code[i + 2], "&&"))
+            {
+                return std::nullopt;
+            }
+            if (isIdentifier (token) && endsDeclarator (code[i + 1]))
             {
                 break;
             }
@@ -133,7 +208,39 @@ namespace
                 text += ' ';
             }
         }
-        return text;
+        if (text.empty())
+        {
+            return std::nullopt;
+        }
+        return DeclaredType { text, i };
+    }
+
+    // Whether code[index] begins a declarator of the statement whose type
+    // ends at code[type_end]: it is the first, or follows a comma at the
+    // statement's own bracket depth, so not one inside an initializer.
+    auto beginsDeclarator (const std::vector<Token>& code, size_t type_end, size_t index) -> bool
+    {
+        if (index == type_end)
+        {
+            return true;
+        }
+        if (index == 0 || !isPunctuator (code[index - 1], ","))
+        {
+            return false;
+        }
+        int depth = 0;
+        for (size_t j = type_end; j + 1 < index; ++j)
+        {
+            if (isOpenBracket (code[j]))
+            {
+                ++depth;
+            }
+            else if (isCloseBracket (code[j]))
+            {
+                --depth;
+            }
+        }
+        return depth == 0;
     }
 
     class ReferenceMemberRule : public Rule
@@ -205,26 +312,28 @@ namespace
                         || isPunctuator (before, ">>") || isPunctuator (before, ","))
                     && endsDeclarator (after);
 
-                // "T (&name)[N];"
+                // "T (&name)[N];" or "T a, (&name)[N];"
                 bool parenthesized = parens == 1 && i >= 2 && isPunctuator (before, "(")
                     && (isIdentifier (code[i - 2]) || isPunctuator (code[i - 2], ">")
-                        || isPunctuator (code[i - 2], ">>"))
+                        || isPunctuator (code[i - 2], ">>") || isPunctuator (code[i - 2], ","))
                     && isPunctuator (after, ")");
                 if (!plain && !parenthesized)
                 {
                     continue;
                 }
 
-                auto start = statementStart (code, parenthesized ? i - 2 : i - 1);
+                size_t declarator = parenthesized ? i - 1 : i;
+                auto start = statementStart (code, declarator - 1);
                 if (!start)
                 {
                     continue;
                 }
-                auto type = declaredTypeText (code, *start);
-                if (type.empty())
+                auto declared = declaredType (code, *start);
+                if (!declared || !beginsDeclarator (code, declared->end, declarator))
                 {
                     continue;
                 }
+                auto type = declared->text;
                 if (parenthesized)
                 {
                     for (size_t j = i + 3; j < code.size() && !isPunctuator (code[j], ";")
