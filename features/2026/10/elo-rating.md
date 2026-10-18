@@ -107,6 +107,23 @@ CCRL rating. A CCRL number needs anchors with CCRL ratings, through
   | new vs sf2400 | 4 / 1 / 35  | 11.2% | -359 |
 
   Ordo put `new` at 1884 ± 84 on that scale.
-- Rating run started: `new=HEAD sf1700=stockfish:1700
-  sf1900=stockfish:1900 sf2100=stockfish:2100`, 500 games per anchor at
-  8+0.08.
+- Rating run, `new=HEAD sf1700=stockfish:1700 sf1900=stockfish:1900
+  sf2100=stockfish:2100` at 8+0.08, 500 games per anchor, 2 hours 18
+  minutes, every game ended normally:
+
+  | Pairing       | W / D / L      | Score | Elo  | 95% range    |
+  |---------------|----------------|-------|------|--------------|
+  | new vs sf1700 | 302 / 37 / 161 | 64.1% | +101 | +71 to +132  |
+  | new vs sf1900 | 257 / 52 / 191 | 56.6% | +46  | +17 to +76   |
+  | new vs sf2100 | 154 / 67 / 279 | 37.5% | -89  | -119 to -60  |
+
+  Ordo: **`new` at 1927 ± 19** on Stockfish 19's `UCI_Elo` scale at
+  8+0.08, white advantage 10 ± 9, draw rate between equals 11.7%.
+  The three pairings alone give 1801, 1946 and 2011, so the anchors
+  disagree among themselves by about 200 Elo over a 400 Elo span: the
+  limited-strength Stockfish is weaker at the low end than its number
+  says, or stronger at the high end. That is the calibration's error,
+  not the match's, and is why the rating is quoted on Stockfish's scale
+  with the time control, and why CCRL-rated anchors are the next step
+  for a CCRL number.
+- Results: `~/.cache/wisdom-chess/match/results/20261018-101458-new-sf1700-sf1900-sf2100`.
