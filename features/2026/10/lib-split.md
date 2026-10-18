@@ -70,3 +70,6 @@ engine library is renamed from `wisdom-chess-core` to
   been dropped with the package blocks, so `WISDOM_CHESS_BENCHMARKS`
   built nothing. Restored it and built `wisdom-chess-benchmarks` to
   confirm.
+- The MSVC CI job failed on the lib tests with doctest's C5285 warning,
+  which the view model, web and UCI test targets already silence with
+  `/wd5285`. The lib tests get the same block.

@@ -13,6 +13,11 @@ if (WISDOM_CHESS_FAST_TESTS)
     target_link_libraries(wisdom-chess-lib-tests PRIVATE wisdom::lib)
     target_link_libraries(wisdom-chess-lib-tests PRIVATE doctest::doctest)
     wisdom_chess_enable_warnings(wisdom-chess-lib-tests)
+    if(MSVC)
+        # doctest 2.4.12 specializes std::tuple, which MSVC 14.51 warns about
+        # with C5285 even though the specialization is in a dependency header.
+        target_compile_options(wisdom-chess-lib-tests PRIVATE /wd5285)
+    endif()
 
     doctest_discover_tests(wisdom-chess-lib-tests PROPERTIES LABELS fast)
 
