@@ -1,6 +1,5 @@
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
 #include "wisdom-chess/ui/viewmodel/piece_movement.hpp"
@@ -62,7 +61,6 @@ namespace wisdom::ui::qml
     void PiecesModel::newGame (wisdom::nonnull<const ChessGame> game) noexcept
     {
         auto game_state = game->state();
-        auto board = game_state->getBoard();
 
         if (my_pieces.count() > 0)
         {
@@ -75,7 +73,7 @@ namespace wisdom::ui::qml
         {
             for (int column = 0; column < wisdom::Num_Columns; column++)
             {
-                auto piece = board.pieceAt (row, column);
+                auto piece = game_state->pieceAt (row, column);
                 if (piece)
                 {
                     PieceInfo new_piece { row, column, my_piece_to_image_path[to_int (*piece)] };

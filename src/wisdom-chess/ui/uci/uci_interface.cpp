@@ -5,12 +5,9 @@
 
 #include "wisdom-chess/ui/uci/uci_interface.hpp"
 #include "wisdom-chess/lib/logger.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/lib/str.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
-#include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {
@@ -91,7 +88,7 @@ namespace wisdom
         pickRandomLegalMove (const Game& game)
             -> optional<Move>
         {
-            auto moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            auto moves = game.getLegalMoves();
             if (moves.isEmpty())
                 return nullopt;
 
@@ -551,7 +548,7 @@ namespace wisdom
                 return false;
             }
 
-            auto legal_moves = generateLegalMoves (game->getBoard(), game->getCurrentTurn());
+            auto legal_moves = game->getLegalMoves();
             if (std::find (legal_moves.begin(), legal_moves.end(), *move) == legal_moves.end())
             {
                 sendLine ("info string Illegal move in position: " + *it);
@@ -590,9 +587,7 @@ namespace wisdom
             }
         }
 
-        return mapCoordinatesToMove (
-            game.getBoard(),
-            game.getCurrentTurn(),
+        return game.mapCoordinatesToMove (
             *src_coord,
             *dst_coord,
             promoted_piece

@@ -349,6 +349,7 @@ auto getDefaultConfig() -> LinterConfig
             { "reference-member", Severity::Error },
             { "allman-braces", Severity::Error },
             { "no-trailing-whitespace", Severity::Error },
+            { "engine-include", Severity::Error },
         },
     };
 }

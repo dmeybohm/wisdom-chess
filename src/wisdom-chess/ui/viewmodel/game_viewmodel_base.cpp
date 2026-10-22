@@ -1,6 +1,4 @@
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
-#include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/threats.hpp"
 
 namespace wisdom::ui
 {
@@ -116,7 +114,7 @@ namespace wisdom::ui
             return false;
         }
 
-        auto piece = game->getBoard().pieceAt (row, col);
+        auto piece = game->pieceAt (row, col);
         return piece && pieceColor (*piece) == game->getCurrentTurn();
     }
 
@@ -131,7 +129,7 @@ namespace wisdom::ui
             return false;
         }
 
-        return wisdom::isLegalMove (game->getBoard(), selected_move);
+        return game->isLegalMove (selected_move);
     }
 
     auto
@@ -250,7 +248,6 @@ namespace wisdom::ui
     void GameViewModelBase::updateDisplayedGameState()
     {
         auto game = getGame();
-        auto& board = game->getBoard();
         auto who = game->getCurrentTurn();
 
         setMoveStatus ("");
@@ -260,7 +257,7 @@ namespace wisdom::ui
         ViewModelStatusUpdate status_observer { this };
         status_observer.update (game->getStatus());
 
-        if (isKingThreatened (board, who, board.getKingPosition (who)))
+        if (game->isInCheck (who))
         {
             setInCheck (true);
         }

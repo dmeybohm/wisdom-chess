@@ -6,7 +6,6 @@
 #include "wisdom-chess/ui/wasm/web_types.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
-#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
@@ -192,7 +191,7 @@ EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
     // the board, and the two games would drift apart.
     auto move = parsePackedMove (packed_move);
     EXPECTS( move.has_value() );
-    EXPECTS( isLegalMove (game->getBoard(), *move) );
+    EXPECTS( game->isLegalMove (*move) );
     game->move (*move);
 
     startSearch();

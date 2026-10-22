@@ -422,7 +422,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
     SUBCASE( "After a declined threefold draw, only the fifth occurrence counts" )
     {
         auto game = Game::createStandardGame();
-        game.getHistory().setThreefoldRepetitionStatus (DrawStatus::Declined);
+        game.setProposedDrawStatus (
+            ProposedDrawType::ThreeFoldRepetition,
+            { DrawStatus::Declined, DrawStatus::Declined }
+        );
 
         shuffle_knights (&game, 3);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory(), game.getDrawLimits())
@@ -451,10 +454,16 @@ TEST_CASE( "Probable draw category and drawing predicate" )
     SUBCASE( "After a declined fifty-move draw, only seventy-five moves count" )
     {
         auto declined = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 149 80");
-        declined.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
+        declined.setProposedDrawStatus (
+            ProposedDrawType::FiftyMovesWithoutProgress,
+            { DrawStatus::Declined, DrawStatus::Declined }
+        );
 
         auto reached = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 150 80");
-        reached.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
+        reached.setProposedDrawStatus (
+            ProposedDrawType::FiftyMovesWithoutProgress,
+            { DrawStatus::Declined, DrawStatus::Declined }
+        );
 
         CHECK( probableDrawCategory (
                    declined.getBoard(), declined.getHistory(), declined.getDrawLimits()
@@ -471,7 +480,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         auto fifty = Game::createGameFromFen ("R5k1/5ppp/8/8/8/8/8/4K3 b - - 100 80");
 
         auto seventy_five = Game::createGameFromFen ("R5k1/5ppp/8/8/8/8/8/4K3 b - - 150 110");
-        seventy_five.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
+        seventy_five.setProposedDrawStatus (
+            ProposedDrawType::FiftyMovesWithoutProgress,
+            { DrawStatus::Declined, DrawStatus::Declined }
+        );
 
         CHECK( probableDrawCategory (fifty.getBoard(), fifty.getHistory(), fifty.getDrawLimits())
                == DrawCategory::NoDraw );

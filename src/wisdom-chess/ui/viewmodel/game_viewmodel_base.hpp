@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 

@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "wisdom-chess/engine/coord.hpp"
-#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 
@@ -20,13 +19,12 @@ namespace wisdom
         }
         , my_game_id { game_id }
     {
-        const auto& board = my_game.getBoard();
         int id = 1;
 
         for (int i = 0; i < Num_Squares; i++)
         {
             auto coord = Coord::fromIndex (i);
-            auto piece = board.pieceAt (coord);
+            auto piece = my_game.pieceAt (coord);
             if (piece)
             {
                 WebColoredPiece new_piece
@@ -85,7 +83,7 @@ namespace wisdom
         // the board, and the two games would drift apart.
         auto move = parseMove (move_text, my_game.getCurrentTurn());
         EXPECTS( move.has_value() );
-        EXPECTS( wisdom::isLegalMove (my_game.getBoard(), *move) );
+        EXPECTS( my_game.isLegalMove (*move) );
         applyMove (*move);
     }
 
@@ -177,12 +175,12 @@ namespace wisdom
     WebGame::hasPieceListMatchingBoard() const
         -> bool
     {
-        const auto& board = my_game.getBoard();
         std::size_t pieces_on_board = 0;
 
-        for (auto coord : Board::allCoords())
+        for (int i = 0; i < Num_Squares; i++)
         {
-            auto piece = board.pieceAt (coord);
+            auto coord = Coord::fromIndex (i);
+            auto piece = my_game.pieceAt (coord);
             if (!piece)
                 continue;
 

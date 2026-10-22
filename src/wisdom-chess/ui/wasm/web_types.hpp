@@ -2,7 +2,6 @@
 
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/evaluate.hpp"
 
 namespace wisdom
 {

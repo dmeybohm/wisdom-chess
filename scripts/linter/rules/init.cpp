@@ -12,6 +12,7 @@ extern auto createRawPointerRule() -> std::shared_ptr<Rule>;
 extern auto createReferenceMemberRule() -> std::shared_ptr<Rule>;
 extern auto createAllmanBracesRule() -> std::shared_ptr<Rule>;
 extern auto createNoTrailingWhitespaceRule() -> std::shared_ptr<Rule>;
+extern auto createEngineIncludeRule() -> std::shared_ptr<Rule>;
 
 auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
 {
@@ -25,6 +26,7 @@ auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
         createReferenceMemberRule(),
         createAllmanBracesRule(),
         createNoTrailingWhitespaceRule(),
+        createEngineIncludeRule(),
     };
 }
 

@@ -4,7 +4,6 @@
 #include <emscripten/val.h>
 #endif
 
-#include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
 #include "wisdom-chess/ui/qml/main/game_model.hpp"

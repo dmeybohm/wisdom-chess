@@ -177,7 +177,7 @@ private slots:
         QCOMPARE( clone->state()->getSearchTimeout(), std::chrono::milliseconds { std::chrono::seconds { 7 } } );
 
         // Documented on clone(): the moves played so far are not copied.
-        QVERIFY( clone->state()->getHistory().getMoveHistory().empty() );
+        QVERIFY( clone->state()->getMoveHistory().empty() );
     }
 
     void aCloneIsIndependent()

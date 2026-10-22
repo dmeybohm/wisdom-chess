@@ -6,41 +6,11 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/game_status.hpp"
 
 namespace wisdom
 {
-    enum class DrawStatus
-    {
-        NotReached = 0,
-        Accepted,
-        Declined
-    };
-
     using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
-
-    // The occurrences of a position, and the halfmoves without progress,
-    // at which a position counts as a draw.
-    struct DrawLimits
-    {
-        int repetitions;
-        int half_moves_without_progress;
-
-        [[nodiscard]] friend auto
-        operator== (const DrawLimits&, const DrawLimits&)
-            -> bool = default;
-    };
-
-    // The limits at which a player may claim a draw.
-    inline constexpr DrawLimits Claimable_Draw_Limits {
-        .repetitions = 3,
-        .half_moves_without_progress = 100,
-    };
-
-    // The limits at which a game is drawn without a claim.
-    inline constexpr DrawLimits Automatic_Draw_Limits {
-        .repetitions = 5,
-        .half_moves_without_progress = 150,
-    };
 
     [[nodiscard]] constexpr auto
     updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status) noexcept

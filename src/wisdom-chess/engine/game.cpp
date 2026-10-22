@@ -7,6 +7,7 @@
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 
@@ -258,14 +259,50 @@ namespace wisdom
         return my_pimpl->current_board;
     }
 
-    auto Game::getHistory() & noexcept -> History&
+    auto Game::getHistory() const& noexcept -> const History&
     {
         return my_pimpl->history;
     }
 
-    auto Game::getHistory() const& noexcept -> const History&
+    auto Game::pieceAt (Coord coord) const noexcept -> optional<ColoredPiece>
     {
-        return my_pimpl->history;
+        return my_pimpl->current_board.pieceAt (coord);
+    }
+
+    auto Game::pieceAt (int row, int column) const noexcept -> optional<ColoredPiece>
+    {
+        return my_pimpl->current_board.pieceAt (row, column);
+    }
+
+    auto Game::isInCheck (Color who) const noexcept -> bool
+    {
+        const auto& board = my_pimpl->current_board;
+        return isKingThreatened (board, who, board.getKingPosition (who));
+    }
+
+    auto Game::isLegalMove (Move move) const noexcept -> bool
+    {
+        return ::wisdom::isLegalMove (my_pimpl->current_board, move);
+    }
+
+    auto Game::getLegalMoves() const noexcept -> MoveList
+    {
+        return generateLegalMoves (my_pimpl->current_board, getCurrentTurn());
+    }
+
+    auto Game::getMoveHistory() const& noexcept -> const vector<Move>&
+    {
+        return my_pimpl->history.getMoveHistory();
+    }
+
+    auto Game::toFenString() const -> string
+    {
+        return my_pimpl->current_board.toFenString (getCurrentTurn());
+    }
+
+    auto Game::boardAsString() const -> string
+    {
+        return my_pimpl->current_board.asString();
     }
 
     auto Game::computerWantsDraw (Color who) const -> bool
