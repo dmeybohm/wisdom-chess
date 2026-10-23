@@ -2,7 +2,6 @@
 #include <QThread>
 #include <mutex>
 
-#include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/lib/logger.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"

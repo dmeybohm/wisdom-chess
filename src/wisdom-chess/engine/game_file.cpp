@@ -37,7 +37,7 @@ namespace wisdom
 
         // One move per line, as loadGame() reads them.
         vector<string> moves;
-        for (auto move : game.getHistory().getMoveHistory())
+        for (auto move : game.getMoveHistory())
             moves.push_back (asString (move));
         return writeLines (filename, moves);
     }

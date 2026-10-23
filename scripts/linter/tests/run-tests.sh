@@ -29,8 +29,8 @@ for test_dir in */; do
     if [ "$test_name" = "fixtures" ]; then
         continue
     fi
-    for input in "$test_dir"*.cpp; do
-        [ -f "$input" ] || continue
+    # A fixture may sit in a subdirectory, for a rule that goes by the path.
+    for input in $(find "$test_dir" -name '*.cpp' | sort); do
         expected="${input%.cpp}.expected"
         if [ -f "$expected" ]; then
             actual=$($LINTER --format=simple "$input" 2>&1 || true)

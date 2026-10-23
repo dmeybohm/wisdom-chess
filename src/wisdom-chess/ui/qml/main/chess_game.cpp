@@ -1,8 +1,6 @@
 #include <QDebug>
 
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
-#include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 #include "wisdom-chess/ui/qml/main/game_settings.hpp"
@@ -13,7 +11,6 @@ using std::pair;
 using std::string;
 using std::unique_ptr;
 using wisdom::Color;
-using wisdom::FenParser;
 using wisdom::Game;
 using wisdom::Move;
 using wisdom::MoveTimer;
@@ -72,7 +69,7 @@ namespace wisdom::ui::qml
         auto players = current_game->getPlayers();
         auto new_config = my_config;
 
-        auto fen = current_game->getBoard().toFenString (current_game->getCurrentTurn());
+        auto fen = current_game->toFenString();
         auto new_game = ChessGame::fromFen (fen, new_config);
         new_game->state()->setPlayers (players);
         return new_game;

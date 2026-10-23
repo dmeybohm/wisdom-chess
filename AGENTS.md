@@ -91,6 +91,12 @@ committing C++. The conventions below are about what the code does.
   keep plain constructors.
 - Frontends (console, QML, WASM/React) observe the game through
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
+  A frontend sees the engine only through `Game` and the value types: the
+  linter's `engine-include` rule lists the engine headers it may include,
+  and for anything else it asks the `Game` (`pieceAt()`, `isLegalMove()`,
+  `getLegalMoves()`, `isInCheck()`, `getMoveHistory()`, `toFenString()`,
+  `boardAsString()`). `getBoard()` and `getHistory()` are for the search
+  and the tests. See `features/2026/10/engine-surface.md`.
 - A `Game` decides its own draws (`DrawArbiter::GameEngine`) unless the
   caller does, as UCI's GUI does (`DrawArbiter::External`), and then the
   caller names the `DrawLimits`. The search knows neither arbiter:
@@ -128,6 +134,11 @@ committing C++. The conventions below are about what the code does.
   binds a temporary silently and deletes the type's assignment, where a
   `nonnull` needs an `&` at the construction site, which a temporary
   cannot supply. See `features/2026/10/no-reference-members.md`.
+  A getter hands out a `const Type&`, as `getBoard()` and `getHistory()`
+  do, and binds for one expression or a `const&` local; `Game` has no
+  getter that gives write access to its state. What the engine must
+  write to, such as the transposition table, comes in as a `nonnull`
+  parameter.
 - `optional` is `wisdom::optional` (`lib/optional.hpp`), not
   `std::optional`: a type that nests a public `NullRepresentation`
   (`Move`, `Coord`, `ColoredPiece`, `Piece`, `Color`), or an enum with a

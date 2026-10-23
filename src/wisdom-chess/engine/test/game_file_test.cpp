@@ -91,7 +91,7 @@ TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
         REQUIRE( saveGame (game, file.path()).has_value() );
 
         auto lines = file.lines();
-        const auto& moves = game.getHistory().getMoveHistory();
+        const auto& moves = game.getMoveHistory();
 
         REQUIRE( lines.size() == moves.size() );
         for (std::size_t i = 0; i < moves.size(); i++)
@@ -106,7 +106,7 @@ TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
 
         REQUIRE( loaded.has_value() );
         CHECK( fenOf (*loaded) == fenOf (game) );
-        CHECK( loaded->getHistory().getMoveHistory() == game.getHistory().getMoveHistory() );
+        CHECK( loaded->getMoveHistory() == game.getMoveHistory() );
     }
 
     SUBCASE( "A game without moves saves an empty file" )

@@ -3,12 +3,8 @@
 #include <memory>
 
 #include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/evaluate.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_file.hpp"
-#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/lib/str.hpp"
 #include "wisdom-chess/lib/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
@@ -288,7 +284,7 @@ namespace wisdom::ui::console
 
         void printAvailableMoves()
         {
-            MoveList moves = generateLegalMoves (my_game.getBoard(), my_game.getCurrentTurn());
+            MoveList moves = my_game.getLegalMoves();
             std::cout << "\nAvailable moves:\n    ";
 
             int count = 0;
@@ -534,7 +530,7 @@ namespace wisdom::ui::console
                     return result;
 
                 // check the generated move list for this move to see if its valid
-                MoveList moves = generateLegalMoves (my_game.getBoard(), my_game.getCurrentTurn());
+                MoveList moves = my_game.getLegalMoves();
 
                 for (auto legal_move : moves)
                 {
@@ -645,7 +641,7 @@ namespace wisdom::ui::console
     {
         while (true)
         {
-            std::cout << my_game.getBoard() << "\n";
+            std::cout << my_game.boardAsString() << "\n";
 
             // Handle draw proposals synchronously before updating displayed state:
             handleDrawProposals();

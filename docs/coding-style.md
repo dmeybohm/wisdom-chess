@@ -173,3 +173,11 @@ outside the namespace, such as a `main()` or a test that only uses
   header is named by its full path, `"wisdom-chess/engine/board.hpp"`. A
   test includes the helpers of its own directory by bare name
   (`"wisdom-chess-tests.hpp"`), as the linter does throughout.
+- A frontend source, one under a `ui` directory and outside its `test`
+  directory, includes only the engine headers that are its interface
+  [`engine-include`]: `game.hpp`, `game_status.hpp`, `game_file.hpp`,
+  the value types `coord.hpp`, `move.hpp`, `move_list.hpp` and
+  `piece.hpp`, and `global.hpp`, `move_timer.hpp` and
+  `transposition_table.hpp`. For anything else, such as the board or
+  the legal moves, it asks the `Game`. The list is in the rule's source,
+  `scripts/linter/rules/engine_include.cpp`.

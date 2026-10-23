@@ -40,8 +40,8 @@ namespace wisdom
             nonnull<TranspositionTable> transposition_table,
             DrawLimits draw_limits
         )
-            : my_original_board { Board { board } }
-            , my_history { History { history } }
+            : my_original_board { board }
+            , my_history { history }
             , my_draw_limits { draw_limits }
             , my_timer { std::move (timer) }
             , my_output { std::move (output) }
@@ -134,6 +134,8 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
 
+    auto IterativeSearch::operator= (IterativeSearch&& other) noexcept -> IterativeSearch& = default;
+
     IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl) noexcept
         : my_pimpl { std::move (impl) }
     {
@@ -153,7 +155,7 @@ namespace wisdom
 
         return IterativeSearch {
             make_unique<IterativeSearchImpl> (
-                Board { board },
+                board,
                 history,
                 std::move (logger),
                 timer,
@@ -172,7 +174,7 @@ namespace wisdom
     }
 
     auto
-    IterativeSearch::isCancelled() noexcept
+    IterativeSearch::isCancelled() const noexcept
         -> bool
     {
         return my_pimpl->getMoveTimer().isCancelled();

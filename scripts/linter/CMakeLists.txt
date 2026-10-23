@@ -20,6 +20,7 @@ add_executable(wisdom-linter
     rules/reference_member.cpp
     rules/allman_braces.cpp
     rules/no_trailing_whitespace.cpp
+    rules/engine_include.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE

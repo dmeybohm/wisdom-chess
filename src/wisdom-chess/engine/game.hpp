@@ -6,7 +6,7 @@
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/lib/expected.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
-#include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
 #include "wisdom-chess/engine/game_status.hpp"
 
 namespace wisdom
@@ -14,11 +14,10 @@ namespace wisdom
     class BoardBuilder;
     class Logger;
     class Board;
+    class History;
     class TranspositionTable;
 
-    enum class DrawStatus;
     enum class ProposedDrawType;
-    struct DrawLimits;
 
     enum class Player
     {
@@ -103,6 +102,8 @@ namespace wisdom
 
         void setCurrentTurn (Color new_turn);
 
+        // The board and history themselves, for the search and the tests.
+        // A frontend asks the game about them through the queries below.
         [[nodiscard]] auto
         getBoard() const& noexcept
             -> const Board&;
@@ -111,9 +112,29 @@ namespace wisdom
         getBoard() const&&
             -> Board& = delete;
 
-        [[nodiscard]] auto getHistory() & noexcept -> History&;
         [[nodiscard]] auto getHistory() const& noexcept -> const History&;
-        [[nodiscard]] auto getHistory() && -> History& = delete;
+        [[nodiscard]] auto getHistory() const&& -> const History& = delete;
+
+        [[nodiscard]] auto pieceAt (Coord coord) const noexcept -> optional<ColoredPiece>;
+
+        [[nodiscard]] auto pieceAt (int row, int column) const noexcept -> optional<ColoredPiece>;
+
+        // Whether the king of `who` is attacked.
+        [[nodiscard]] auto isInCheck (Color who) const noexcept -> bool;
+
+        [[nodiscard]] auto isLegalMove (Move move) const noexcept -> bool;
+
+        // The legal moves for the side to move.
+        [[nodiscard]] auto getLegalMoves() const noexcept -> MoveList;
+
+        // The moves played so far, in order.
+        [[nodiscard]] auto getMoveHistory() const& noexcept -> const vector<Move>&;
+        [[nodiscard]] auto getMoveHistory() const&& -> const vector<Move>& = delete;
+
+        [[nodiscard]] auto toFenString() const -> string;
+
+        // The board drawn as text, one rank per line.
+        [[nodiscard]] auto boardAsString() const -> string;
 
         [[nodiscard]] auto getCurrentPlayer() const noexcept -> Player;
 

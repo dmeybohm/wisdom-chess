@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 
+#include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 
 using namespace wisdom;

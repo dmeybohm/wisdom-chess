@@ -1,0 +1,2 @@
+4:1:engine-include:Frontend includes engine header 'board.hpp': ask the Game for what it needs, or add the header to the rule's list
+5:1:engine-include:Frontend includes engine header 'generate.hpp': ask the Game for what it needs, or add the header to the rule's list

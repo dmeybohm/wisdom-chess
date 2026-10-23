@@ -155,7 +155,7 @@ namespace wisdom
 
         void onDisplayedGameStateUpdated() override
         {
-            moveNumber = narrow<int> (getGame()->getHistory().getMoveHistory().size());
+            moveNumber = narrow<int> (getGame()->getMoveHistory().size());
         }
 
         friend class WebGameStatusUpdate;
