@@ -127,3 +127,19 @@ parses the directive as the preprocessor does: it drops comments and
 line continuations, then reads `#`, `include` and a `"..."` or `<...>`
 operand, with any spacing between. An include through a macro has no
 operand and is ignored. The `ui/forms.cpp` fixture covers each form.
+
+### Session #3
+
+Review of the special member functions, prompted by the question of
+whether `Game`'s move assignment could be defaulted (it could, and is;
+the copy operations cannot be, over a `unique_ptr`).
+
+- `IterativeSearch`'s move assignment was `= default` in the header,
+  where the Impl is incomplete, so a move assignment from any other
+  translation unit failed to compile: resetting the `unique_ptr` needs
+  the deleter. No caller did, so it was latent. It is now defaulted in
+  `search.cpp`, like the destructor and `Game`'s.
+- `IterativeSearch::create()` copied the board and the history twice,
+  through a temporary and then the member initializer. Once now.
+- `isCancelled()` is const, and the deleted rvalue `getMoveTimer()` is
+  spelled `const&&` as `Game`'s are.

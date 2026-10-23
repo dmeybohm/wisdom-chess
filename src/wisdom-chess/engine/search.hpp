@@ -42,12 +42,11 @@ namespace wisdom
             DrawLimits draw_limits
         ) -> IterativeSearch;
 
-        // Copy and move constructors
         IterativeSearch (const IterativeSearch& other) = delete;
         auto operator= (const IterativeSearch& other) -> IterativeSearch& = delete;
 
         IterativeSearch (IterativeSearch&& other) noexcept = default;
-        auto operator= (IterativeSearch&& other) noexcept -> IterativeSearch& = default;
+        auto operator= (IterativeSearch&& other) noexcept -> IterativeSearch&;
 
         ~IterativeSearch();
 
@@ -56,13 +55,16 @@ namespace wisdom
             -> SearchResult;
 
         [[nodiscard]] auto
-        isCancelled() noexcept
+        isCancelled() const noexcept
             -> bool;
 
         [[nodiscard]] auto
         getMoveTimer() const& noexcept
             -> const MoveTimer&;
-        void getMoveTimer() && = delete;
+
+        [[nodiscard]] auto
+        getMoveTimer() const&&
+            -> const MoveTimer& = delete;
 
     private:
         unique_ptr<IterativeSearchImpl> my_pimpl;
