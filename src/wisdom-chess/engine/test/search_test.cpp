@@ -261,6 +261,22 @@ TEST_CASE( "Finding moves regression test" )
     REQUIRE( result.move.has_value() );
 }
 
+TEST_CASE( "A move-assigned search is the one that was moved in" )
+{
+    FenParser mate_in_one { "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1" };
+    auto game = mate_in_one.build();
+    SearchHelper helper;
+
+    IterativeSearch search = helper.build (Board { BoardBuilder::fromDefaultPosition() }, 2, 30);
+    search = helper.build (game.getBoard(), 2, 5);
+
+    CHECK( search.getMoveTimer().getTimeLimit() == chrono::seconds { 5 } );
+
+    SearchResult result = search.iterativelyDeepen (Color::White);
+    REQUIRE( result.move.has_value() );
+    CHECK( *result.move == toMove ("a1 a8") );
+}
+
 TEST_CASE( "Bishop is not sacrificed scenario 1" )
 {
     FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 b kq - 0 1" };

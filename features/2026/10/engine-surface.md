@@ -143,3 +143,6 @@ the copy operations cannot be, over a `unique_ptr`).
   through a temporary and then the member initializer. Once now.
 - `isCancelled()` is const, and the deleted rvalue `getMoveTimer()` is
   spelled `const&&` as `Game`'s are.
+- A test in `search_test.cpp` move-assigns one search over another and
+  checks that the result carries the second one's timer and finds its
+  mate in one. It passes in Release and Debug.
