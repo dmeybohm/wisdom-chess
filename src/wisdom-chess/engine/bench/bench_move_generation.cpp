@@ -2,7 +2,6 @@
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess/engine/bench/bench_positions.hpp"
 
@@ -10,16 +9,10 @@ namespace wisdom::bench
 {
     namespace
     {
-        auto boardFromFen (czstring fen) -> Board
-        {
-            FenParser parser { fen };
-            return parser.buildBoard();
-        }
 
         auto colorFromFen (czstring fen) -> Color
         {
-            FenParser parser { fen };
-            return parser.getActivePlayer();
+            return Board::fromFen (fen).getCurrentTurn();
         }
     }
 
@@ -42,7 +35,7 @@ namespace wisdom::bench
 
         for (const auto& pos : positions)
         {
-            auto board = boardFromFen (pos.fen);
+            auto board = Board::fromFen (pos.fen);
             auto color = colorFromFen (pos.fen);
 
             bench->run (
@@ -56,7 +49,7 @@ namespace wisdom::bench
 
         for (const auto& pos : positions)
         {
-            auto board = boardFromFen (pos.fen);
+            auto board = Board::fromFen (pos.fen);
             auto color = colorFromFen (pos.fen);
 
             bench->run (

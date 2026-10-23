@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/lib/str.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
 
 namespace wisdom
 {
@@ -13,6 +14,12 @@ namespace wisdom
     Board::Board()
         : Board { Default_Board_Builder }
     {
+    }
+
+    auto Board::fromFen (const string& fen) -> Board
+    {
+        FenParser parser { fen };
+        return parser.buildBoard();
     }
 
     Board::Board (const BoardBuilder& builder)

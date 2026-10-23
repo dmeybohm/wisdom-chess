@@ -26,6 +26,10 @@ namespace wisdom
 
         explicit Board (const BoardBuilder& builder);
 
+        // A FEN string that does not parse is a precondition failure. Text
+        // from outside the program goes through FenParser::parse().
+        [[nodiscard]] static auto fromFen (const string& fen) -> Board;
+
         // Whether the boards are the same position for repetition, as
         // getBoardCode() identifies it.
         [[nodiscard]] friend auto

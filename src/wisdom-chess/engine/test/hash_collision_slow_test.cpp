@@ -8,7 +8,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
@@ -19,7 +18,6 @@ using wisdom::Board;
 using wisdom::BoardBuilder;
 using wisdom::BoardHashCode;
 using wisdom::Color;
-using wisdom::FenParser;
 using wisdom::colorInvert;
 using wisdom::generateAllPotentialMoves;
 using wisdom::isLegalPositionAfterMove;
@@ -146,9 +144,8 @@ TEST_CASE( "Hash collision: Multiple starting positions" )
 
     for (const auto& [fen, depth] : test_positions)
     {
-        FenParser parser { fen };
-        Board board = parser.buildBoard();
-        Color active = parser.getActivePlayer();
+        Board board = Board::fromFen (fen);
+        Color active = board.getCurrentTurn();
 
         auto stats = runCollisionTest (board, active, depth);
         total_positions += stats.positions_visited;

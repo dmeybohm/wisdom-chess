@@ -6,7 +6,6 @@
 #include "wisdom-chess/engine/move_list.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/threats.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess-tests.hpp"
 #include "wisdom-chess-perft.hpp"
@@ -16,7 +15,6 @@ using wisdom::Color;
 using wisdom::perft::MoveCounter;
 using wisdom::perft::CounterExpectation;
 using wisdom::perft::Stats;
-using wisdom::FenParser;
 using std::vector;
 using wisdom::perft::PerftResults;
 using wisdom::MoveGenerator;
@@ -133,8 +131,7 @@ TEST_CASE( "Perft: Consistency at depth 3" )
 
 TEST_CASE( "Perft: Position 2 (kiwipete)" )
 {
-    FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1" };
-    auto test_board = parser.buildBoard();
+    auto test_board = Board::fromFen ("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
     auto perft_board = test_board;
     std::string check = test_board.toFenString (Color::White);
     auto sub = check.substr (0, check.size() - 4);
@@ -159,8 +156,7 @@ TEST_CASE( "Perft: Position 2 (kiwipete)" )
 
 TEST_CASE( "Perft: Position 3" )
 {
-    FenParser parser { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1" };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
 
     vector<CounterExpectation> expectations = {
         { 1, { 14, 1, 0, 0, 0, 2, 0 } },
@@ -176,8 +172,7 @@ TEST_CASE( "Perft: Position 3" )
 
 TEST_CASE( "Perft: Position 4" )
 {
-    FenParser parser { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1" };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
     vector<CounterExpectation> expectations = {
         { 1, { 6, 0, 0, 0, 0, 0, 0 } },
@@ -192,8 +187,7 @@ TEST_CASE( "Perft: Position 4" )
 
 TEST_CASE( "Perft: Position 4 mirrored" )
 {
-    FenParser parser { "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1" };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1");
 
     vector<CounterExpectation> expectations = {
         { 1, { 6, 0, 0, 0, 0, 0, 0 } },
@@ -207,8 +201,7 @@ TEST_CASE( "Perft: Position 4 mirrored" )
 
 TEST_CASE( "Perft: Position 5" )
 {
-    FenParser parser { "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8" };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
 
     vector<NodeExpectation> expectations = {
         { 1, 44 },
@@ -222,10 +215,7 @@ TEST_CASE( "Perft: Position 5" )
 
 TEST_CASE( "Perft: Position 6" )
 {
-    FenParser parser {
-        "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
-    };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
 
     vector<NodeExpectation> expectations = {
         { 1, 46 },
@@ -333,8 +323,7 @@ TEST_CASE( "Perft: generateCaptures agrees with the full move list at every node
 
     for (const auto& position : positions)
     {
-        FenParser parser { position.fen };
-        auto board = parser.buildBoard();
+        auto board = Board::fromFen (position.fen);
 
         CaptureCheck check;
         checkCapturesAtEveryNode (board, board.getCurrentTurn(), position.depth, &check);
@@ -472,8 +461,7 @@ TEST_CASE( "Perft: hasLegalMove agrees with generateLegalMoves at every node" )
 
     for (const auto& position : positions)
     {
-        FenParser parser { position.fen };
-        auto board = parser.buildBoard();
+        auto board = Board::fromFen (position.fen);
 
         LegalMoveCheck check;
         checkHasLegalMoveAtEveryNode (board, position.depth, &check);
@@ -513,8 +501,7 @@ TEST_CASE( "Perft: generateLegalEnPassantMoves agrees with generateLegalMoves at
 
     for (const auto& position : positions)
     {
-        FenParser parser { position.fen };
-        auto board = parser.buildBoard();
+        auto board = Board::fromFen (position.fen);
 
         EnPassantCheck check;
         checkEnPassantMovesAtEveryNode (board, position.depth, &check);

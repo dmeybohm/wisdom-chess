@@ -2,7 +2,6 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/material.hpp"
 #include "wisdom-chess/engine/position.hpp"
@@ -121,8 +120,7 @@ TEST_CASE( "Incrementally updated board state matches a recompute" )
          })
     {
         CAPTURE( fen );
-        FenParser parser { fen };
-        auto board = parser.buildBoard();
+        auto board = Board::fromFen (fen);
 
         CHECK( countInconsistentBoards (board, 3) == 0 );
     }
@@ -130,8 +128,7 @@ TEST_CASE( "Incrementally updated board state matches a recompute" )
 
 TEST_CASE( "getPieces() gives each of a side's pieces with its square" )
 {
-    FenParser parser { "4k3/8/8/3p4/8/8/8/R3K2N w - - 0 1" };
-    auto board = parser.buildBoard();
+    auto board = Board::fromFen ("4k3/8/8/3p4/8/8/8/R3K2N w - - 0 1");
 
     vector<PlacedPiece> white;
     for (auto placed : board.getPieces (Color::White))

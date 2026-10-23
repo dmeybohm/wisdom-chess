@@ -1,5 +1,4 @@
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/move.hpp"
 
@@ -81,8 +80,7 @@ TEST_CASE( "parsePackedMove()" )
              })
         {
             CAPTURE( fen );
-            FenParser parser { fen };
-            auto board = parser.buildBoard();
+            auto board = Board::fromFen (fen);
 
             for (auto move : generateLegalMoves (board, board.getCurrentTurn()))
             {

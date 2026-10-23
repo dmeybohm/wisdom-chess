@@ -6,7 +6,6 @@
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess/engine/bench/bench_positions.hpp"
 
@@ -35,16 +34,10 @@ namespace wisdom::bench
             return nodes;
         }
 
-        auto boardFromFen (czstring fen) -> Board
-        {
-            FenParser parser { fen };
-            return parser.buildBoard();
-        }
 
         auto colorFromFen (czstring fen) -> Color
         {
-            FenParser parser { fen };
-            return parser.getActivePlayer();
+            return Board::fromFen (fen).getCurrentTurn();
         }
 
         void printNps (czstring label, int64_t nodes, double seconds)
@@ -61,7 +54,7 @@ namespace wisdom::bench
     {
         // Nanobench: perft depth 4 starting position (~197K nodes).
         {
-            auto board = boardFromFen (Starting_Position_Fen);
+            auto board = Board::fromFen (Starting_Position_Fen);
             auto color = colorFromFen (Starting_Position_Fen);
 
             bench->run ("perft/starting-depth4", [&] {
@@ -72,7 +65,7 @@ namespace wisdom::bench
 
         // Nanobench: perft depth 3 kiwipete (~97K nodes).
         {
-            auto board = boardFromFen (Kiwipete_Fen);
+            auto board = Board::fromFen (Kiwipete_Fen);
             auto color = colorFromFen (Kiwipete_Fen);
 
             bench->run ("perft/kiwipete-depth3", [&] {
@@ -83,7 +76,7 @@ namespace wisdom::bench
 
         // Manual timing: perft depth 5 starting position (~4.8M nodes).
         {
-            auto board = boardFromFen (Starting_Position_Fen);
+            auto board = Board::fromFen (Starting_Position_Fen);
             auto color = colorFromFen (Starting_Position_Fen);
 
             auto start = chrono::steady_clock::now();
@@ -96,7 +89,7 @@ namespace wisdom::bench
 
         // Manual timing: perft depth 4 kiwipete (~4M nodes).
         {
-            auto board = boardFromFen (Kiwipete_Fen);
+            auto board = Board::fromFen (Kiwipete_Fen);
             auto color = colorFromFen (Kiwipete_Fen);
 
             auto start = chrono::steady_clock::now();

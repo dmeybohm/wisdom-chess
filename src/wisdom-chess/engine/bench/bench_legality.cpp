@@ -2,7 +2,6 @@
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess/engine/bench/bench_positions.hpp"
 
@@ -10,16 +9,10 @@ namespace wisdom::bench
 {
     namespace
     {
-        auto boardFromFen (czstring fen) -> Board
-        {
-            FenParser parser { fen };
-            return parser.buildBoard();
-        }
 
         auto colorFromFen (czstring fen) -> Color
         {
-            FenParser parser { fen };
-            return parser.getActivePlayer();
+            return Board::fromFen (fen).getCurrentTurn();
         }
     }
 
@@ -40,7 +33,7 @@ namespace wisdom::bench
         // Board::withMove + isLegalPositionAfterMove for all pseudo-legal moves.
         for (const auto& pos : positions)
         {
-            auto board = boardFromFen (pos.fen);
+            auto board = Board::fromFen (pos.fen);
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 
@@ -62,7 +55,7 @@ namespace wisdom::bench
         // Board::withMove alone: isolate copy cost.
         for (const auto& pos : positions)
         {
-            auto board = boardFromFen (pos.fen);
+            auto board = Board::fromFen (pos.fen);
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 

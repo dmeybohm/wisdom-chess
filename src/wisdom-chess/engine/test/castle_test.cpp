@@ -1,5 +1,4 @@
 #include "wisdom-chess/engine/board_builder.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
 
@@ -448,8 +447,7 @@ TEST_CASE( "Test can castle" )
 
 TEST_CASE( "Kingside castle state after moving queenside rook" )
 {
-    FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1" };
-    Board board = parser.buildBoard();
+    Board board = Board::fromFen ("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 
     MoveList move_list { Color::White, { "e5 c6", "a8 d8", "c6xd8" } };
     Color color = Color::White;
@@ -468,8 +466,7 @@ TEST_CASE( "King move removes the remaining castling right" )
 {
     SUBCASE( "Only kingside remaining" )
     {
-        FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
-        Board board = parser.buildBoard();
+        Board board = Board::fromFen ("4k3/8/8/8/8/8/8/4K2R w K - 0 1");
 
         board = board.withMove (Color::White, toMove ("e1 d1"));
 
@@ -478,8 +475,7 @@ TEST_CASE( "King move removes the remaining castling right" )
 
     SUBCASE( "Only queenside remaining" )
     {
-        FenParser parser { "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1" };
-        Board board = parser.buildBoard();
+        Board board = Board::fromFen ("4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
 
         board = board.withMove (Color::White, toMove ("e1 f1"));
 
@@ -488,8 +484,7 @@ TEST_CASE( "King move removes the remaining castling right" )
 
     SUBCASE( "Castling with only one side remaining" )
     {
-        FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
-        Board board = parser.buildBoard();
+        Board board = Board::fromFen ("4k3/8/8/8/8/8/8/4K2R w K - 0 1");
 
         board = board.withMove (Color::White, toMove ("o-o", Color::White));
 

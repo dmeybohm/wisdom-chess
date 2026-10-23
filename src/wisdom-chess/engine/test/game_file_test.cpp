@@ -2,7 +2,6 @@
 #include <fstream>
 
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_file.hpp"
 

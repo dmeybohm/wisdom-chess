@@ -8,7 +8,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/coord.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -181,8 +180,7 @@ TEST_CASE( "board code" )
 
         BoardCode moved_code = moved_board.getUnnormalizedBoardCode();
 
-        FenParser parser {"rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2"};
-        Board fen_board = parser.buildBoard();
+        Board fen_board = Board::fromFen ("rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2");
         BoardCode fen_code = fen_board.getUnnormalizedBoardCode();
 
         REQUIRE( moved_code == fen_code );
