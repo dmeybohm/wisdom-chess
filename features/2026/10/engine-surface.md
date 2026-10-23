@@ -116,3 +116,14 @@ engine's state directly, as `web_game_test.cpp` does with the board.
 - Verified with the Release build, the full `ctest` suite, the `lint`
   target, the linter's self-tests, and an Emscripten build of
   `wisdom-chess-web` for `bindings.cpp`.
+
+### Session #2
+
+Review of PR #390 found that the rule parsed only two exact spellings
+of the directive and only a quoted operand, so `#  include "..."` and
+`#include <wisdom-chess/engine/board.hpp>` passed, and a block comment
+inside the directive could confuse the prefix search. The rule now
+parses the directive as the preprocessor does: it drops comments and
+line continuations, then reads `#`, `include` and a `"..."` or `<...>`
+operand, with any spacing between. An include through a macro has no
+operand and is ignored. The `ui/forms.cpp` fixture covers each form.

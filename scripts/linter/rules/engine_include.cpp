@@ -1,4 +1,4 @@
-#include <algorithm>
+#include <cctype>
 #include <unordered_set>
 
 #include "../linter.hpp"
@@ -45,26 +45,91 @@ namespace
         return in_ui;
     }
 
-    // The file name in '#include "wisdom-chess/engine/<file>"', or empty.
-    auto includedEngineHeader (const std::string& directive) -> std::string
+    // The directive with its comments and line continuations replaced by
+    // spaces, so that what remains is the directive's own text.
+    auto withoutComments (const std::string& directive) -> std::string
     {
-        static const std::string prefix = "\"wisdom-chess/engine/";
-        if (directive.compare (0, 8, "#include") != 0 && directive.compare (0, 9, "# include") != 0)
+        std::string text;
+        for (size_t i = 0; i < directive.size(); ++i)
+        {
+            if (directive.compare (i, 2, "/*") == 0)
+            {
+                auto end = directive.find ("*/", i + 2);
+                i = end == std::string::npos ? directive.size() : end + 1;
+                text += ' ';
+            }
+            else if (directive.compare (i, 2, "//") == 0)
+            {
+                break;
+            }
+            else if (directive.compare (i, 2, "\\\n") == 0)
+            {
+                ++i;
+                text += ' ';
+            }
+            else
+            {
+                text += directive[i];
+            }
+        }
+        return text;
+    }
+
+    auto skipSpace (const std::string& text, size_t pos) -> size_t
+    {
+        while (pos < text.size() && std::isspace (static_cast<unsigned char> (text[pos])))
+        {
+            ++pos;
+        }
+        return pos;
+    }
+
+    // The operand of an #include directive, as written between its quotes
+    // or angle brackets, or empty when the directive is not an include or
+    // names its header through a macro.
+    auto includeOperand (const std::string& directive) -> std::string
+    {
+        auto text = withoutComments (directive);
+        size_t pos = skipSpace (text, 0);
+        if (pos >= text.size() || text[pos] != '#')
         {
             return {};
         }
-        auto start = directive.find (prefix);
-        if (start == std::string::npos)
+        pos = skipSpace (text, pos + 1);
+        static const std::string keyword = "include";
+        if (text.compare (pos, keyword.size(), keyword) != 0)
         {
             return {};
         }
-        start += prefix.size();
-        auto end = directive.find ('"', start);
+        pos += keyword.size();
+        if (pos < text.size() && (std::isalnum (static_cast<unsigned char> (text[pos])) || text[pos] == '_'))
+        {
+            return {};
+        }
+        pos = skipSpace (text, pos);
+        if (pos >= text.size() || (text[pos] != '"' && text[pos] != '<'))
+        {
+            return {};
+        }
+        char closer = text[pos] == '"' ? '"' : '>';
+        auto end = text.find (closer, pos + 1);
         if (end == std::string::npos)
         {
             return {};
         }
-        return directive.substr (start, end - start);
+        return text.substr (pos + 1, end - pos - 1);
+    }
+
+    // The file name in an include of "wisdom-chess/engine/<file>", or empty.
+    auto includedEngineHeader (const std::string& directive) -> std::string
+    {
+        static const std::string prefix = "wisdom-chess/engine/";
+        auto operand = includeOperand (directive);
+        if (operand.compare (0, prefix.size(), prefix) != 0)
+        {
+            return {};
+        }
+        return operand.substr (prefix.size());
     }
 
     class EngineIncludeRule : public Rule
