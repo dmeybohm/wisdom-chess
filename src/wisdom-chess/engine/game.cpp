@@ -94,14 +94,7 @@ namespace wisdom
 
     Game::Game (Game&& other) noexcept = default;
 
-    auto Game::operator= (Game&& other) noexcept -> Game&
-    {
-        if (this != &other)
-        {
-            my_pimpl = std::move (other.my_pimpl);
-        }
-        return *this;
-    }
+    auto Game::operator= (Game&& other) noexcept -> Game& = default;
 
     Game::~Game() = default;
 
