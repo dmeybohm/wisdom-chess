@@ -337,6 +337,8 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
+        EXPECTS( drawStatusIsReplied (draw_status) );
+
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:

@@ -37,7 +37,14 @@ answers. The status is derived from them, not stored.
   instead of once on the last answer, which is the same value since the
   pairs change only through `setProposedDrawStatus()`.
 - `getStatus()` and `getDrawLimits()` ask `drawStatus()`.
-  `setProposedDrawStatus()` only records the answer.
+  `setProposedDrawStatus()` only records the answer, and the answer
+  must be `Accepted` or `Declined`: `NotReached` is the state before
+  a player has answered, not an answer, and `EXPECTS` rejects it. With
+  the stored status, a `NotReached` written after both players had
+  replied left the status in force, since the status was only
+  recomputed once both had replied again; with the derived status it
+  would reopen the proposal and lower the limit `getDrawLimits()`
+  gives the search. No caller passed it, so it is a contract now.
 - `History` loses the two status fields and their accessors, and the
   pair helpers move into `game.cpp`'s unnamed namespace.
   `BothPlayersDrawStatus` goes with them: the public overload of
@@ -59,3 +66,13 @@ state through the new one.
 
 - Made the change above. No test changes were needed: no test read the
   history's status or used the pair helpers.
+
+### Session #2 (2026-10-24)
+
+- Review of PR #395 found that a `NotReached` answer set after both
+  players had replied now reopened the proposal, where the stored
+  status had kept the decision. `setProposedDrawStatus()` now requires
+  a replied answer, pinned by the fatal case
+  `game-draw-answer-not-reached`, and "A later answer replaces a
+  player's earlier one" in `game_status_test.cpp` covers the update
+  that remains possible after both have replied.
