@@ -22,6 +22,7 @@ namespace wisdom
 
     class Board;
 
+    // The kind of a move. A promotion reads as Default or NormalCapturing.
     enum class MoveCategory : int8_t
     {
         Default = 0,
@@ -31,10 +32,7 @@ namespace wisdom
     };
 
     // Combined category/promotion encoding (fits in 4 bits):
-    //   0: Default (non-capture, non-promote)
-    //   1: Normal capture
-    //   2: En passant
-    //   3: Castling
+    //   0-3: a MoveCategory, with no promotion
     //   4: Promote Queen
     //   5: Promote Rook
     //   6: Promote Knight
@@ -43,10 +41,6 @@ namespace wisdom
     //   9: Promote Rook + capture
     //  10: Promote Knight + capture
     //  11: Promote Bishop + capture
-    inline constexpr int8_t Combined_Default = 0;
-    inline constexpr int8_t Combined_Normal_Capture = 1;
-    inline constexpr int8_t Combined_En_Passant = 2;
-    inline constexpr int8_t Combined_Castling = 3;
     inline constexpr int8_t Combined_Promote_Base = 4;
     inline constexpr int8_t Combined_Promote_Capture_Base = 8;
 
@@ -137,13 +131,19 @@ namespace wisdom
             );
         }
 
+        constexpr void
+        setCategory (MoveCategory category) noexcept
+        {
+            setCombined (to_underlying (category));
+        }
+
     public:
         [[nodiscard]] static constexpr auto
         make (Coord src, Coord dst) noexcept
             -> Move
         {
             Move m;
-            m.data = pack (src.index<int>(), dst.index<int>(), Combined_Default);
+            m.data = pack (src.index<int>(), dst.index<int>(), to_underlying (MoveCategory::Default));
             return m;
         }
 
@@ -169,7 +169,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.setCombined (Combined_Normal_Capture);
+            move.setCategory (MoveCategory::NormalCapturing);
             return move;
         }
 
@@ -183,7 +183,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.setCombined (Combined_Castling);
+            move.setCategory (MoveCategory::Castling);
             return move;
         }
 
@@ -212,7 +212,7 @@ namespace wisdom
             -> Move
         {
             Move move = make (src_row, src_col, dst_row, dst_col);
-            move.setCombined (Combined_En_Passant);
+            move.setCategory (MoveCategory::EnPassant);
             return move;
         }
 
@@ -272,7 +272,7 @@ namespace wisdom
             -> Move
         {
             Move result = *this;
-            bool is_capture = (result.getCombined() == Combined_Normal_Capture);
+            bool is_capture = result.getCombined() == to_underlying (MoveCategory::NormalCapturing);
             auto base = is_capture ? Combined_Promote_Capture_Base : Combined_Promote_Base;
             result.setCombined (base + promotionPieceOffset (piece_type));
             return result;
@@ -282,9 +282,9 @@ namespace wisdom
         withCapture() const noexcept
             -> Move
         {
-            ASSERT( getCombined() == Combined_Default );
+            ASSERT( getCombined() == to_underlying (MoveCategory::Default) );
             Move result = *this;
-            result.setCombined (Combined_Normal_Capture);
+            result.setCategory (MoveCategory::NormalCapturing);
             return result;
         }
 
@@ -293,7 +293,7 @@ namespace wisdom
             -> MoveCategory
         {
             auto c = getCombined();
-            if (c <= Combined_Castling)
+            if (c <= to_underlying (MoveCategory::Castling))
                 return to_enum_debug<MoveCategory> (c);
             if (c >= Combined_Promote_Capture_Base)
                 return MoveCategory::NormalCapturing;
@@ -305,7 +305,7 @@ namespace wisdom
             -> bool
         {
             auto c = getCombined();
-            return c == Combined_Normal_Capture
+            return c == to_underlying (MoveCategory::NormalCapturing)
                 || c >= Combined_Promote_Capture_Base;
         }
 
@@ -332,7 +332,7 @@ namespace wisdom
         isEnPassant() const noexcept
             -> bool
         {
-            return getCombined() == Combined_En_Passant;
+            return getCombined() == to_underlying (MoveCategory::EnPassant);
         }
 
         [[nodiscard]] constexpr auto
@@ -346,7 +346,7 @@ namespace wisdom
         isCastling() const noexcept
             -> bool
         {
-            return getCombined() == Combined_Castling;
+            return getCombined() == to_underlying (MoveCategory::Castling);
         }
 
         [[nodiscard]] constexpr auto
