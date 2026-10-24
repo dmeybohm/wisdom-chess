@@ -47,6 +47,17 @@ namespace
     }
 
     FATAL_CASE(
+        "game-draw-answer-not-reached",
+        R"re(Precondition failed at .*game\.cpp:[0-9]+: drawStatusIsReplied \(draw_status\))re"
+    )
+    {
+        auto game = Game::createStandardGame();
+        game.setProposedDrawStatus (
+            ProposedDrawType::ThreeFoldRepetition, Color::White, DrawStatus::NotReached
+        );
+    }
+
+    FATAL_CASE(
         "history-add-position-while-tentative",
         R"re(Precondition failed at .*history\.hpp:[0-9]+: my_tentative_nesting_count == 0)re"
     )

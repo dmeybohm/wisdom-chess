@@ -292,6 +292,21 @@ TEST_CASE( "Game::status" )
             shuffleKnights (&game, 1);
             CHECK( game.getStatus() == GameStatus::FivefoldRepetitionDraw );
         }
+
+        SUBCASE( "A later answer replaces a player's earlier one" )
+        {
+            game.setProposedDrawStatus (
+                ProposedDrawType::ThreeFoldRepetition,
+                { DrawStatus::Declined, DrawStatus::Declined }
+            );
+            CHECK( game.getStatus() == GameStatus::Playing );
+            CHECK( game.getDrawLimits().repetitions == 5 );
+
+            game.setProposedDrawStatus (
+                ProposedDrawType::ThreeFoldRepetition, Color::White, true
+            );
+            CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionAccepted );
+        }
     }
 
     SUBCASE( "Fifty moves without progress" )
