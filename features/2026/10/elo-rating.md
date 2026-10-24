@@ -142,3 +142,46 @@ Two review comments on PR #384:
   its tail is printed on failure, and the script exits nonzero, after
   still printing how to resume an interrupted match. Checked by
   replacing the cached Ordo with a script that exits 3.
+
+### Session #3 (2026-10-18): rating an old version
+
+Asked for the rating of 572360b1 (2025-09-20, "Merge pull request #152
+from dmeybohm/out-of-line-destructors"), 1,071 commits behind `main`.
+That commit has no UCI frontend: the first one, 370cf0f4, came three days
+later, and its `go` ran a synchronous search with the default 5-second
+timeout and parsed nothing. Branch `rating-572360b1` (commit 43488258)
+makes it playable in the match script:
+
+- cherry-picks the UCI commit and adds its directory to the UI build,
+  which the original commit never did;
+- backports `main`'s `MoveTimer` wholesale, with `not_null<MoveTimer*>`
+  for `nonnull<MoveTimer>` and `setTriggered()` kept public for the QML
+  frontend of that time; `Game::setSearchTimeout()` takes milliseconds;
+- gives the UCI frontend `main`'s clock allocation, the `Move Overhead`
+  and `Depth` options and a `setoption` handler. The search still runs
+  on the command thread, so `stop` does nothing, which a timed match
+  never needs.
+
+The engine's search is otherwise that commit's, including its habit of
+deepening every other ply. By hand, `go wtime 8000 btime 8000 winc 80
+binc 80` answered in 354 ms and a clock inside the overhead in 8 ms.
+
+Bracket at 8+0.08, 40 games each: 61% against Stockfish 1320, 49%
+against 1500, 20% against 1700; Ordo 1451 ± 65. Rating run,
+`old=rating-572360b1 sf1320=stockfish:1320 sf1500=stockfish:1500
+sf1700=stockfish:1700`, 500 games per anchor, 2 hours 12 minutes, every
+game ended normally:
+
+  | Pairing       | W / D / L      | Score | Elo  | 95% range    |
+  |---------------|----------------|-------|------|--------------|
+  | old vs sf1320 | 325 / 38 / 137 | 68.8% | +137 | +107 to +170 |
+  | old vs sf1500 | 189 / 36 / 275 | 41.4% | -60  | -91 to -31   |
+  | old vs sf1700 | 85 / 27 / 388  | 19.7% | -244 | -283 to -210 |
+
+Ordo: **1449 ± 19** on the same scale and clock as `main`'s 1927 ± 19,
+so the year's work is worth about 480 Elo at 8+0.08. The pairings alone
+give 1457, 1440 and 1456, far more consistent than `main`'s anchors
+were, so Stockfish's scale is more even between 1320 and 1700 than
+between 1700 and 2100. Draw rate between equals 7.5%, white advantage
+11 ± 9. Results in
+`~/.cache/wisdom-chess/match/results/20261018-162638-old-sf1320-sf1500-sf1700`.
