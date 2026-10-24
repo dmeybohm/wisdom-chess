@@ -2,6 +2,7 @@
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/piece.hpp"
+#include "wisdom-chess/engine/game_status.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 

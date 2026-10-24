@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/game_status.hpp"
 #include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom

@@ -6,38 +6,9 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/game_status.hpp"
 
 namespace wisdom
 {
-    using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
-
-    [[nodiscard]] constexpr auto
-    updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status) noexcept
-        -> BothPlayersDrawStatus
-    {
-        ASSERT( player == Color::White || player == Color::Black );
-        if (player == Color::White)
-            return { new_status, initial.second };
-        else
-            return { initial.first, new_status };
-    }
-
-    [[nodiscard]] constexpr auto
-    drawStatusIsReplied (DrawStatus draw_status) noexcept
-        -> bool
-    {
-        return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
-    }
-
-    [[nodiscard]] constexpr auto
-    bothPlayersReplied (BothPlayersDrawStatus both_players_status) noexcept
-        -> bool
-    {
-        return drawStatusIsReplied (both_players_status.first)
-            && drawStatusIsReplied (both_players_status.second);
-    }
-
     class History
     {
     public:
@@ -154,30 +125,6 @@ namespace wisdom
         }
         void getMoveHistory() const&& = delete;
 
-        [[nodiscard]] auto
-        getThreefoldRepetitionStatus() const noexcept
-            -> DrawStatus
-        {
-            return my_threefold_repetition_status;
-        }
-
-        void setThreefoldRepetitionStatus (DrawStatus status) noexcept
-        {
-            my_threefold_repetition_status = status;
-        }
-
-        [[nodiscard]] auto
-        getFiftyMovesWithoutProgressStatus() const noexcept
-            -> DrawStatus
-        {
-            return my_fifty_moves_without_progress_status;
-        }
-
-        void setFiftyMovesWithoutProgressStatus (DrawStatus status) noexcept
-        {
-            my_fifty_moves_without_progress_status = status;
-        }
-
         friend auto
         operator<< (std::ostream& os, const History& code)
             -> std::ostream&;
@@ -187,8 +134,5 @@ namespace wisdom
         vector<Board> my_stored_boards {};
         vector<Move> my_move_history {};
         int my_tentative_nesting_count = 0;
-
-        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
-        DrawStatus my_fifty_moves_without_progress_status = DrawStatus::NotReached;
     };
 }

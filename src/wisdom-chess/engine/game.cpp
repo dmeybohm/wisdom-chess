@@ -17,16 +17,41 @@ namespace wisdom
     {
         constexpr Players Default_Players { Player::Human, Player::ChessEngine };
 
-        auto
-        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
-             -> DrawStatus
+        // Each player's answer to a proposed draw, White's first.
+        using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
+
+        [[nodiscard]] constexpr auto
+        updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status) noexcept
+            -> BothPlayersDrawStatus
         {
-            ASSERT( bothPlayersReplied (draw_desires) );
+            ASSERT( player == Color::White || player == Color::Black );
+            if (player == Color::White)
+                return { new_status, initial.second };
+            else
+                return { initial.first, new_status };
+        }
 
-            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
-            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
+        [[nodiscard]] constexpr auto
+        drawStatusIsReplied (DrawStatus draw_status) noexcept
+            -> bool
+        {
+            return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
+        }
 
-            bool accepted = white_wants_draw || black_wants_draw;
+        // The status of a proposed draw: not reached until both players
+        // have answered, and then accepted when either claims it.
+        [[nodiscard]] constexpr auto
+        proposedDrawStatus (BothPlayersDrawStatus both_players_status) noexcept
+            -> DrawStatus
+        {
+            if (!drawStatusIsReplied (both_players_status.first)
+                || !drawStatusIsReplied (both_players_status.second))
+            {
+                return DrawStatus::NotReached;
+            }
+
+            bool accepted = both_players_status.first == DrawStatus::Accepted
+                || both_players_status.second == DrawStatus::Accepted;
             return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
         }
     }
@@ -51,6 +76,7 @@ namespace wisdom
         // Set when the caller arbitrates the draws.
         optional<DrawLimits> external_draw_limits {};
 
+        // Each player's answer to each draw the game has proposed.
         BothPlayersDrawStatus third_repetition_draw {
             DrawStatus::NotReached,
             DrawStatus::NotReached
@@ -60,16 +86,19 @@ namespace wisdom
             DrawStatus::NotReached
         };
 
-        void updateThreefoldRepetitionDrawStatus() noexcept
+        [[nodiscard]] auto
+        drawStatus (ProposedDrawType draw_type) const noexcept
+            -> DrawStatus
         {
-            auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
-            history.setThreefoldRepetitionStatus (status);
-        }
-
-        void updateFiftyMovesWithoutProgressDrawStatus() noexcept
-        {
-            auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
-            history.setFiftyMovesWithoutProgressStatus (status);
+            switch (draw_type)
+            {
+                case ProposedDrawType::ThreeFoldRepetition:
+                    return proposedDrawStatus (third_repetition_draw);
+                case ProposedDrawType::FiftyMovesWithoutProgress:
+                    return proposedDrawStatus (fifty_moves_without_progress_draw);
+                default:
+                    PRECONDITION_FAILED( "a proposed draw type" );
+            }
         }
     };
 
@@ -165,7 +194,8 @@ namespace wisdom
 
         if (my_pimpl->history.isThirdRepetition (my_pimpl->current_board))
         {
-            auto third_repetition_status = my_pimpl->history.getThreefoldRepetitionStatus();
+            auto third_repetition_status
+                = my_pimpl->drawStatus (ProposedDrawType::ThreeFoldRepetition);
             using enum DrawStatus;
             switch (third_repetition_status)
             {
@@ -185,7 +215,8 @@ namespace wisdom
 
         if (History::hasBeenFiftyMovesWithoutProgress (getBoard()))
         {
-            auto fifty_moves_status = my_pimpl->history.getFiftyMovesWithoutProgressStatus();
+            auto fifty_moves_status
+                = my_pimpl->drawStatus (ProposedDrawType::FiftyMovesWithoutProgress);
             using enum DrawStatus;
             switch (fifty_moves_status)
             {
@@ -311,15 +342,11 @@ namespace wisdom
             case ProposedDrawType::ThreeFoldRepetition:
                 my_pimpl->third_repetition_draw
                     = updateDrawStatus (my_pimpl->third_repetition_draw, who, draw_status);
-                if (bothPlayersReplied (my_pimpl->third_repetition_draw))
-                    my_pimpl->updateThreefoldRepetitionDrawStatus();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
                 my_pimpl->fifty_moves_without_progress_draw
                     = updateDrawStatus (my_pimpl->fifty_moves_without_progress_draw, who, draw_status);
-                if (bothPlayersReplied (my_pimpl->fifty_moves_without_progress_draw))
-                    my_pimpl->updateFiftyMovesWithoutProgressDrawStatus();
                 break;
         }
     }
@@ -392,10 +419,11 @@ namespace wisdom
             return *my_pimpl->external_draw_limits;
 
         // A declined draw stands until the game is drawn without a claim.
-        const auto& history = my_pimpl->history;
-        bool repetition_declined = history.getThreefoldRepetitionStatus() == DrawStatus::Declined;
+        bool repetition_declined
+            = my_pimpl->drawStatus (ProposedDrawType::ThreeFoldRepetition) == DrawStatus::Declined;
         bool no_progress_declined
-            = history.getFiftyMovesWithoutProgressStatus() == DrawStatus::Declined;
+            = my_pimpl->drawStatus (ProposedDrawType::FiftyMovesWithoutProgress)
+                == DrawStatus::Declined;
         const auto& repetition_limits
             = repetition_declined ? Automatic_Draw_Limits : Claimable_Draw_Limits;
         const auto& no_progress_limits
