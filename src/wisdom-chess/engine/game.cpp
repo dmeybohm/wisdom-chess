@@ -18,7 +18,7 @@ namespace wisdom
         constexpr Players Default_Players { Player::Human, Player::ChessEngine };
 
         auto
-        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
+        drawDesiresToDrawStatus (BothPlayersDrawStatus draw_desires) noexcept
              -> DrawStatus
         {
             ASSERT( bothPlayersReplied (draw_desires) );
@@ -62,13 +62,13 @@ namespace wisdom
 
         void updateThreefoldRepetitionDrawStatus() noexcept
         {
-            auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
+            auto status = drawDesiresToDrawStatus (third_repetition_draw);
             history.setThreefoldRepetitionStatus (status);
         }
 
         void updateFiftyMovesWithoutProgressDrawStatus() noexcept
         {
-            auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
+            auto status = drawDesiresToDrawStatus (fifty_moves_without_progress_draw);
             history.setFiftyMovesWithoutProgressStatus (status);
         }
     };

@@ -114,8 +114,8 @@ TEST_CASE( "parsePackedMove()" )
     SUBCASE( "A move to its own square is empty" )
     {
         CHECK( parsePackedMove (0) == nullopt );
-        CHECK( parsePackedMove (packFields (12, 12, Combined_Default)) == nullopt );
-        CHECK( parsePackedMove (packFields (12, 12, Combined_Normal_Capture)) == nullopt );
+        CHECK( parsePackedMove (packFields (12, 12, to_underlying (MoveCategory::Default))) == nullopt );
+        CHECK( parsePackedMove (packFields (12, 12, to_underlying (MoveCategory::NormalCapturing))) == nullopt );
     }
 
     SUBCASE( "A kind no move has is empty" )
