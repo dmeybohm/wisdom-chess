@@ -3,7 +3,6 @@
 
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/lib/logger.hpp"

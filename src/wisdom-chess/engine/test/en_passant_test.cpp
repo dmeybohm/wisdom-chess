@@ -1,6 +1,5 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 
@@ -212,8 +211,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
     SUBCASE( "The target stays on the board for FEN output" )
     {
         czstring fen_text = "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1";
-        FenParser fen { fen_text };
-        auto board = fen.buildBoard();
+        auto board = Board::fromFen (fen_text);
 
         CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
         CHECK( board.getAnyEnPassantTarget().has_value() );

@@ -3,7 +3,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/lib/str.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
 #include "wisdom-chess-tests.hpp"
@@ -15,7 +14,6 @@ using wisdom::Board;
 using wisdom::BoardBuilder;
 using wisdom::Color;
 using wisdom::Piece;
-using wisdom::FenParser;
 
 TEST_CASE( "Perft move list" )
 {

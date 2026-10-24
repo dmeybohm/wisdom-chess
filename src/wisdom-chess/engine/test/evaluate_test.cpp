@@ -1,6 +1,5 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
@@ -10,13 +9,6 @@ using namespace wisdom;
 
 namespace
 {
-    auto
-    boardFromFen (czstring fen_text)
-        -> Board
-    {
-        FenParser parser { fen_text };
-        return parser.buildBoard();
-    }
 
     constexpr auto Fools_Mate = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
     constexpr auto Scholars_Mate
@@ -40,18 +32,18 @@ TEST_CASE( "Checkmate detection" )
 
     SUBCASE( "White is checkmated" )
     {
-        CHECK( isCheckmated (boardFromFen (Fools_Mate)) );
+        CHECK( isCheckmated (Board::fromFen (Fools_Mate)) );
     }
 
     SUBCASE( "Black is checkmated" )
     {
-        CHECK( isCheckmated (boardFromFen (Scholars_Mate)) );
+        CHECK( isCheckmated (Board::fromFen (Scholars_Mate)) );
     }
 
     SUBCASE( "A check that can be answered by capturing the checker is not checkmate" )
     {
         // The same queen as in scholar's mate, but without the bishop defending it.
-        auto board = boardFromFen (
+        auto board = Board::fromFen (
             "r1bqkb1r/pppp1Qpp/2n2n2/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 0 4"
         );
 
@@ -61,18 +53,18 @@ TEST_CASE( "Checkmate detection" )
     SUBCASE( "A check that can only be blocked is not checkmate" )
     {
         // The rook can block on g7.
-        auto board = boardFromFen ("6rk/7p/8/8/8/8/1B6/K7 b - - 0 1");
+        auto board = Board::fromFen ("6rk/7p/8/8/8/8/1B6/K7 b - - 0 1");
         CHECK( !isCheckmated (board) );
 
         // A light-squared bishop in its place cannot.
-        auto without_blocker = boardFromFen ("6bk/7p/8/8/8/8/1B6/K7 b - - 0 1");
+        auto without_blocker = Board::fromFen ("6bk/7p/8/8/8/8/1B6/K7 b - - 0 1");
         CHECK( isCheckmated (without_blocker) );
     }
 
     SUBCASE( "Stalemate is not checkmate" )
     {
-        CHECK( !isCheckmated (boardFromFen (White_Stalemated)) );
-        CHECK( !isCheckmated (boardFromFen (Black_Stalemated)) );
+        CHECK( !isCheckmated (Board::fromFen (White_Stalemated)) );
+        CHECK( !isCheckmated (Board::fromFen (Black_Stalemated)) );
     }
 }
 
@@ -80,18 +72,18 @@ TEST_CASE( "Stalemate detection" )
 {
     SUBCASE( "White is stalemated" )
     {
-        CHECK( isStalemated (boardFromFen (White_Stalemated)) );
+        CHECK( isStalemated (Board::fromFen (White_Stalemated)) );
     }
 
     SUBCASE( "Black is stalemated" )
     {
-        CHECK( isStalemated (boardFromFen (Black_Stalemated)) );
+        CHECK( isStalemated (Board::fromFen (Black_Stalemated)) );
     }
 
     SUBCASE( "Checkmate is not stalemate" )
     {
-        CHECK( !isStalemated (boardFromFen (Fools_Mate)) );
-        CHECK( !isStalemated (boardFromFen (Scholars_Mate)) );
+        CHECK( !isStalemated (Board::fromFen (Fools_Mate)) );
+        CHECK( !isStalemated (Board::fromFen (Scholars_Mate)) );
     }
 
     SUBCASE( "The starting position is not stalemate" )
@@ -105,17 +97,17 @@ TEST_CASE( "Stalemate detection" )
 
     SUBCASE( "A spare pawn move prevents stalemate" )
     {
-        auto board = boardFromFen ("7k/5Q2/6K1/8/8/p7/P7/8 b - - 0 1");
+        auto board = Board::fromFen ("7k/5Q2/6K1/8/8/p7/P7/8 b - - 0 1");
         CHECK( isStalemated (board) );
 
-        auto with_spare_move = boardFromFen ("7k/5Q2/6K1/8/p7/8/P7/8 b - - 0 1");
+        auto with_spare_move = Board::fromFen ("7k/5Q2/6K1/8/p7/8/P7/8 b - - 0 1");
         CHECK( !isStalemated (with_spare_move) );
     }
 
     SUBCASE( "The same position is stalemate only for the player it traps" )
     {
-        auto trapped_to_move = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
-        auto other_to_move = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 w - - 0 1");
+        auto trapped_to_move = Board::fromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+        auto other_to_move = Board::fromFen ("7k/5Q2/6K1/8/8/8/8/8 w - - 0 1");
 
         CHECK( isStalemated (trapped_to_move) );
         CHECK( !isStalemated (other_to_move) );
@@ -133,7 +125,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "A pinned piece cannot leave the pin" )
     {
-        auto board = boardFromFen ("k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1");
+        auto board = Board::fromFen ("k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1");
 
         CHECK( !is_legal (board, Color::White, "e2 d2") );
         CHECK( is_legal (board, Color::White, "e2 e5") );
@@ -142,7 +134,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "The king cannot move into check" )
     {
-        auto board = boardFromFen ("k2r4/8/8/8/8/8/8/4K3 w - - 0 1");
+        auto board = Board::fromFen ("k2r4/8/8/8/8/8/8/4K3 w - - 0 1");
 
         CHECK( !is_legal (board, Color::White, "e1 d1") );
         CHECK( is_legal (board, Color::White, "e1 f1") );
@@ -150,7 +142,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "A check must be answered" )
     {
-        auto board = boardFromFen ("k3r3/8/8/8/8/8/8/R3K3 w - - 0 1");
+        auto board = Board::fromFen ("k3r3/8/8/8/8/8/8/R3K3 w - - 0 1");
 
         CHECK( !is_legal (board, Color::White, "a1 a2") );
         CHECK( is_legal (board, Color::White, "e1 d1") );
@@ -158,7 +150,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "Castling through an attacked square" )
     {
-        auto board = boardFromFen ("5r1k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto board = Board::fromFen ("5r1k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( !is_legal (board, Color::White, "o-o") );
         CHECK( is_legal (board, Color::White, "o-o-o") );
@@ -166,7 +158,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "Castling onto an attacked square" )
     {
-        auto board = boardFromFen ("6rk/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto board = Board::fromFen ("6rk/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( !is_legal (board, Color::White, "o-o") );
         CHECK( is_legal (board, Color::White, "o-o-o") );
@@ -174,7 +166,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "Castling out of check" )
     {
-        auto board = boardFromFen ("4r2k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto board = Board::fromFen ("4r2k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( !is_legal (board, Color::White, "o-o") );
         CHECK( !is_legal (board, Color::White, "o-o-o") );
@@ -182,7 +174,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "Queenside castling through an attacked square" )
     {
-        auto board = boardFromFen ("3r3k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto board = Board::fromFen ("3r3k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( !is_legal (board, Color::White, "o-o-o") );
         CHECK( is_legal (board, Color::White, "o-o") );
@@ -190,8 +182,8 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "An attack on the rook or on b1 does not prevent castling" )
     {
-        auto attacked_rooks = boardFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQ - 0 1");
-        auto attacked_b1 = boardFromFen ("1r5k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto attacked_rooks = Board::fromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto attacked_b1 = Board::fromFen ("1r5k/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( is_legal (attacked_rooks, Color::White, "o-o") );
         CHECK( is_legal (attacked_rooks, Color::White, "o-o-o") );
@@ -200,7 +192,7 @@ TEST_CASE( "isLegalPositionAfterMove" )
 
     SUBCASE( "The same rules apply to Black" )
     {
-        auto board = boardFromFen ("r3k2r/8/8/8/8/8/8/5R1K b kq - 0 1");
+        auto board = Board::fromFen ("r3k2r/8/8/8/8/8/8/5R1K b kq - 0 1");
 
         CHECK( !is_legal (board, Color::Black, "o-o") );
         CHECK( is_legal (board, Color::Black, "o-o-o") );
@@ -221,7 +213,7 @@ TEST_CASE( "Checkmate scores" )
 
     SUBCASE( "A checkmated player gets the mate score for the distance" )
     {
-        auto board = boardFromFen (Fools_Mate);
+        auto board = Board::fromFen (Fools_Mate);
 
         CHECK( evaluate (board, Color::White, 0) == -1 * checkmateScoreInMoves (0) );
         CHECK( evaluate (board, Color::White, 3) == -1 * checkmateScoreInMoves (3) );
@@ -230,8 +222,8 @@ TEST_CASE( "Checkmate scores" )
 
     SUBCASE( "The player giving checkmate gets the same score with the opposite sign" )
     {
-        auto white_mated = boardFromFen (Fools_Mate);
-        auto black_mated = boardFromFen (Scholars_Mate);
+        auto white_mated = Board::fromFen (Fools_Mate);
+        auto black_mated = Board::fromFen (Scholars_Mate);
 
         CHECK( evaluate (white_mated, Color::Black, 3) == checkmateScoreInMoves (3) );
         CHECK( evaluate (black_mated, Color::White, 3) == checkmateScoreInMoves (3) );
@@ -241,12 +233,12 @@ TEST_CASE( "Checkmate scores" )
 
     SUBCASE( "Without legal moves, check decides between mate and stalemate" )
     {
-        CHECK( evaluateWithoutLegalMoves (boardFromFen (Fools_Mate), Color::White, 2)
+        CHECK( evaluateWithoutLegalMoves (Board::fromFen (Fools_Mate), Color::White, 2)
                == -1 * checkmateScoreInMoves (2) );
-        CHECK( evaluateWithoutLegalMoves (boardFromFen (Scholars_Mate), Color::Black, 4)
+        CHECK( evaluateWithoutLegalMoves (Board::fromFen (Scholars_Mate), Color::Black, 4)
                == -1 * checkmateScoreInMoves (4) );
-        CHECK( evaluateWithoutLegalMoves (boardFromFen (White_Stalemated), Color::White, 2) == 0 );
-        CHECK( evaluateWithoutLegalMoves (boardFromFen (Black_Stalemated), Color::Black, 2) == 0 );
+        CHECK( evaluateWithoutLegalMoves (Board::fromFen (White_Stalemated), Color::White, 2) == 0 );
+        CHECK( evaluateWithoutLegalMoves (Board::fromFen (Black_Stalemated), Color::Black, 2) == 0 );
     }
 }
 
@@ -272,7 +264,7 @@ TEST_CASE( "Evaluating a position" )
         for (auto fen_text : fens)
         {
             INFO( fen_text );
-            auto board = boardFromFen (fen_text);
+            auto board = Board::fromFen (fen_text);
 
             CHECK( evaluate (board, Color::White, 0) == -1 * evaluate (board, Color::Black, 0) );
         }
@@ -280,10 +272,10 @@ TEST_CASE( "Evaluating a position" )
 
     SUBCASE( "A position and its mirror image score the same for the opposite colors" )
     {
-        auto board = boardFromFen (
+        auto board = Board::fromFen (
             "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"
         );
-        auto mirrored = boardFromFen (
+        auto mirrored = Board::fromFen (
             "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1"
         );
 
@@ -293,7 +285,7 @@ TEST_CASE( "Evaluating a position" )
 
     SUBCASE( "Extra material is worth more than where it stands" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/8/8/8/Q3K3 w - - 0 1");
+        auto board = Board::fromFen ("4k3/8/8/8/8/8/8/Q3K3 w - - 0 1");
 
         CHECK( evaluate (board, Color::White, 0) > 0 );
         CHECK( evaluate (board, Color::Black, 0) < 0 );
@@ -301,10 +293,10 @@ TEST_CASE( "Evaluating a position" )
 
     SUBCASE( "Skipping the mate test changes only a checkmated position's score" )
     {
-        auto board = boardFromFen (
+        auto board = Board::fromFen (
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
         );
-        auto mated = boardFromFen (Fools_Mate);
+        auto mated = Board::fromFen (Fools_Mate);
 
         CHECK( evaluateWithoutMateTest (board, Color::White) == evaluate (board, Color::White, 0) );
         CHECK( evaluateWithoutMateTest (board, Color::Black) == evaluate (board, Color::Black, 0) );
@@ -327,7 +319,7 @@ TEST_CASE( "Castling penalty" )
 
     SUBCASE( "No penalty with both rights" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1");
+        auto board = Board::fromFen ("4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1");
 
         CHECK( castling_term (board, Color::White) == Black_Penalty );
         CHECK( castling_term (board, Color::Black) == -Black_Penalty );
@@ -335,8 +327,8 @@ TEST_CASE( "Castling penalty" )
 
     SUBCASE( "Half the penalty for one lost right" )
     {
-        auto kingside_only = boardFromFen ("4k3/8/8/8/8/8/8/R3K2R w K - 0 1");
-        auto queenside_only = boardFromFen ("4k3/8/8/8/8/8/8/R3K2R w Q - 0 1");
+        auto kingside_only = Board::fromFen ("4k3/8/8/8/8/8/8/R3K2R w K - 0 1");
+        auto queenside_only = Board::fromFen ("4k3/8/8/8/8/8/8/R3K2R w Q - 0 1");
 
         CHECK( castling_term (kingside_only, Color::White) == Black_Penalty - 50 );
         CHECK( castling_term (queenside_only, Color::White) == Black_Penalty - 50 );
@@ -344,7 +336,7 @@ TEST_CASE( "Castling penalty" )
 
     SUBCASE( "The full penalty for losing both rights" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/8/8/8/R3K2R w - - 0 1");
+        auto board = Board::fromFen ("4k3/8/8/8/8/8/8/R3K2R w - - 0 1");
 
         CHECK( castling_term (board, Color::White) == 0 );
         CHECK( castling_term (board, Color::Black) == 0 );
@@ -352,8 +344,8 @@ TEST_CASE( "Castling penalty" )
 
     SUBCASE( "No penalty for a king that looks castled" )
     {
-        auto kingside = boardFromFen ("4k3/8/8/8/8/8/8/5RK1 w - - 0 1");
-        auto queenside = boardFromFen ("4k3/8/8/8/8/8/8/2KR4 w - - 0 1");
+        auto kingside = Board::fromFen ("4k3/8/8/8/8/8/8/5RK1 w - - 0 1");
+        auto queenside = Board::fromFen ("4k3/8/8/8/8/8/8/2KR4 w - - 0 1");
 
         CHECK( castling_term (kingside, Color::White) == Black_Penalty );
         CHECK( castling_term (queenside, Color::White) == Black_Penalty );
@@ -361,14 +353,14 @@ TEST_CASE( "Castling penalty" )
 
     SUBCASE( "A king on the castled square without the rook beside it is penalized" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/8/8/8/6KR w - - 0 1");
+        auto board = Board::fromFen ("4k3/8/8/8/8/8/8/6KR w - - 0 1");
 
         CHECK( castling_term (board, Color::White) == 0 );
     }
 
     SUBCASE( "Black's castled king is recognized too" )
     {
-        auto board = boardFromFen ("5rk1/8/8/8/8/8/8/4K3 w - - 0 1");
+        auto board = Board::fromFen ("5rk1/8/8/8/8/8/8/4K3 w - - 0 1");
 
         CHECK( castling_term (board, Color::Black) == 100 );
         CHECK( castling_term (board, Color::White) == -100 );

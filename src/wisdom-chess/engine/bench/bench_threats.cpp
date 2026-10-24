@@ -2,26 +2,17 @@
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/threats.hpp"
-#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess/engine/bench/bench_positions.hpp"
 
 namespace wisdom::bench
 {
-    namespace
-    {
-        auto boardFromFen (czstring fen) -> Board
-        {
-            FenParser parser { fen };
-            return parser.buildBoard();
-        }
-    }
 
     void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         // King NOT threatened (common fast path): starting position, white king.
         {
-            auto board = boardFromFen (Starting_Position_Fen);
+            auto board = Board::fromFen (Starting_Position_Fen);
             auto king_coord = board.getKingPosition (Color::White);
 
             bench->run ("isKingThreatened/not-threatened", [&] {
@@ -32,7 +23,7 @@ namespace wisdom::bench
 
         // King IS threatened: position 4, black king is in check.
         {
-            auto board = boardFromFen (Position4_Fen);
+            auto board = Board::fromFen (Position4_Fen);
             // In position 4, black's king on e8 is threatened.
             auto king_coord = board.getKingPosition (Color::Black);
 
@@ -44,7 +35,7 @@ namespace wisdom::bench
 
         // Sweep all 64 squares: complex position (kiwipete), amortized average.
         {
-            auto board = boardFromFen (Kiwipete_Fen);
+            auto board = Board::fromFen (Kiwipete_Fen);
 
             bench->run ("isKingThreatened/sweep-64-squares", [&] {
                 int count = 0;
@@ -58,7 +49,7 @@ namespace wisdom::bench
 
         // Many-queens position: heavy threat-checking load.
         {
-            auto board = boardFromFen (Many_Queens_Fen);
+            auto board = Board::fromFen (Many_Queens_Fen);
             auto king_coord = board.getKingPosition (Color::Black);
 
             bench->run ("isKingThreatened/many-queens", [&] {

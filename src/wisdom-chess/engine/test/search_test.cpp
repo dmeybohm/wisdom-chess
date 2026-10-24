@@ -138,11 +138,10 @@ TEST_CASE( "Can find mate in 3" )
 //
 TEST_CASE( "Can find mate in 2 1/2" )
 {
-    FenParser fen { "4n3/2k2p2/p5p1/2pK4/1r6/1n6/8/8 b - - 0 1" };
-    auto game = fen.build();
+    auto board = Board::fromFen ("4n3/2k2p2/p5p1/2pK4/1r6/1n6/8/8 b - - 0 1");
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.getBoard(), 6);
+    IterativeSearch search = helper.build (board, 6);
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
@@ -233,14 +232,12 @@ TEST_CASE( "Promoting move is taken if possible" )
 
 TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
 {
-    FenParser parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
-
-    auto game = parser.build();
+    auto board = Board::fromFen ("rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1");
 
     SearchHelper helper;
-    auto search = helper.build (game.getBoard(), 4);
+    auto search = helper.build (board, 4);
 
-    auto board_str = game.getBoard().asString();
+    auto board_str = board.asString();
     INFO( board_str );
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
@@ -249,13 +246,11 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
 
 TEST_CASE( "Finding moves regression test" )
 {
-    FenParser parser { "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1" };
-
-    auto game = parser.build();
+    auto board = Board::fromFen ("r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1");
     SearchHelper helper;
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search = helper.build (game.getBoard(), 2, 10);
+    IterativeSearch search = helper.build (board, 2, 10);
 
     SearchResult result = search.iterativelyDeepen (Color::White);
     REQUIRE( result.move.has_value() );
@@ -263,12 +258,11 @@ TEST_CASE( "Finding moves regression test" )
 
 TEST_CASE( "A move-assigned search is the one that was moved in" )
 {
-    FenParser mate_in_one { "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1" };
-    auto game = mate_in_one.build();
+    auto board = Board::fromFen ("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
     SearchHelper helper;
 
     IterativeSearch search = helper.build (Board { BoardBuilder::fromDefaultPosition() }, 2, 30);
-    search = helper.build (game.getBoard(), 2, 5);
+    search = helper.build (board, 2, 5);
 
     CHECK( search.getMoveTimer().getTimeLimit() == chrono::seconds { 5 } );
 
@@ -384,14 +378,12 @@ TEST_CASE( "Can avoid stalemate" )
 
 TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 {
-    FenParser fen { "r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 " };
+    auto board = Board::fromFen ("r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 ");
 
     SUBCASE( "Depth 6" )
     {
-        auto game = fen.build();
-
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.getBoard(), 6, 10);
+        IterativeSearch search = helper.build (board, 6, 10);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
@@ -400,10 +392,8 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 
     SUBCASE( "Depth 8" )
     {
-        auto game = fen.build();
-
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.getBoard(), 8, 10);
+        IterativeSearch search = helper.build (board, 8, 10);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
@@ -658,9 +648,7 @@ TEST_CASE( "A stalemate at the horizon is not scored as a win" )
     // White is a king and two pawns up, but Ka6, h3 and h4 each leave the
     // black king without a move. Only a king move that unguards a7 keeps
     // the game going, at the cost of that pawn.
-    FenParser fen { "k7/P7/1K6/8/8/8/7P/8 w - - 0 1" };
-    auto game = fen.build();
-    Board board { game.getBoard() };
+    auto board = Board::fromFen ("k7/P7/1K6/8/8/8/7P/8 w - - 0 1");
 
     SearchHelper helper;
     auto search = helper.build (board, 1);
@@ -678,12 +666,11 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
     // mate is read as a draw.
     auto find_move = [] (czstring fen_string, DrawLimits draw_limits)
     {
-        FenParser fen { fen_string };
-        auto game = fen.build();
+        auto board = Board::fromFen (fen_string);
 
         SearchHelper helper;
         helper.draw_limits = draw_limits;
-        auto search = helper.build (game.getBoard(), 2);
+        auto search = helper.build (board, 2);
         return search.iterativelyDeepen (Color::White);
     };
 
@@ -709,14 +696,13 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 TEST_CASE( "The search applies the draw limits it is given" )
 {
     // White is a rook down, and neither of its two moves resets the count.
-    FenParser fen { "4k3/8/8/8/8/8/r7/4K3 w - - 120 90" };
-    auto game = fen.build();
+    auto board = Board::fromFen ("4k3/8/8/8/8/8/r7/4K3 w - - 120 90");
 
-    auto search_with = [&game] (DrawLimits draw_limits)
+    auto search_with = [&board] (DrawLimits draw_limits)
     {
         SearchHelper helper;
         helper.draw_limits = draw_limits;
-        auto search = helper.build (game.getBoard(), 2);
+        auto search = helper.build (board, 2);
         return search.iterativelyDeepen (Color::White);
     };
 
@@ -732,16 +718,10 @@ TEST_CASE( "The search applies the draw limits it is given" )
 
 TEST_CASE( "Quiescence search" )
 {
-    auto board_from_fen = [] (czstring fen_text) {
-        FenParser fen { fen_text };
-        auto game = fen.build();
-        return Board { game.getBoard() };
-    };
-
     SUBCASE( "A defended pawn is not taken at the horizon" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("4k3/8/4p3/3p4/8/8/8/3QK3 w - - 0 1");
+        auto board = Board::fromFen ("4k3/8/4p3/3p4/8/8/8/3QK3 w - - 0 1");
         auto search = helper.build (board, 1);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
@@ -752,7 +732,7 @@ TEST_CASE( "Quiescence search" )
     SUBCASE( "A capture that wins after the recapture is taken" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("3rk3/8/8/3n4/8/8/3R4/3QK3 w - - 0 1");
+        auto board = Board::fromFen ("3rk3/8/8/3n4/8/8/3R4/3QK3 w - - 0 1");
         auto search = helper.build (board, 2);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
@@ -763,7 +743,7 @@ TEST_CASE( "Quiescence search" )
     SUBCASE( "A mate on the last ply is found by searching the evasions" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
+        auto board = Board::fromFen ("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
         auto search = helper.build (board, 1);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
@@ -775,7 +755,7 @@ TEST_CASE( "Quiescence search" )
     SUBCASE( "A check with an evasion is not scored as mate" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("6k1/5pp1/8/8/8/8/8/R5K1 w - - 0 1");
+        auto board = Board::fromFen ("6k1/5pp1/8/8/8/8/8/R5K1 w - - 0 1");
         auto search = helper.build (board, 1);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
@@ -797,7 +777,7 @@ TEST_CASE( "Quiescence search" )
     SUBCASE( "The root is stored without an en passant target nothing can capture" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");
+        auto board = Board::fromFen ("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::Black);
 
@@ -811,7 +791,7 @@ TEST_CASE( "Quiescence search" )
     SUBCASE( "A capture into insufficient material keeps the root out of the table" )
     {
         SearchHelper helper;
-        auto board = board_from_fen ("4k3/8/1b6/8/3N4/8/8/4K3 w - - 0 1");
+        auto board = Board::fromFen ("4k3/8/1b6/8/3N4/8/8/4K3 w - - 0 1");
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::White);
 
